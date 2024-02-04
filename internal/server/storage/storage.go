@@ -32,7 +32,6 @@ func (m *MemStorage) GetCounter(key string) (int64, error) {
 	return k, nil
 }
 
-
 func (m *MemStorage) GetGauge(key string) (float64, error) {
 	k, ok := m.gauge[key]
 	if !ok {

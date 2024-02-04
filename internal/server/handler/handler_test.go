@@ -59,14 +59,17 @@ func TestGetMetric(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err1 := http.NewRequest(http.MethodPost, r.URL+tt.url1, nil)
-			r1, err2 := http.NewRequest(http.MethodGet, r.URL+tt.url2, nil)
+			r1, err1 := http.NewRequest(http.MethodPost, r.URL+tt.url1, nil)
+			r2, err2 := http.NewRequest(http.MethodGet, r.URL+tt.url2, nil)
 			assert.NoError(t, err1)
 			assert.NoError(t, err2)
-			response, err := r.Client().Do(r1)
-			assert.NoError(t, err)
-			response.Body.Close()
-			assert.Equal(t, tt.expectedCode, response.StatusCode)
+			response1, err4 := r.Client().Do(r1)
+			response2, err5 := r.Client().Do(r2)
+			assert.NoError(t, err4)
+			assert.NoError(t, err5)
+			response1.Body.Close()
+			response2.Body.Close()
+			assert.Equal(t, tt.expectedCode, response2.StatusCode)
 		})
 	}
 }
