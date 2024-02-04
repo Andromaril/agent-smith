@@ -51,10 +51,18 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 		change := chi.URLParam(req, "change")
 		name := chi.URLParam(req, "name")
 		if change == "counter" {
-			r := m.GetCounter(name)
+			r, err := m.GetCounter(name)
+			if err != nil {
+				http.Error(res, "Incorrect metrics" , http.StatusNotFound)
+				return
+			}
 			res.Write([]byte(fmt.Sprint(r)))
 			} else if change == "gauge" {
-				r := m.GetGauge(name)
+				r, err := m.GetGauge(name)
+				if err != nil {
+					http.Error(res, "Incorrect metrics" , http.StatusNotFound)
+					return
+				}
 				res.Write([]byte(fmt.Sprint(r)))
 			} else {
 				http.Error(res, "Incorrect metrics" , http.StatusBadRequest)

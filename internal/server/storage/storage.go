@@ -24,14 +24,21 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 	return nil
 }
 
-func (m *MemStorage) GetCounter(key string) int64 {
-	k := m.counter[key]
-	return k
+func (m *MemStorage) GetCounter(key string) (int64, error) {
+	k, ok := m.counter[key]
+	if !ok {
+		return 0, fmt.Errorf("not found")
+	}
+	return k, nil
 }
 
-func (m *MemStorage) GetGauge(key string) float64 {
-	k := m.gauge[key]
-	return k
+
+func (m *MemStorage) GetGauge(key string) (float64, error) {
+	k, ok := m.gauge[key]
+	if !ok {
+		return 0, fmt.Errorf("not found")
+	}
+	return k, nil
 }
 
 func (m *MemStorage) PrintMetric() string {
