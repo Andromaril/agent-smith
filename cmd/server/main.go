@@ -17,7 +17,7 @@ func main() {
 	r.Route("/update", func(r chi.Router) {
 		r.Post("/{change}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
-	r.Get("/", handler.GetHtmlMetric(newMetric))
+	r.Get("/", handler.GetHTMLMetric(newMetric))
 	err := http.ListenAndServe(`:8080`, r)
 	if err != nil {
 		panic(err)

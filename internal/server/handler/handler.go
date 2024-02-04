@@ -64,7 +64,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 	}
 
 
-func GetHtmlMetric(m *storage.MemStorage) http.HandlerFunc {
+func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
 			if req.Method != http.MethodGet {
 				res.WriteHeader(http.StatusMethodNotAllowed)

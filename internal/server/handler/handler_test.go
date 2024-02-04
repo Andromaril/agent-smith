@@ -71,16 +71,17 @@ func TestGetMetric(t *testing.T) {
 	}
 }
 
-func TestGetHtmlMetric(t *testing.T) {
+func TestGetHTMLMetric(t *testing.T) {
 	s := storage.NewMemStorage()
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
-	ts.Get("/", GetHtmlMetric(s))
+	ts.Get("/", GetHTMLMetric(s))
 	r1, err1 := http.NewRequest(http.MethodGet, r.URL, nil)
 	assert.NoError(t, err1)
 	response, err2 := r.Client().Do(r1)
 	assert.NoError(t, err2)
+	response.Body.Close()
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	assert.Equal(t, "text/html", response.Header.Get("Content-Type"))
 }
