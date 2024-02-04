@@ -2,7 +2,6 @@ package metric
 
 import (
 	"fmt"
-	//"net/http"
 	"runtime"
 	"github.com/go-resty/resty/v2"
 )
@@ -13,23 +12,19 @@ var PollCount int64
 func SendGaugeMetric(name string, value float64) {
 	client := resty.New()
 	url := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%v", name, value)
-	//resp, err := http.Post(url, "text/plain", nil)
 	_, err := client.R().Post(url)
 	if err != nil {
 		panic(err)
 	}
-	//defer resp.Body.Close()
 }
 
 func SendCounterMetric(name string, value int64) {
 	client := resty.New()
 	url := fmt.Sprintf("http://localhost:8080/update/counter/%s/%v", name, value)
 	_, err := client.R().Post(url)
-	//resp, err := http.Post(url, "text/plain", nil)
 	if err != nil {
 		panic(err)
 	}
-	//defer resp.Body.Close()
 }
 
 func SendAllMetric() {
