@@ -1,7 +1,7 @@
 package metric
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/andromaril/agent-smith/internal/flag"
 	"runtime"
