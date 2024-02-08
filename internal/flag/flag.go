@@ -1,23 +1,35 @@
 package flag
 
 import (
+    "github.com/caarlos0/env/v6"
     "flag"
+    "os"
 )
 var (
 	FlagRunAddr string
     ReportInterval int64
     PollInterval int64
 )
-// неэкспортированная переменная flagRunAddr содержит адрес и порт для запуска сервера
 
-// parseFlags обрабатывает аргументы командной строки 
-// и сохраняет их значения в соответствующих переменных
+
+type Config struct {
+    ReportInterval int64 `env:"REPORT_INTERVAL"`
+    PollInterval int64 `env:"POLL_INTERVAL"`
+}
+
 func ParseFlags() {
-    // регистрируем переменную flagRunAddr 
-    // как аргумент -a со значением :8080 по умолчанию
+    var cfg Config
     flag.Int64Var(&ReportInterval, "r", 10, "time to sleep for report interval")
     flag.Int64Var(&PollInterval, "p", 2, "time to sleep for poll interval")
     flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
-    // парсим переданные серверу аргументы в зарегистрированные переменные
     flag.Parse()
+    if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
+        FlagRunAddr = envRunAddr
+    }
+    err := env.Parse(&cfg)
+    if err != nil {
+        panic(err)
+    }
+
+
 }
