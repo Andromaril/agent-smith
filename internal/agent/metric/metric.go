@@ -23,7 +23,7 @@ func SendGaugeMetric(name string, value float64) {
 
 func SendCounterMetric(name string, value int64) {
 	client := resty.New()
-	url := fmt.Sprintf("http://localhost:8080/update/counter/%s/%v", name, value)
+	url := fmt.Sprintf("http://localhost:%s/update/gauge/%s/%v", flag.FlagRunAddr, name, value)
 	_, err := client.R().Post(url)
 	if err != nil {
 		panic(err)
