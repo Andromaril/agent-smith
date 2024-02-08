@@ -3,7 +3,7 @@ package metric
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	//"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/andromaril/agent-smith/internal/flag"
 	"runtime"
 )
 
@@ -13,7 +13,7 @@ var PollCount int64
 
 func SendGaugeMetric(name string, value float64) {
 	client := resty.New()
-	url := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%v", name, value)
+	url := fmt.Sprintf("http://localhost:%s/update/gauge/%s/%v", flag.FlagRunAddr, name, value)
 	fmt.Print(url)
 	_, err := client.R().Post(url)
 	if err != nil {
@@ -23,7 +23,7 @@ func SendGaugeMetric(name string, value float64) {
 
 func SendCounterMetric(name string, value int64) {
 	client := resty.New()
-	url := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%v", name, value)
+	url := fmt.Sprintf("http://localhost:%s/update/counter/%s/%v", flag.FlagRunAddr,name, value)
 	_, err := client.R().Post(url)
 	if err != nil {
 		panic(err)
