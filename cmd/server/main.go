@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	//"runtime/metrics"
 
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"

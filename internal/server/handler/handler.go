@@ -25,14 +25,12 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 		if change == "counter" {
 			if value1, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, value1)
-				//fmt.Println(value1)
 			} else {
 				http.Error(res, "Incorrect metrics" , http.StatusBadRequest)
 			}
 		} else if change == "gauge" {
 			if value1, err := strconv.ParseFloat(value, 64); err == nil {
 				m.NewGauge(spath[3], value1)
-				//fmt.Println(value1)
 			} else {
 				http.Error(res, "Incorrect metrics", http.StatusBadRequest)
 			}
@@ -79,7 +77,7 @@ func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
 				return
 			}
 			s := m.PrintMetric()
-			tem := "<html> <head> <title>Страница метрик </title> </head> <body> <h1>Список всех метрик</h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
+			tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
 			res.Header().Set("Content-Type", "text/html")
 			res.Write([]byte(tem))
 		}

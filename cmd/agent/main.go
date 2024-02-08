@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-// var RandomValue float64
-// var PollCount int64
-
 
 func main() {
 	flag.ParseFlags()
