@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	//"runtime/metrics"
 
@@ -23,7 +22,6 @@ func main() {
 		r.Post("/{change}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	fmt.Println("Running server on", flag.FlagRunAddr)
 	err := http.ListenAndServe(flag.FlagRunAddr, r)
 	if err != nil {
 		panic(err)
