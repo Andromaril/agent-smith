@@ -2,7 +2,6 @@ package flag
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strconv"
 )
@@ -28,7 +27,6 @@ func ParseFlags() {
 		}
 		ReportInterval = n
 	}
-	fmt.Println(ReportInterval)
 	if envPollInterval := os.Getenv("POLL_INTERVAL"); envPollInterval != "" {
 		n, err := strconv.ParseInt(envPollInterval, 10, 64)
 		if err != nil {
