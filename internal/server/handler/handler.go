@@ -12,16 +12,16 @@ import (
 
 func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		change := chi.URLParam(req, "change")
+		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
 		value := chi.URLParam(req, "value")
-		if change == "counter" {
+		if pattern == "counter" {
 			if v, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, v)
 			} else {
 				http.Error(res, "Incorrect metrics", http.StatusBadRequest)
 			}
-		} else if change == "gauge" {
+		} else if pattern == "gauge" {
 			if v, err := strconv.ParseFloat(value, 64); err == nil {
 				m.NewGauge(name, v)
 			} else {
@@ -35,16 +35,16 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 
 func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		change := chi.URLParam(req, "change")
+		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
-		if change == "counter" {
+		if pattern == "counter" {
 			r, err := m.GetCounter(name)
 			if err != nil {
 				http.Error(res, "Incorrect metrics", http.StatusNotFound)
 				return
 			}
 			res.Write([]byte(fmt.Sprint(r)))
-		} else if change == "gauge" {
+		} else if pattern == "gauge" {
 			r, err := m.GetGauge(name)
 			if err != nil {
 				http.Error(res, "Incorrect metrics", http.StatusNotFound)

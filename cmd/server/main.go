@@ -14,11 +14,11 @@ func main() {
 	newMetric := storage.NewMemStorage()
 	r := chi.NewRouter()
 	r.Route("/value", func(r chi.Router) {
-		r.Get("/{change}/{name}", handler.GetMetric(newMetric))
+		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 	})
 
 	r.Route("/update", func(r chi.Router) {
-		r.Post("/{change}/{name}/{value}", handler.GaugeandCounter(newMetric))
+		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
 	err := http.ListenAndServe(flag.FlagRunAddr, r)
