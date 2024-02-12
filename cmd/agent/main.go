@@ -9,19 +9,26 @@ import (
 	"github.com/andromaril/agent-smith/internal/flag"
 )
 
-func NewMetric() {
+//func NewMetric() {
+	//for {
+		//metric.SendAllMetric()
+		//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+	//}
+//}
+
+func UpdateMetric() {
 	for {
-		metric.SendAllMetric()
-		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+		creator.PollCount++
+		creator.RandomValue = rand.Float64()
+		time.Sleep(time.Second * time.Duration(flag.PollInterval))
 	}
 }
 
 func main() {
 	flag.ParseFlags()
-	go NewMetric()
+	go UpdateMetric()
 	for {
-		creator.PollCount++
-		creator.RandomValue = rand.Float64()
-		time.Sleep(time.Second * time.Duration(flag.PollInterval))
+		metric.SendAllMetric()
+		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }
