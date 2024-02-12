@@ -10,10 +10,10 @@ import (
 )
 
 //func NewMetric() {
-	//for {
-		//metric.SendAllMetric()
-		//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-	//}
+//for {
+//metric.SendAllMetric()
+//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+//}
 //}
 
 func UpdateMetric() {
@@ -28,7 +28,10 @@ func main() {
 	flag.ParseFlags()
 	go UpdateMetric()
 	for {
-		metric.SendAllMetric()
+		err := metric.SendAllMetric()
+		if err != nil {
+			panic(err)
+		}
 		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }

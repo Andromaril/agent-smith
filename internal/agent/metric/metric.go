@@ -28,7 +28,7 @@ func SendCounterMetric(name string, value int64) {
 	}
 }
 
-func SendAllMetric() {
+func SendAllMetric() error {
 	var metr runtime.MemStats
 	runtime.ReadMemStats(&metr)
 	f := creator.CreateFloatMetric()
@@ -39,4 +39,5 @@ func SendAllMetric() {
 	for key, value := range i {
 		SendCounterMetric(key, value)
 	}
+	return nil
 }
