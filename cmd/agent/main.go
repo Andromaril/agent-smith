@@ -27,6 +27,7 @@ func UpdateMetric() {
 func main() {
 	flag.ParseFlags()
 	go UpdateMetric()
+	time.Sleep(time.Second)
 	for {
 		err := metric.SendAllMetric()
 		if err != nil {
