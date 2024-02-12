@@ -7,8 +7,8 @@ import (
 
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
-	"github.com/stretchr/testify/assert"
 	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSendGaugeMetric(t *testing.T) {

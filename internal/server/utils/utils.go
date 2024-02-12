@@ -8,5 +8,4 @@ import (
 func ParseURL(url *url.URL) []string {
 	spath := strings.Split(url.Path, "/")
 	return spath
-
 }

@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
-	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/go-chi/chi/v5"
 )
 

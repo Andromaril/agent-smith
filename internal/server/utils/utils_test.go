@@ -1,16 +1,17 @@
 package utils
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseURL(t *testing.T) {
-	r1, _:= url.Parse("/update/gauge/test/1")
-	r2, _:= url.Parse("/update/gauge/test/2")
-	r3, _:= url.Parse("/update/gauge/")
-	r4, _:= url.Parse("/update/gauge/test/rt")
+	r1, _ := url.Parse("/update/gauge/test/1")
+	r2, _ := url.Parse("/update/gauge/test/2")
+	r3, _ := url.Parse("/update/gauge/")
+	r4, _ := url.Parse("/update/gauge/test/rt")
 
 	tests := []struct {
 		name string
