@@ -15,7 +15,7 @@ func TestGaugeandCounter(t *testing.T) {
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
-	ts.Post("/update/{change}/{name}/{value}", GaugeandCounter(s))
+	ts.Post("/update/{pattern}/{name}/{value}", GaugeandCounter(s))
 
 	tests := []struct {
 		name         string
@@ -44,8 +44,8 @@ func TestGetMetric(t *testing.T) {
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
-	ts.Post("/update/{change}/{name}/{value}", GaugeandCounter(s))
-	ts.Get("/value/{change}/{name}", GetMetric(s))
+	ts.Post("/update/{pattern}/{name}/{value}", GaugeandCounter(s))
+	ts.Get("/value/{pattern}/{name}", GetMetric(s))
 
 	tests := []struct {
 		name         string
