@@ -2,9 +2,9 @@ package flag
 
 import (
 	"flag"
+	"fmt"
 	"os"
-
-	"github.com/caarlos0/env/v6"
+	"strconv"
 )
 
 var (
@@ -13,13 +13,7 @@ var (
 	PollInterval   int64
 )
 
-type Config struct {
-	ReportInterval int64 `env:"REPORT_INTERVAL"`
-	PollInterval   int64 `env:"POLL_INTERVAL"`
-}
-
 func ParseFlags() {
-	var cfg Config
 	flag.Int64Var(&ReportInterval, "r", 10, "time to sleep for report interval")
 	flag.Int64Var(&PollInterval, "p", 2, "time to sleep for poll interval")
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
@@ -27,9 +21,19 @@ func ParseFlags() {
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
 	}
-	err := env.Parse(&cfg)
-	if err != nil {
-		panic(err)
+	if envReportInterval := os.Getenv("REPORT_INTERVAL"); envReportInterval != "" {
+		n, err := strconv.ParseInt(envReportInterval, 10, 64)
+		ReportInterval = n
+		if err != nil {
+			panic(err)
+		}
 	}
-
+	fmt.Println(ReportInterval)
+	if envPollInterval := os.Getenv("POLL_INTERVAL"); envPollInterval != "" {
+		n, err := strconv.ParseInt(envPollInterval, 10, 64)
+		PollInterval = n
+		if err != nil {
+			panic(err)
+		}
+	}
 }
