@@ -2,7 +2,6 @@ package metric
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/flag"
@@ -29,8 +28,6 @@ func SendCounterMetric(name string, value int64) {
 }
 
 func SendAllMetric() error {
-	var metr runtime.MemStats
-	runtime.ReadMemStats(&metr)
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
 	for key, value := range f {
