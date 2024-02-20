@@ -3,15 +3,22 @@ package main
 import (
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
-
 func main() {
 	newMetric := storage.NewMemStorage()
-	mux := http.NewServeMux()
-	mux.HandleFunc("/update/", handler.GaugeandCounter(newMetric))
-	err := http.ListenAndServe(`:8080`, mux)
+	r := chi.NewRouter()
+	r.Route("/value", func(r chi.Router) {
+		r.Get("/{change}/{name}", handler.GetMetric(newMetric))
+	})
+
+	r.Route("/update", func(r chi.Router) {
+		r.Post("/{change}/{name}/{value}", handler.GaugeandCounter(newMetric))
+	})
+	r.Get("/", handler.GetHTMLMetric(newMetric))
+	err := http.ListenAndServe(`:8080`, r)
 	if err != nil {
 		panic(err)
 	}
