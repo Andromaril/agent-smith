@@ -1,23 +1,31 @@
 package main
 
 import (
-	"github.com/andromaril/agent-smith/internal/agent/metric"
-	"github.com/andromaril/agent-smith/internal/flag"
 	"math/rand"
 	"time"
+
+	"github.com/andromaril/agent-smith/internal/agent/creator"
+	"github.com/andromaril/agent-smith/internal/agent/metric"
+	"github.com/andromaril/agent-smith/internal/flag"
 )
 
-// var RandomValue float64
-// var PollCount int64
-
+func UpdateMetric() {
+	for {
+		creator.PollCount++
+		creator.RandomValue = rand.Float64()
+		time.Sleep(time.Second * time.Duration(flag.PollInterval))
+	}
+}
 
 func main() {
 	flag.ParseFlags()
+	time.Sleep(time.Second)
+	go UpdateMetric()
 	for {
-		metric.PollCount++
-		metric.RandomValue = rand.Float64()
+		err := metric.SendAllMetric()
+		if err != nil {
+			panic(err)
+		}
 		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-		metric.SendAllMetric()
-		time.Sleep(time.Second * time.Duration(flag.PollInterval))
 	}
 }
