@@ -8,15 +8,13 @@ import (
 )
 
 type (
-	// берём структуру для хранения сведений об ответе
 	responseData struct {
 		status int
 		size   int
 	}
 
-	// добавляем реализацию http.ResponseWriter
 	loggingResponseWriter struct {
-		http.ResponseWriter // встраиваем оригинальный http.ResponseWriter
+		http.ResponseWriter
 		responseData        *responseData
 	}
 )
@@ -43,11 +41,10 @@ func WithLogging(sugar zap.SugaredLogger) func(http.Handler) http.Handler {
 		sugar.Infoln(
 			"uri", r.RequestURI,
 			"method", r.Method,
-			"status", responseData.status, // получаем перехваченный код статуса ответа
+			"status", responseData.status,
 			"duration", duration,
-			"size", responseData.size, // получаем перехваченный размер ответа
+			"size", responseData.size,
 		)
 	})
 }
-	//return http.HandlerFunc(logFn)
 }

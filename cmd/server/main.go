@@ -36,12 +36,8 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	//err := http.ListenAndServe(flag.FlagRunAddr, r)
-	//if err != nil {
-	//panic(err)
-	//}
+
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
-		// записываем в лог ошибку, если сервер не запустился
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
 }
