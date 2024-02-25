@@ -82,6 +82,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 			}
+			return
 		}
 	}
 }
@@ -124,6 +125,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 			}
+			return
 		}
 	}
 }
