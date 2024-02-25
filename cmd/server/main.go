@@ -37,7 +37,7 @@ func main() {
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
 	r.Post("/update/", handler.GaugeandCounter(newMetric))
-	r.Get("/value/", handler.GetMetric(newMetric))
+	r.Post("/value/", handler.GetMetric(newMetric))
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
