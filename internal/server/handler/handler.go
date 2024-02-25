@@ -77,10 +77,10 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 				Delta: delta,
 				Value: value,
 			}
+			res.Header().Set("Content-Type", "application/json")
 			enc := json.NewEncoder(res)
 			if err := enc.Encode(resp); err != nil {
 				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
-				return
 			}
 		}
 	}
@@ -119,10 +119,10 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 				Delta: delta,
 				Value: value,
 			}
+			res.Header().Set("Content-Type", "application/json")
 			enc := json.NewEncoder(res)
 			if err := enc.Encode(resp); err != nil {
 				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
-				return
 			}
 		}
 	}
