@@ -80,7 +80,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 				Value: value,
 			}
 			res.Header().Set("Content-Type", "application/json")
-			fmt.Println(1)
+			res.WriteHeader(http.StatusOK)
 			enc := json.NewEncoder(res)
 			if err := enc.Encode(resp); err != nil {
 				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
@@ -117,13 +117,14 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 		}
 
 		if contentType == "application/json" {
-			resp := model.Metrics{
-				ID:    name2,
-				MType: types,
-				Delta: delta,
-				Value: value,
+			resp := map[string]interface{}{
+				"ID":    name2,
+				"MType": types,
+				"Delta": delta,
+				"Value": value,
 			}
 			res.Header().Set("Content-Type", "application/json")
+			res.WriteHeader(http.StatusOK)
 			enc := json.NewEncoder(res)
 			fmt.Print(resp)
 			if err := enc.Encode(resp); err != nil {
