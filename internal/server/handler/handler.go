@@ -54,7 +54,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 		if err != nil {
 			panic(err)
 		}
-		contentType := req.Header.Get("content-type")
+		contentType := req.Header.Get("Content-Type")
 		if types == "counter" {
 			if delta != nil {
 				m.NewCounter(name, *delta)
@@ -92,7 +92,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 		if err != nil {
 			panic(err)
 		}
-		contentType := req.Header.Get("content-type")
+		contentType := req.Header.Get("Content-Type")
 		//fmt.Println(contentType)
 		if types == "counter" {
 			r, err := m.GetCounter(name2)
