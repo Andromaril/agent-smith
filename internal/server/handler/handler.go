@@ -13,7 +13,7 @@ import (
 )
 
 func ListMetric(r *http.Request) (string, string, *float64, *int64, error) {
-	contentType := r.Header.Get("content-type")
+	contentType := r.Header.Get("Content-Type")
 	var types string
 	var name string
 	var value2 *float64
