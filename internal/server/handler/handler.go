@@ -117,11 +117,11 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 		}
 
 		if contentType == "application/json" {
-			resp := map[string]interface{}{
-				"ID":    name2,
-				"MType": types,
-				"Delta": delta,
-				"Value": value,
+			resp := model.Metrics{
+				ID:    name2,
+				MType: types,
+				Delta: delta,
+				Value: value,
 			}
 			res.Header().Set("Content-Type", "application/json")
 			enc := json.NewEncoder(res)
