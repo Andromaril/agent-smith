@@ -28,21 +28,42 @@ func ListMetric(r *http.Request) (string, string, *float64, *int64, error) {
 
 func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		types, name, _, _, err := ListMetric(req)
-		if err != nil {
-			panic(err)
+		var r model.Metrics
+		dec := json.NewDecoder(req.Body)
+		if err := dec.Decode(&r); err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
 		}
-		resp := model.Metrics{
-			ID:    name,
-			MType: types,
+		if r.MType == "counter" {
+			value, err := m.GetCounter(r.ID)
+			if err != nil {
+				res.WriteHeader(http.StatusNotFound)
+			}
+			resp := model.Metrics{
+				ID:    r.ID,
+				MType: r.MType,
+				Delta: &value,
+			}
+			enc := json.NewEncoder(res)
+			if err := enc.Encode(resp); err != nil {
+				return
+			}
 		}
-		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
-		enc := json.NewEncoder(res)
-		if err := enc.Encode(resp); err != nil {
-			http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		if r.MType == "gauge" {
+			value, err := m.GetGauge(r.ID)
+			if err != nil {
+				res.WriteHeader(http.StatusNotFound)
+			}
+			resp := model.Metrics{
+				ID:    r.ID,
+				MType: r.MType,
+				Value: &value,
+			}
+			enc := json.NewEncoder(res)
+			if err := enc.Encode(resp); err != nil {
+				return
+			}
 		}
-
 	}
 }
 
