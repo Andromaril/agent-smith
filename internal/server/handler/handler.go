@@ -89,7 +89,6 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 			}
 		}
 		if r.MType == "gauge" {
-			fmt.Println(1)
 			err := m.NewGauge(r.ID, *r.Value)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -113,6 +112,7 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 			} else {
 				res.WriteHeader(http.StatusNotFound)
 			}
+			fmt.Println(*resp.Value)
 		}
 	}
 }

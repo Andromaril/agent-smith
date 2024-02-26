@@ -22,7 +22,7 @@ func main() {
 	time.Sleep(time.Second)
 	go UpdateMetric()
 	for {
-		err := metric.SendAllMetric()
+		err := metric.SendAllMetricJSON()
 		if err != nil {
 			panic(err)
 		}
