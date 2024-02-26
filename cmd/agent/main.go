@@ -29,14 +29,14 @@ func main() {
 	//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	//}
 	go func() {
-		for {
+		//for {
 			err := metric.SendAllMetricJSON()
 			if err != nil {
 				panic(err)
 			}
 			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 
-		}
+		//}
 	}()
 
 	for {
