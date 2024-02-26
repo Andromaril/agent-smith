@@ -28,15 +28,13 @@ func ListMetric(r *http.Request) (string, string, *float64, *int64, error) {
 
 func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		types, name, value, delta, err := ListMetric(req)
+		types, name, _, _, err := ListMetric(req)
 		if err != nil {
 			panic(err)
 		}
 		resp := model.Metrics{
 			ID:    name,
 			MType: types,
-			Delta: delta,
-			Value: value,
 		}
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
