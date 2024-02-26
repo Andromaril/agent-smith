@@ -12,20 +12,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func ListMetric(r *http.Request) (string, string, *float64, *int64, error) {
-	//fmt.Println(contentType)
-	var req model.Metrics
-	dec := json.NewDecoder(r.Body)
-	if err := dec.Decode(&req); err != nil {
-		return "", "", nil, nil, err
-	}
-	types := req.MType
-	name := req.ID
-	value := req.Value
-	delta := req.Delta
-	return types, name, value, delta, nil
-}
-
 func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
@@ -69,8 +55,8 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 
 func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		res.Header().Set("Content-Type", "application/json")
 		var r model.Metrics
+		res.Header().Set("Content-Type", "application/json")
 		dec := json.NewDecoder(req.Body)
 		if err := dec.Decode(&r); err != nil {
 			res.WriteHeader(http.StatusBadRequest)
@@ -80,10 +66,12 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 			err := m.NewCounter(r.ID, *r.Delta)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
 			}
 			value, err := m.GetCounter(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
 			}
 			resp := model.Metrics{
 				ID:    r.ID,
@@ -99,10 +87,12 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 			err := m.NewGauge(r.ID, *r.Value)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
 			}
 			value, err := m.GetGauge(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
 			}
 			resp := model.Metrics{
 				ID:    r.ID,
