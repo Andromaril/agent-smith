@@ -18,11 +18,28 @@ func UpdateMetric() {
 }
 
 func main() {
-	for {
-		creator.PollCount++
-		creator.RandomValue = rand.Float64()
-		time.Sleep(time.Second*2)
-		metric.SendAllMetricJSON()
-		time.Sleep(time.Second*10)
+	flag.ParseFlags()
+	time.Sleep(time.Second)
+	//go UpdateMetric()
+	//for {
+	//err := metric.SendAllMetricJSON()
+	//if err != nil {
+	//panic(err)
+	//}
+	//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+	//}
+	go func() {
+		for {
+			err := metric.SendAllMetricJSON()
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+
 		}
+	}()
+
+	for {
+		UpdateMetric()
+	}
 }
