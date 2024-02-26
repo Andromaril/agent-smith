@@ -78,3 +78,47 @@ func SendAllMetricJSON() error {
 	}
 	return nil
 }
+
+func SendAllMetricJSON2() error {
+	f := creator.CreateFloatMetric()
+	i := creator.CreateIntMetric()
+	for key, value := range f {
+		resp := model.Metrics{
+			ID:    key,
+			MType: "gauge",
+			Value: &value,
+		}
+		jsonData, err := json.Marshal(resp)
+
+		if err != nil {
+			panic(err)
+		}
+		client := resty.New()
+		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+		//fmt.Print(url)
+		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+		if err1 != nil {
+			panic(err1)
+		}
+	}
+	for key, value := range i {
+		resp := model.Metrics{
+			ID:    key,
+			MType: "counter",
+			Delta: &value,
+		}
+		jsonData, err := json.Marshal(resp)
+
+		if err != nil {
+			panic(err)
+		}
+		client := resty.New()
+		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+		//fmt.Print(url)
+		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+		if err1 != nil {
+			panic(err1)
+		}
+	}
+	return nil
+}
