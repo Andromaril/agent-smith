@@ -26,7 +26,7 @@ func ListMetric(r *http.Request) (string, string, *float64, *int64, error) {
 	return types, name, value, delta, nil
 }
 
-func GetMetricJson(m *storage.MemStorage) http.HandlerFunc {
+func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		types, name, value, delta, err := ListMetric(req)
 		if err != nil {
