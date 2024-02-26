@@ -7,6 +7,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/go-resty/resty/v2"
 )
 
 func UpdateMetric() {
@@ -19,10 +20,11 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	time.Sleep(10*time.Second)
+	time.Sleep(time.Second)
+	client := resty.New()
 	go UpdateMetric()
 	for {
-		err := metric.SendAllMetricJSON()
+		err := metric.SendAllMetricJSON(client)
 		if err != nil {
 			panic(err)
 		}
