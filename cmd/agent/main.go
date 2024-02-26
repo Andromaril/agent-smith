@@ -19,7 +19,7 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	time.Sleep(time.Second)
+	time.Sleep(10*time.Second)
 	go UpdateMetric()
 	for {
 		err := metric.SendAllMetricJSON()
