@@ -19,27 +19,13 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	//time.Sleep(time.Second)
-	//go UpdateMetric()
-	//for {
-	//err := metric.SendAllMetricJSON()
-	//if err != nil {
-	//panic(err)
-	//}
-	//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-	//}
-	go func() {
-		//for {
-			err := metric.SendAllMetricJSON()
-			if err != nil {
-				panic(err)
-			}
-			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-
-		//}
-	}()
-
+	time.Sleep(time.Second)
+	go UpdateMetric()
 	for {
-		UpdateMetric()
+		err := metric.SendAllMetricJSON()
+		if err != nil {
+			panic(err)
+		}
+		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }
