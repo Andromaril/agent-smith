@@ -96,7 +96,7 @@ func SendAllMetricJSON2() error {
 		}
 		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 		//fmt.Print(url)
-		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+		_, err1 := client.NewRequest().SetBody(jsonData).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
@@ -114,7 +114,7 @@ func SendAllMetricJSON2() error {
 		}
 		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 		//fmt.Print(url)
-		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+		_, err1 := client.NewRequest().SetBody(jsonData).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
