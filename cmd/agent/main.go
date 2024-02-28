@@ -37,6 +37,8 @@ func main() {
 			// t2 = true
 			// t1 = false
 			// continue
+			time.Sleep(time.Second * time.Duration(flag.PollInterval))
+			
 		}
 		if i%flag.ReportInterval == 0 {
 			err := metric.SendAllMetricJSON2()
@@ -47,6 +49,7 @@ func main() {
 			// t2 = false
 			// continue
 			//i = i + flag.ReportInterval
+			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 		}
 	}
 }
