@@ -20,9 +20,9 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	//var i int64
+	var i int64
 	client := resty.New()
-	for i := 0; ; i += 1{
+	for i = 0; ; i ++{
 		time.Sleep(time.Second)
 		//i++
 		if i%flag.PollInterval == 0 {
