@@ -94,7 +94,7 @@ func SendAllMetricJSON2() error {
 		//panic(err)
 		//}
 		//fmt.Print(url)
-		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
+		_, err1 := client.NewRequest().SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
@@ -111,7 +111,7 @@ func SendAllMetricJSON2() error {
 		// 	panic(err)
 		// }
 		//fmt.Print(url)
-		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
+		_, err1 := client.NewRequest().SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
