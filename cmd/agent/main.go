@@ -24,19 +24,19 @@ func main() {
 	client := resty.New()
 	var t1 bool
 	var t2 bool
-	t1 = false
+	t1 = true
 	t2 = false
 	for i = 0; ; i++ {
 		time.Sleep(time.Second)
 		//i++
-		if t1==true && i%flag.PollInterval == 0 {
+		if t1 && i%flag.PollInterval == 0 {
 			creator.PollCount++
 			creator.RandomValue = rand.Float64()
 			//i = i + flag.PollInterval
 			t2 = true
 			t1 = false
 		}
-		if t2==true && i%flag.ReportInterval == 0 {
+		if t2 && i%flag.ReportInterval == 0 {
 			metric.SendAllMetricJSON2(client)
 			// if err != nil {
 			// 	panic(err)
