@@ -7,7 +7,6 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
-	"github.com/go-resty/resty/v2"
 )
 
 func UpdateMetric() {
@@ -20,18 +19,34 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	time.Sleep(100*time.Second)
-	client := resty.New()
-	go func() {
-		for {
-			err := metric.SendAllMetricJSON(client)
+	var i int64
+	for {
+		time.Sleep(time.Second)
+		if i%flag.PollInterval == 0 {
+			creator.PollCount++
+			creator.RandomValue = rand.Float64()
+			i = i + flag.PollInterval
+		}
+		if i%flag.ReportInterval == 0 {
+			err := metric.SendAllMetricJSON()
 			if err != nil {
 				panic(err)
 			}
-			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+			i = i + flag.ReportInterval
 		}
-	}()
-	for {
-		UpdateMetric()
 	}
+	//time.Sleep(100*time.Second)
+	//client := resty.New()
+	//go func() {
+	//for {
+	//err := metric.SendAllMetricJSON()
+	//if err != nil {
+	//panic(err)
+	//}
+	//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+	//}
+	//}()
+	//for {
+	//UpdateMetric()
+	//}
 }

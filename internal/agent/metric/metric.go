@@ -20,7 +20,8 @@ func SendGaugeMetric(name string, value float64) {
 	}
 }
 
-func SendMetricJSON(client *resty.Client, res *model.Metrics) {
+func SendMetricJSON(res *model.Metrics) {
+	client := resty.New()
 	jsonData, err := json.Marshal(res)
 
 	if err != nil {
@@ -55,7 +56,7 @@ func SendAllMetric() error {
 	return nil
 }
 
-func SendAllMetricJSON(client *resty.Client) error {
+func SendAllMetricJSON() error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
 	for key, value := range f {
@@ -64,7 +65,7 @@ func SendAllMetricJSON(client *resty.Client) error {
 			MType: "gauge",
 			Value: &value,
 		}
-		SendMetricJSON(client, &resp)
+		SendMetricJSON(&resp)
 
 	}
 	for key, value := range i {
@@ -73,7 +74,7 @@ func SendAllMetricJSON(client *resty.Client) error {
 			MType: "counter",
 			Delta: &value,
 		}
-		SendMetricJSON(client, &resp)
+		SendMetricJSON(&resp)
 	}
 	return nil
 }
