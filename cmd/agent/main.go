@@ -26,6 +26,7 @@ func main() {
 	// t1 = true
 	// t2 = false
 	//
+	//
 	for i = 0; ; i++ {
 		time.Sleep(time.Second)
 		//i++
