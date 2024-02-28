@@ -1,12 +1,10 @@
 package metric
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/flag"
-	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -85,35 +83,35 @@ func SendAllMetricJSON2() error {
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	for key, value := range f {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "gauge",
-			Value: &value,
-		}
-		jsonData, err := json.Marshal(resp)
+		//resp := model.Metrics{
+		//ID:    key,
+		//MType: "gauge",
+		//Value: &value,
+		//}
+		//jsonData, err := json.Marshal(resp)
 
-		if err != nil {
-			panic(err)
-		}
+		//if err != nil {
+		//panic(err)
+		//}
 		//fmt.Print(url)
-		_, err1 := client.NewRequest().SetBody(jsonData).Post(url)
+		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
 	}
 	for key, value := range i {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "counter",
-			Delta: &value,
-		}
-		jsonData, err := json.Marshal(resp)
+		// resp := model.Metrics{
+		// 	ID:    key,
+		// 	MType: "counter",
+		// 	Delta: &value,
+		// }
+		//jsonData, err := json.Marshal(resp)
 
-		if err != nil {
-			panic(err)
-		}
+		// if err != nil {
+		// 	panic(err)
+		// }
 		//fmt.Print(url)
-		_, err1 := client.NewRequest().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
