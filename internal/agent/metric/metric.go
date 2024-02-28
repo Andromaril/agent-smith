@@ -20,20 +20,20 @@ func SendGaugeMetric(name string, value float64) {
 	}
 }
 
-func SendMetricJSON(res *model.Metrics) {
-	client := resty.New()
-	jsonData, err := json.Marshal(res)
+// func SendMetricJSON(res *model.Metrics) {
+// 	client := resty.New()
+// 	jsonData, err := json.Marshal(res)
 
-	if err != nil {
-		panic(err)
-	}
-	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
-	//fmt.Print(url)
-	_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
-	if err1 != nil {
-		panic(err)
-	}
-}
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+// 	//fmt.Print(url)
+// 	_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+// 	if err1 != nil {
+// 		panic(err)
+// 	}
+// }
 
 func SendCounterMetric(name string, value int64) {
 	client := resty.New()
@@ -44,40 +44,40 @@ func SendCounterMetric(name string, value int64) {
 	}
 }
 
-func SendAllMetric() error {
-	f := creator.CreateFloatMetric()
-	i := creator.CreateIntMetric()
-	for key, value := range f {
-		SendGaugeMetric(key, value)
-	}
-	for key, value := range i {
-		SendCounterMetric(key, value)
-	}
-	return nil
-}
+// func SendAllMetric() error {
+// 	f := creator.CreateFloatMetric()
+// 	i := creator.CreateIntMetric()
+// 	for key, value := range f {
+// 		SendGaugeMetric(key, value)
+// 	}
+// 	for key, value := range i {
+// 		SendCounterMetric(key, value)
+// 	}
+// 	return nil
+// }
 
-func SendAllMetricJSON() error {
-	f := creator.CreateFloatMetric()
-	i := creator.CreateIntMetric()
-	for key, value := range f {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "gauge",
-			Value: &value,
-		}
-		SendMetricJSON(&resp)
+// func SendAllMetricJSON() error {
+// 	f := creator.CreateFloatMetric()
+// 	i := creator.CreateIntMetric()
+// 	for key, value := range f {
+// 		resp := model.Metrics{
+// 			ID:    key,
+// 			MType: "gauge",
+// 			Value: &value,
+// 		}
+// 		SendMetricJSON(&resp)
 
-	}
-	for key, value := range i {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "counter",
-			Delta: &value,
-		}
-		SendMetricJSON(&resp)
-	}
-	return nil
-}
+// 	}
+// 	for key, value := range i {
+// 		resp := model.Metrics{
+// 			ID:    key,
+// 			MType: "counter",
+// 			Delta: &value,
+// 		}
+// 		SendMetricJSON(&resp)
+// 	}
+// 	return nil
+// }
 
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
