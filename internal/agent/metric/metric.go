@@ -40,7 +40,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res model.Metrics, client *resty.Cl
 	}
 	_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
 	if err1 != nil {
-		panic(err)
+		panic(err1)
 	}
 }
 
