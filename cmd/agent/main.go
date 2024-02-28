@@ -19,13 +19,35 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	time.Sleep(time.Second)
-	go UpdateMetric()
-	for {
-		err := metric.SendAllMetric()
-		if err != nil {
-			panic(err)
+	var i int64
+	//client := resty.New()
+	// var t1 bool
+	// var t2 bool
+	// t1 = true
+	// t2 = false
+	//
+	//
+	for i = 0; ; i++ {
+		time.Sleep(time.Second)
+		//i++
+		if i%flag.PollInterval == 0 {
+			creator.PollCount++
+			creator.RandomValue = rand.Float64()
+			//i = i + flag.PollInterval
+			// t2 = true
+			// t1 = false
+			// continue
 		}
-		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+		if i%flag.ReportInterval == 0 {
+			err := metric.SendAllMetricJSON2()
+			if err != nil {
+				panic(err)
+			}
+			// t1 = true
+			// t2 = false
+			// continue
+			//i = i + flag.ReportInterval
+		}
 	}
 }
+
