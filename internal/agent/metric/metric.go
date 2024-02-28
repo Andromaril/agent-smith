@@ -20,20 +20,34 @@ import (
 // 	}
 // }
 
-func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
-	//client := resty.New()
-	// //jsonData, err := json.Marshal(res)
+// func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
+// 	//client := resty.New()
+// 	// //jsonData, err := json.Marshal(res)
 
-	// if err != nil {
-	// 	panic(err)
-	// }
-	//url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
-	//fmt.Print(url)
+// 	// if err != nil {
+// 	// 	panic(err)
+// 	// }
+// 	//url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+// 	//fmt.Print(url)
+// 	jsonData, err := json.Marshal(res)
+
+//		if err != nil {
+//			panic(err)
+//		}
+//		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+//		if err1 != nil {
+//			panic(err1)
+//		}
+//	}
+func SendMetricJSON(res *model.Metrics) {
 	jsonData, err := json.Marshal(res)
 
 	if err != nil {
 		panic(err)
 	}
+	client := resty.New()
+	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+	//fmt.Print(url)
 	_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
 	if err1 != nil {
 		panic(err1)
@@ -84,11 +98,11 @@ func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
 // 	return nil
 // }
 
-func SendAllMetricJSON2(client *resty.Client) error{
+func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
 	//client := resty.New()
-	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+	//url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	for key, value := range f {
 		resp := model.Metrics{
 			ID:    key,
@@ -101,7 +115,7 @@ func SendAllMetricJSON2(client *resty.Client) error{
 		// if err != nil {
 		// 	panic(err)
 		// }
-		SendMetricJSON(&resp, client, url)
+		SendMetricJSON(&resp)
 		// _, err1 := client.R().SetBody(jsonData).SetHeader("Content-Type", "application/json").Post(url)
 		// if err1 != nil {
 		// 	panic(err1)
@@ -123,7 +137,7 @@ func SendAllMetricJSON2(client *resty.Client) error{
 		// if err1 != nil {
 		// 	panic(err1)
 		// }
-		SendMetricJSON(&resp, client, url)
+		SendMetricJSON(&resp)
 	}
 	return nil
 }

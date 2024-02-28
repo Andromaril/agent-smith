@@ -7,7 +7,6 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
-	"github.com/go-resty/resty/v2"
 )
 
 func UpdateMetric() {
@@ -18,48 +17,61 @@ func UpdateMetric() {
 	}
 }
 
+//	func main() {
+//		flag.ParseFlags()
+//		var i int64
+//		client := resty.New()
+//		var t1 bool
+//		var t2 bool
+//		t1 = true
+//		t2 = false
+//		for i = 0; ; i++ {
+//			time.Sleep(time.Second)
+//			//i++
+//			if t1 && i%flag.PollInterval == 0 {
+//				creator.PollCount++
+//				creator.RandomValue = rand.Float64()
+//				//i = i + flag.PollInterval
+//				t2 = true
+//				t1 = false
+//				continue
+//			}
+//			if t2 && i%flag.ReportInterval == 0 {
+//				err := metric.SendAllMetricJSON2(client)
+//				if err != nil {
+//					panic(err)
+//				}
+//				t1 = true
+//				t2 = false
+//				continue
+//				//i = i + flag.ReportInterval
+//			}
+//		}
+//
+// time.Sleep(100*time.Second)
+// client := resty.New()
+// go func() {
+// for {
+// err := metric.SendAllMetricJSON()
+// if err != nil {
+// panic(err)
+// }
+// time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+// }
+// }()
+// for {
+// UpdateMetric()
+// }
+// }
 func main() {
 	flag.ParseFlags()
-	var i int64
-	client := resty.New()
-	var t1 bool
-	var t2 bool
-	t1 = true
-	t2 = false
-	for i = 0; ; i++ {
-		time.Sleep(time.Second)
-		//i++
-		if t1 && i%flag.PollInterval == 0 {
-			creator.PollCount++
-			creator.RandomValue = rand.Float64()
-			//i = i + flag.PollInterval
-			t2 = true
-			t1 = false
-			continue
+	time.Sleep(time.Second)
+	go UpdateMetric()
+	for {
+		err := metric.SendAllMetricJSON2()
+		if err != nil {
+			panic(err)
 		}
-		if t2 && i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON2(client)
-			if err != nil {
-				panic(err)
-			}
-			t1 = true
-			t2 = false
-			continue
-			//i = i + flag.ReportInterval
-		}
+		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
-	//time.Sleep(100*time.Second)
-	//client := resty.New()
-	//go func() {
-	//for {
-	//err := metric.SendAllMetricJSON()
-	//if err != nil {
-	//panic(err)
-	//}
-	//time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-	//}
-	//}()
-	//for {
-	//UpdateMetric()
-	//}
 }
