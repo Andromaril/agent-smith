@@ -20,11 +20,11 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	var i int64
+	//var i int64
 	client := resty.New()
-	for {
+	for i := 0; ; i += 1{
 		time.Sleep(time.Second)
-		i++
+		//i++
 		if i%flag.PollInterval == 0 {
 			creator.PollCount++
 			creator.RandomValue = rand.Float64()
