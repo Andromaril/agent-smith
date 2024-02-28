@@ -35,6 +35,7 @@ func main() {
 			//i = i + flag.PollInterval
 			t2 = true
 			t1 = false
+			continue
 		}
 		if t2 && i%flag.ReportInterval == 0 {
 			err := metric.SendAllMetricJSON2(client)
@@ -43,6 +44,7 @@ func main() {
 			}
 			t1 = true
 			t2 = false
+			continue
 			//i = i + flag.ReportInterval
 		}
 	}
