@@ -95,7 +95,7 @@ func SendAllMetricJSON2() error {
 		if err != nil {
 			panic(err)
 		}
-		_, err1 := client.R().SetBody(jsonData).Post(url)
+		_, err1 := client.R().SetBody(jsonData).SetHeader("Content-Type", "application/json").Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
@@ -111,7 +111,7 @@ func SendAllMetricJSON2() error {
 		if err != nil {
 			panic(err)
 		}
-		_, err1 := client.R().SetBody(jsonData).Post(url)
+		_, err1 := client.R().SetBody(jsonData).SetHeader("Content-Type", "application/json").Post(url)
 		if err1 != nil {
 			panic(err1)
 		}
