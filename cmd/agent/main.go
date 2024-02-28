@@ -20,14 +20,18 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	time.Sleep(time.Second)
+	//time.Sleep(time.Second)
 	client := resty.New()
-	go UpdateMetric()
-	for {
-		err := metric.SendAllMetricJSON(client)
-		if err != nil {
-			panic(err)
+	go func() {
+		for {
+			err := metric.SendAllMetricJSON(client)
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 		}
-		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+	}()
+	for {
+		UpdateMetric()
 	}
 }
