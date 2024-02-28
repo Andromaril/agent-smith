@@ -38,6 +38,7 @@ func main() {
 			t1 = false
 			// continue
 			time.Sleep(time.Second * time.Duration(flag.PollInterval))
+			continue
 			
 		}
 		if t2&&i%flag.ReportInterval == 0 {
@@ -50,6 +51,7 @@ func main() {
 			// continue
 			//i = i + flag.ReportInterval
 			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
+			continue
 		}
 	}
 }
