@@ -20,7 +20,7 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	//time.Sleep(time.Second)
+	time.Sleep(100*time.Second)
 	client := resty.New()
 	go func() {
 		for {
