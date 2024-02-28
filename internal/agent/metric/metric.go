@@ -93,6 +93,7 @@ func SendAllMetricJSON2(client *resty.Client) error{
 		resp := model.Metrics{
 			ID:    key,
 			MType: "gauge",
+			Delta: nil,
 			Value: &value,
 		}
 		// jsonData, err := json.Marshal(resp)
@@ -111,6 +112,7 @@ func SendAllMetricJSON2(client *resty.Client) error{
 			ID:    key,
 			MType: "counter",
 			Delta: &value,
+			Value: nil,
 		}
 		// jsonData, err := json.Marshal(resp)
 
