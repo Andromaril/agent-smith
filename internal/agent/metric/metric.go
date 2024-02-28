@@ -79,7 +79,7 @@ func SendCounterMetric(name string, value int64) {
 
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
-	i := creator.CreateIntMetric()
+	//i := creator.CreateIntMetric()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	for key, value := range f {
@@ -99,22 +99,22 @@ func SendAllMetricJSON2() error {
 			panic(err1)
 		}
 	}
-	for key, value := range i {
-		// resp := model.Metrics{
-		// 	ID:    key,
-		// 	MType: "counter",
-		// 	Delta: &value,
-		// }
-		//jsonData, err := json.Marshal(resp)
+	// for key, value := range i {
+	// 	// resp := model.Metrics{
+	// 	// 	ID:    key,
+	// 	// 	MType: "counter",
+	// 	// 	Delta: &value,
+	// 	// }
+	// 	//jsonData, err := json.Marshal(resp)
 
-		// if err != nil {
-		// 	panic(err)
-		// }
-		//fmt.Print(url)
-		_, err1 := client.NewRequest().SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
-		if err1 != nil {
-			panic(err1)
-		}
-	}
+	// 	// if err != nil {
+	// 	// 	panic(err)
+	// 	// }
+	// 	//fmt.Print(url)
+	// 	_, err1 := client.NewRequest().SetBody(map[string]interface{}{"id": key, "type": "gauge", "value": value}).Post(url)
+	// 	if err1 != nil {
+	// 		panic(err1)
+	// 	}
+	// }
 	return nil
 }
