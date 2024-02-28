@@ -34,7 +34,7 @@ func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+	_, err1 := client.R().SetBody(jsonData).Post(url)
 	if err1 != nil {
 		panic(err1)
 	}
