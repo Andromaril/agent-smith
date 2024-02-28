@@ -29,13 +29,13 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
-		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 		r.Post("/", handler.GaugeandCounterJSON(newMetric))
+		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 	})
 
 	r.Route("/update", func(r chi.Router) {
-		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 		r.Post("/", handler.GaugeandCounterJSON(newMetric))
+		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
 	//r.Post("/update/", handler.GaugeandCounterJSON(newMetric))
