@@ -8,7 +8,6 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 )
 
 func UpdateMetric() {
@@ -23,7 +22,6 @@ func main() {
 	flag.ParseFlags()
 	var i int64
 	client := resty.New()
-	var sugar zap.SugaredLogger
 	for {
 		time.Sleep(time.Second)
 		i++
@@ -33,7 +31,7 @@ func main() {
 			//i = i + flag.PollInterval
 		}
 		if i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON2(sugar, client)
+			err := metric.SendAllMetricJSON2(client)
 			if err != nil {
 				panic(err)
 			}

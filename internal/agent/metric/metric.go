@@ -8,7 +8,6 @@ import (
 	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 )
 
 // func SendGaugeMetric(name string, value float64) {
@@ -21,7 +20,7 @@ import (
 // 	}
 // }
 
-func SendMetricJSON(sugar zap.SugaredLogger, res model.Metrics, client *resty.Client, url string) {
+func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
 	//client := resty.New()
 	// //jsonData, err := json.Marshal(res)
 
@@ -31,9 +30,6 @@ func SendMetricJSON(sugar zap.SugaredLogger, res model.Metrics, client *resty.Cl
 	//url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
 	jsonData, err := json.Marshal(res)
-	if err != nil {
-		sugar.Errorw("JSON marshaling failed", err)
-	}
 
 	if err != nil {
 		panic(err)
@@ -88,7 +84,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res model.Metrics, client *resty.Cl
 // 	return nil
 // }
 
-func SendAllMetricJSON2(sugar zap.SugaredLogger, client *resty.Client) error {
+func SendAllMetricJSON2(client *resty.Client) error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
 	//client := resty.New()
@@ -104,7 +100,7 @@ func SendAllMetricJSON2(sugar zap.SugaredLogger, client *resty.Client) error {
 		// if err != nil {
 		// 	panic(err)
 		// }
-		SendMetricJSON(sugar, resp, client, url)
+		SendMetricJSON(&resp, client, url)
 		// _, err1 := client.R().SetBody(jsonData).SetHeader("Content-Type", "application/json").Post(url)
 		// if err1 != nil {
 		// 	panic(err1)
@@ -125,7 +121,7 @@ func SendAllMetricJSON2(sugar zap.SugaredLogger, client *resty.Client) error {
 		// if err1 != nil {
 		// 	panic(err1)
 		// }
-		SendMetricJSON(sugar, resp, client, url)
+		SendMetricJSON(&resp, client, url)
 	}
 	return nil
 }
