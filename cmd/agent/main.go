@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
+	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
 )
 
@@ -28,11 +29,10 @@ func main() {
 			//i = i + flag.PollInterval
 		}
 		if i%flag.ReportInterval == 0 {
-			//err := metric.SendAllMetricJSON2()
-			//if err != nil {
-			//panic(err)
-			//}
-			i--
+			err := metric.SendAllMetricJSON2()
+			if err != nil {
+				panic(err)
+			}
 			//i = i + flag.ReportInterval
 		}
 	}
