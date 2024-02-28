@@ -22,17 +22,18 @@ func main() {
 	var i int64
 	for {
 		time.Sleep(time.Second)
+		i++
 		if i%flag.PollInterval == 0 {
 			creator.PollCount++
 			creator.RandomValue = rand.Float64()
-			i = i + flag.PollInterval
+			//i = i + flag.PollInterval
 		}
 		if i%flag.ReportInterval == 0 {
 			err := metric.SendAllMetricJSON()
 			if err != nil {
 				panic(err)
 			}
-			i = i + flag.ReportInterval
+			//i = i + flag.ReportInterval
 		}
 	}
 	//time.Sleep(100*time.Second)
