@@ -82,6 +82,7 @@ func SendCounterMetric(name string, value int64) {
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
+	client := resty.New()
 	for key, value := range f {
 		resp := model.Metrics{
 			ID:    key,
@@ -93,7 +94,6 @@ func SendAllMetricJSON2() error {
 		if err != nil {
 			panic(err)
 		}
-		client := resty.New()
 		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 		//fmt.Print(url)
 		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
@@ -112,7 +112,6 @@ func SendAllMetricJSON2() error {
 		if err != nil {
 			panic(err)
 		}
-		client := resty.New()
 		url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 		//fmt.Print(url)
 		_, err1 := client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
