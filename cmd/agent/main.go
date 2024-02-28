@@ -37,10 +37,10 @@ func main() {
 			t1 = false
 		}
 		if t2 && i%flag.ReportInterval == 0 {
-			metric.SendAllMetricJSON2(client)
-			// if err != nil {
-			// 	panic(err)
-			// }
+			err := metric.SendAllMetricJSON2(client)
+			if err != nil {
+				panic(err)
+			}
 			t1 = true
 			t2 = false
 			//i = i + flag.ReportInterval

@@ -84,7 +84,7 @@ func SendMetricJSON(res *model.Metrics, client *resty.Client, url string) {
 // 	return nil
 // }
 
-func SendAllMetricJSON2(client *resty.Client) {
+func SendAllMetricJSON2(client *resty.Client) error{
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
 	//client := resty.New()
@@ -123,4 +123,5 @@ func SendAllMetricJSON2(client *resty.Client) {
 		// }
 		SendMetricJSON(&resp, client, url)
 	}
+	return nil
 }
