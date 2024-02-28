@@ -31,10 +31,10 @@ func main() {
 			//i = i + flag.PollInterval
 		}
 		if i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON2(client)
-			if err != nil {
-				panic(err)
-			}
+			metric.SendAllMetricJSON2(client)
+			// if err != nil {
+			// 	panic(err)
+			// }
 			//i = i + flag.ReportInterval
 		}
 	}
