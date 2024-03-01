@@ -44,6 +44,7 @@ func SendMetricJSON(res *model.Metrics) {
 	// 	panic(err1)
 	// }
 
+	
 }
 
 func SendAllMetricJSON2() error {
