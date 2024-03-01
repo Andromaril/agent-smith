@@ -1,6 +1,8 @@
 package metric
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 
@@ -12,14 +14,32 @@ import (
 
 func SendMetricJSON(res *model.Metrics) {
 	jsonData, err := json.Marshal(res)
-
 	if err != nil {
 		panic(err)
 	}
+	// var b bytes.Buffer
+	// w, err := flate.NewWriter(&b, flate.BestCompression)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// _, err = w.Write(jsonData)
+
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = w.Close()
+	// if err != nil {
+	//    panic(err)
+	// }
+
+	buf := bytes.NewBuffer(nil)
+	zb := gzip.NewWriter(buf)
+	zb.Write(jsonData)
+	zb.Close()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
-	client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
+	client.R().SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
 	// if err1 != nil {
 	// 	panic(err1)
 	// }
@@ -33,7 +53,7 @@ func SendAllMetricJSON2() error {
 		resp := model.Metrics{
 			ID:    key,
 			MType: "gauge",
-			Delta: nil,
+			//Delta: nil,
 			Value: &value,
 		}
 		SendMetricJSON(&resp)
@@ -43,7 +63,7 @@ func SendAllMetricJSON2() error {
 			ID:    key,
 			MType: "counter",
 			Delta: &value,
-			Value: nil,
+			//Value: nil,
 		}
 
 		SendMetricJSON(&resp)
