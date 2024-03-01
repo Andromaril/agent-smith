@@ -53,7 +53,7 @@ func SendAllMetricJSON2() error {
 		resp := model.Metrics{
 			ID:    key,
 			MType: "gauge",
-			Delta: nil,
+			//Delta: nil,
 			Value: &value,
 		}
 		SendMetricJSON(&resp)
@@ -63,7 +63,7 @@ func SendAllMetricJSON2() error {
 			ID:    key,
 			MType: "counter",
 			Delta: &value,
-			Value: nil,
+			//Value: nil,
 		}
 
 		SendMetricJSON(&resp)
