@@ -32,18 +32,14 @@ func SendMetricJSON(res *model.Metrics) {
 	//    panic(err)
 	// }
 
-	var b bytes.Buffer
-	gz := gzip.NewWriter(&b)
-	if _, gzErr := gz.Write(jsonData); gzErr != nil {
-		return
-	}
-	if gzErr := gz.Close(); gzErr != nil {
-		return
-	}
+	buf := bytes.NewBuffer(nil)
+	zb := gzip.NewWriter(buf)
+	zb.Write(jsonData)
+	zb.Close()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
-	client.R().SetHeader("Content-Encoding", "gzip").SetBody(b.Bytes()).Post(url)
+	client.R().SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
 	// if err1 != nil {
 	// 	panic(err1)
 	// }
