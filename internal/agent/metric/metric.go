@@ -23,9 +23,6 @@ func SendMetricJSON(res *model.Metrics) {
 		panic(err)
 	}
 	_, err = w.Write(jsonData)
-	if err != nil {
-		panic(err)
-	}
 
 	if err != nil {
 		panic(err)
