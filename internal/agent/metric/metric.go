@@ -65,7 +65,6 @@ func SendAllMetricJSON2() error {
 			Delta: &value,
 			Value: nil,
 		}
-	
 		
 		SendMetricJSON(&resp)
 	}
