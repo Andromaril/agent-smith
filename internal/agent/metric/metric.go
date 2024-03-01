@@ -43,6 +43,7 @@ func SendMetricJSON(res *model.Metrics) {
 	// if err1 != nil {
 	// 	panic(err1)
 	// }
+
 }
 
 func SendAllMetricJSON2() error {
