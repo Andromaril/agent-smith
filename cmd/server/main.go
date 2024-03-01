@@ -5,9 +5,9 @@ import (
 
 	"github.com/andromaril/agent-smith/internal/flag"
 	logging "github.com/andromaril/agent-smith/internal/loger"
+	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
-	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -29,7 +29,7 @@ func main() {
 	newMetric := storage.NewMemStorage()
 	r := chi.NewRouter()
 	r.Use(logging.WithLogging(sugar))
-	r.Use(middleware.GzipMiddleware())
+	r.Use(middleware.GzipMiddleware)
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", handler.GetMetricJSON(newMetric))
 		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
