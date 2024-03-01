@@ -45,6 +45,7 @@ func SendMetricJSON(res *model.Metrics) {
 	// }
 }
 
+
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
