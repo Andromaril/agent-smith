@@ -2,7 +2,7 @@ package metric
 
 import (
 	"bytes"
-	"compress/flate"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 
@@ -17,20 +17,29 @@ func SendMetricJSON(res *model.Metrics) {
 	if err != nil {
 		panic(err)
 	}
-	var b bytes.Buffer
-	w, err := flate.NewWriter(&b, flate.BestCompression)
-	if err != nil {
-		panic(err)
-	}
-	_, err = w.Write(jsonData)
+	// var b bytes.Buffer
+	// w, err := flate.NewWriter(&b, flate.BestCompression)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// _, err = w.Write(jsonData)
 
-	if err != nil {
-		panic(err)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = w.Close()
+	// if err != nil {
+	//    panic(err)
+	// }
+
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	if _, gzErr := gz.Write(jsonData); gzErr != nil {
+		return
 	}
-	err = w.Close()
-    if err != nil {
-       panic(err)
-    }
+	if gzErr := gz.Close(); gzErr != nil {
+		return
+	}
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
