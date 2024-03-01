@@ -66,7 +66,6 @@ func SendAllMetricJSON2() error {
 			Value: nil,
 		}
 		
-
 		SendMetricJSON(&resp)
 	}
 	return nil
