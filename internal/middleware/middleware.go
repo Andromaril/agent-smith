@@ -9,7 +9,7 @@ import (
 
 // func GzipMiddleware() func(http.Handler) http.Handler {
 // return func(h http.Handler) http.Handler {
-func GzipMiddleware(h http.Handler) http.Handler {
+func GzipMiddleware(h http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// по умолчанию устанавливаем оригинальный http.ResponseWriter как тот,
 		// который будем передавать следующей функции
