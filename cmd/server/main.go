@@ -39,7 +39,7 @@ func main() {
 		r.Post("/", middleware.GzipMiddleware(handler.GaugeandCounterJSON(newMetric)))
 		r.Post("/{pattern}/{name}/{value}", middleware.GzipMiddleware(handler.GaugeandCounter(newMetric)))
 	})
-	r.Get("/", handler.GetHTMLMetric(newMetric))
+	r.Get("/", middleware.GzipMiddleware(handler.GetHTMLMetric(newMetric)))
 	//r.Post("/update/", handler.GaugeandCounterJSON(newMetric))
 	//r.Post("/value/", handler.GetMetricJSON(newMetric))
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
