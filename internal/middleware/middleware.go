@@ -41,7 +41,7 @@ func GzipMiddleware(h http.HandlerFunc) http.HandlerFunc {
 			r.Body = cr
 			defer cr.Close()
 		}
-
+		w.Header().Set("Content-Encoding", "gzip")
 		// передаём управление хендлеру
 		h.ServeHTTP(ow, r)
 	})
