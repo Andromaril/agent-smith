@@ -39,7 +39,14 @@ func SendMetricJSON(res *model.Metrics) {
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
-	client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(b.Bytes()).Post(url)
+	//client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(b.Bytes()).Post(url)
+	r := client.NewRequest()
+	r.Header.Set("Content-Encoding", "gzip")
+	r.SetBody(b.Bytes())
+	_, err1 := r.Post(url)
+	if err1 != nil {
+		panic(err1)
+	}
 	// var b bytes.Buffer
 	// gz := gzip.NewWriter(&b)
 	// gz.Write(jsonData)
@@ -50,10 +57,7 @@ func SendMetricJSON(res *model.Metrics) {
 	// 	SetBody(b.Bytes()).
 	// 	Post(url)
 
-
 }
-
-
 
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
