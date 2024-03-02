@@ -45,4 +45,5 @@ func main() {
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
+	
 }
