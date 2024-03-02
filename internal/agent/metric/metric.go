@@ -51,7 +51,10 @@ func SendMetricJSON(res *model.Metrics) {
 	// 	SetBody(b.Bytes()).
 	// 	Post(url)
 
+
 }
+
+
 
 func SendAllMetricJSON2() error {
 	f := creator.CreateFloatMetric()
