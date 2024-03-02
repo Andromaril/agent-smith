@@ -31,7 +31,7 @@ func main() {
 	//r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
-		r.Post("/", middleware.GzipMiddleware(handler.GetMetricJSON(newMetric)))
+		r.Post("/", handler.GetMetricJSON(newMetric))
 		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 	})
 
