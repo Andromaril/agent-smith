@@ -32,7 +32,7 @@ func main() {
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", middleware.GzipMiddleware(handler.GetMetricJSON(newMetric)))
-		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
+		r.Get("/{pattern}/{name}", middleware.GzipMiddleware(handler.GetMetric(newMetric)))
 	})
 
 	r.Route("/update", func(r chi.Router) {
