@@ -25,6 +25,7 @@ func GzipMiddleware(h http.HandlerFunc) http.HandlerFunc {
 			ow = cw
 			// не забываем отправить клиенту все сжатые данные после завершения middleware
 			defer cw.Close()
+			w.Header().Set("Content-Encoding", "gzip")
 		}
 
 		// проверяем, что клиент отправил серверу сжатые данные в формате gzip
