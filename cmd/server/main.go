@@ -28,7 +28,7 @@ func main() {
 	)
 	newMetric := storage.NewMemStorage()
 	r := chi.NewRouter()
-	r.Use(middleware.GzipMiddleware())
+	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", handler.GetMetricJSON(newMetric))
