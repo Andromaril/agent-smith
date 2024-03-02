@@ -40,9 +40,7 @@ func SendMetricJSON(res *model.Metrics) {
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
 	client.R().SetHeader("Accept-Encoding", "gzip").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
-	// if err1 != nil {
-	// 	panic(err1)
-	// }
+
 }
 
 func SendAllMetricJSON2() error {
@@ -65,7 +63,7 @@ func SendAllMetricJSON2() error {
 			Delta: &value,
 			Value: nil,
 		}
-		
+
 		SendMetricJSON(&resp)
 	}
 	return nil
