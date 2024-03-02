@@ -34,7 +34,6 @@ func SendMetricJSON(res *model.Metrics) {
 
 	buf := bytes.NewBuffer(nil)
 	zb := gzip.NewWriter(buf)
-	fmt.Printf(string(jsonData))
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
