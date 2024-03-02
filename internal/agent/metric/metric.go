@@ -43,10 +43,7 @@ func SendMetricJSON(res *model.Metrics) {
 	r := client.NewRequest()
 	r.Header.Set("Content-Encoding", "gzip")
 	r.SetBody(b.Bytes())
-	_, err1 := r.Post(url)
-	if err1 != nil {
-		panic(err1)
-	}
+	r.Post(url)
 	// var b bytes.Buffer
 	// gz := gzip.NewWriter(&b)
 	// gz.Write(jsonData)
