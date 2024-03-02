@@ -39,7 +39,10 @@ func SendMetricJSON(res *model.Metrics) {
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	//fmt.Print(url)
-	client.R().SetHeader("Accept-Encoding", "gzip").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
+	_, err1 := client.R().SetHeader("Accept-Encoding", "gzip").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
+	if err1 != nil {
+		panic(err)
+	}
 
 }
 
