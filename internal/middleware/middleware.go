@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/andromaril/agent-smith/internal/gzip"
+	"github.com/andromaril/agent-smith/internal/gzipp"
 )
 
 // func GzipMiddleware() func(http.Handler) http.Handler {
@@ -20,7 +20,7 @@ func GzipMiddleware(h http.HandlerFunc) http.HandlerFunc {
 		supportsGzip := strings.Contains(acceptEncoding, "gzip")
 		if supportsGzip {
 			// оборачиваем оригинальный http.ResponseWriter новым с поддержкой сжатия
-			cw := gzip.NewCompressWriter(w)
+			cw := gzipp.NewCompressWriter(w)
 			// меняем оригинальный http.ResponseWriter на новый
 			ow = cw
 			// не забываем отправить клиенту все сжатые данные после завершения middleware
@@ -32,7 +32,7 @@ func GzipMiddleware(h http.HandlerFunc) http.HandlerFunc {
 		sendsGzip := strings.Contains(contentEncoding, "gzip")
 		if sendsGzip {
 			// оборачиваем тело запроса в io.Reader с поддержкой декомпрессии
-			cr, err := gzip.NewCompressReader(r.Body)
+			cr, err := gzipp.NewCompressReader(r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
