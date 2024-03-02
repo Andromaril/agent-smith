@@ -41,7 +41,7 @@ func SendMetricJSON(res *model.Metrics) {
 	//fmt.Print(url)
 	_, err1 := client.R().SetHeader("Accept-Encoding", "gzip").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
 	if err1 != nil {
-		panic(err)
+		panic(err1)
 	}
 
 }
