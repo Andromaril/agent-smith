@@ -17,7 +17,6 @@ var sugar zap.SugaredLogger
 
 func main() {
 	serverflag.ParseFlags()
-	//fmt.Printf(flag.FileStoragePath)
 	logger, err1 := zap.NewDevelopment()
 	if err1 != nil {
 		panic(err1)
@@ -29,19 +28,7 @@ func main() {
 		"addr", serverflag.FlagRunAddr,
 	)
 	newMetric := storage.NewMemStorage()
-	//var i int64
-	//if serverflag.StoreInterval != 0 {
-	//for i = 0; ; i++ {
-	//time.Sleep(time.Second)
-	//if i%serverflag.StoreInterval == 0 {
-	//}
-	//}
-	//storage.Save(newMetric)
-	//storage.Load(newMetric)
-	//} else {
-	//newMetric.Save(serverflag.FileStoragePath)
-	//fmt.Printf(flag.FileStoragePath)
-	//}
+
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
 	}
@@ -58,37 +45,14 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	// var i int64
-	// if serverflag.StoreInterval != 0 {
-	// 	for i = 0; ; i++ {
-	// 		if i%serverflag.StoreInterval == 0 {
-	// 			newMetric.Save(serverflag.FileStoragePath)
-	// 			fmt.Printf(serverflag.FileStoragePath)
-	// 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
-	// 		} else {
-	// 			newMetric.Save(serverflag.FileStoragePath)
-	// 		}
-	// 	}
-	// }
-	//for {
 
 	go func() {
 		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
 		newMetric.Save(serverflag.FileStoragePath)
 	}()
-	//fmt.Print(123)
-	//time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
-	//}
 
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 
 	}
 }
-
-// func saveMetrics(path string, interval int) {
-// 	for {
-// 		storage.Save(path)
-// 		time.Sleep(time.Duration(interval) * time.Second)
-// 	}
-// }
