@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -16,7 +18,8 @@ import (
 var sugar zap.SugaredLogger
 
 func main() {
-	flag.ParseFlags()
+	serverflag.ParseFlags()
+	fmt.Printf(flag.FileStoragePath)
 	logger, err1 := zap.NewDevelopment()
 	if err1 != nil {
 		panic(err1)
@@ -51,6 +54,7 @@ func main() {
 			time.Sleep(time.Second)
 			if i%flag.StoreInterval == 0 {
 				newMetric.Save()
+				//fmt.Printf(flag.FileStoragePath)
 				time.Sleep(time.Second * time.Duration(flag.StoreInterval))
 			}
 		}
@@ -58,5 +62,6 @@ func main() {
 		//storage.Load(newMetric)
 	} else {
 		newMetric.Save()
+		//fmt.Printf(flag.FileStoragePath)
 	}
 }
