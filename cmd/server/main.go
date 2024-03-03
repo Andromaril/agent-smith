@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -55,7 +56,7 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	
+
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
@@ -63,14 +64,17 @@ func main() {
 		newMetric.Load(serverflag.FileStoragePath)
 	}
 	//var i int64
-	//if serverflag.StoreInterval != 0 {
-	//for i = 0; ; i++ {
-	//time.Sleep(time.Second)
-	//if i%serverflag.StoreInterval == 0 {
-	for {
+	if serverflag.StoreInterval != 0 {
+		//for i = 0; ; i++ {
+		//time.Sleep(time.Second)
+		//if i%serverflag.StoreInterval == 0 {
+		go func() {
+			newMetric.Save(serverflag.FileStoragePath)
+			fmt.Printf(serverflag.FileStoragePath)
+			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+		}()
+	} else {
 		newMetric.Save(serverflag.FileStoragePath)
-		//fmt.Printf(flag.FileStoragePath)
-		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
 	}
 
 	//storage.RestoreData(newMetric, serverflag.Restore)
