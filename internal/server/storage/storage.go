@@ -9,8 +9,8 @@ import (
 )
 
 type MemStorage struct {
-	gauge   map[string]float64 `json:"gauge"`
-	counter map[string]int64   `json:"counter"`
+	gauge   map[string]float64
+	counter map[string]int64
 }
 
 func NewMemStorage() *MemStorage {
@@ -71,15 +71,15 @@ func Save(m *MemStorage) error {
 }
 
 func Load(m *MemStorage) error {
-    data, err := os.ReadFile(flag.FileStoragePath)
-    if err != nil {
-        return err
-    }
-    if err := json.Unmarshal(data, m); err != nil {
-        return err
-    }
-    return nil
-} 
+	data, err := os.ReadFile(flag.FileStoragePath)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(data, m); err != nil {
+		return err
+	}
+	return nil
+}
 
 func RestoreData(m *MemStorage) {
 	if flag.Restore {
