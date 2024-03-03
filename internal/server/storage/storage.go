@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-
-	"github.com/andromaril/agent-smith/internal/serverflag"
 )
 
 type MemStorage struct {
@@ -68,37 +66,37 @@ func (m *MemStorage) PrintMetric() string {
 	return result
 }
 
-func (m *MemStorage) Save() error {
+func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
-	data, err := json.Marshal(&m)
+	data, err := json.Marshal(m)
 	if err != nil {
 		return err
 	}
 	// сохраняем данные в файл
-	if err := os.WriteFile(serverflag.FileStoragePath, data, 0666); err != nil {
+	if err := os.WriteFile(file, data, 0666); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MemStorage) Load() error {
-	data, err := os.ReadFile(serverflag.FileStoragePath)
+func (m *MemStorage) Load(file string) error {
+	data, err := os.ReadFile(file)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
 		}
 		return err
 	}
-	//data2 := &MemStorage{}
-	if err := json.Unmarshal(data, m); err != nil {
+	data2 := &MemStorage{}
+	if err := json.Unmarshal(data, data2); err != nil {
 		return err
 	}
-	//m.SetMetricsData(data2.Gauge, data2.Counter)
+	m.SetMetricsData(data2.Gauge, data2.Counter)
 	return nil
 }
 
-func RestoreData(m *MemStorage) {
-	if serverflag.Restore {
-		m.Load()
-	}
-}
+// func RestoreData(m *MemStorage, value bool) {
+// 	if value {
+// 		m.Load()
+// 	}
+// }

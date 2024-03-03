@@ -45,13 +45,16 @@ func main() {
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
-	storage.RestoreData(newMetric)
+	//storage.RestoreData(newMetric, serverflag.Restore)
+	if serverflag.Restore {
+		newMetric.Load(serverflag.FileStoragePath)
+	}
 	var i int64
 	if serverflag.StoreInterval != 0 {
 		for i = 0; ; i++ {
 			time.Sleep(time.Second)
 			if i%serverflag.StoreInterval == 0 {
-				newMetric.Save()
+				newMetric.Save(serverflag.FileStoragePath)
 				//fmt.Printf(flag.FileStoragePath)
 				time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
 			}
@@ -59,7 +62,7 @@ func main() {
 		//storage.Save(newMetric)
 		//storage.Load(newMetric)
 	} else {
-		newMetric.Save()
+		newMetric.Save(serverflag.FileStoragePath)
 		//fmt.Printf(flag.FileStoragePath)
 	}
 }
