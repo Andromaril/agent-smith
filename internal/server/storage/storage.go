@@ -69,7 +69,7 @@ func (m *MemStorage) PrintMetric() string {
 
 func (m *MemStorage) Save(file string, interval int64) error {
 	// сериализуем структуру в JSON формат
-	data, err := json.MarshalIndent(&m, "", "   ")
+	data, err := json.MarshalIndent(m, "", "   ")
 	if err != nil {
 		return err
 	}
