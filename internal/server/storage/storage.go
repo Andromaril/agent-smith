@@ -1,10 +1,16 @@
 package storage
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+
+	"github.com/andromaril/agent-smith/internal/flag"
+)
 
 type MemStorage struct {
-	gauge   map[string]float64
-	counter map[string]int64
+	gauge   map[string]float64 `json:"gauge"`
+	counter map[string]int64   `json:"counter"`
 }
 
 func NewMemStorage() *MemStorage {
@@ -49,4 +55,34 @@ func (m *MemStorage) PrintMetric() string {
 		result += fmt.Sprintf("%s: %v\n", k2, v2)
 	}
 	return result
+}
+
+func Save(m *MemStorage) error {
+	// сериализуем структуру в JSON формат
+	data, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	// сохраняем данные в файл
+	if err := os.WriteFile(flag.FileStoragePath, data, 0666); err != nil {
+		return err
+	}
+	return nil
+}
+
+func Load(m *MemStorage) error {
+    data, err := os.ReadFile(flag.FileStoragePath)
+    if err != nil {
+        return err
+    }
+    if err := json.Unmarshal(data, m); err != nil {
+        return err
+    }
+    return nil
+} 
+
+func RestoreData(m *MemStorage) {
+	if flag.Restore {
+		Load(m)
+	}
 }
