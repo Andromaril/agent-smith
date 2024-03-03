@@ -21,7 +21,7 @@ func ParseFlags() {
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")
 	flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
-	flag.BoolVar(&Restore, "r", true, "download files")
+	flag.BoolVar(&Restore, "rs", true, "download files")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
