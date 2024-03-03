@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/middleware"
@@ -70,7 +71,11 @@ func main() {
 	// 	}
 	// }
 	//for {
-	go newMetric.Save(serverflag.FileStoragePath, serverflag.StoreInterval)
+
+	go func() {
+		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+		newMetric.Save(serverflag.FileStoragePath)
+	}()
 	//fmt.Print(123)
 	//time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
 	//}
@@ -79,7 +84,6 @@ func main() {
 		sugar.Fatalw(err.Error(), "event", "start server")
 
 	}
-
 }
 
 // func saveMetrics(path string, interval int) {

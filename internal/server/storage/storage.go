@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 )
 
 type MemStorage struct {
@@ -67,14 +66,14 @@ func (m *MemStorage) PrintMetric() string {
 	return result
 }
 
-func (m *MemStorage) Save(file string, interval int64) error {
+func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
 	data, err := json.MarshalIndent(m, "", "   ")
 	if err != nil {
 		return err
 	}
 	// сохраняем данные в файл
-	time.Sleep(time.Second * time.Duration(interval))
+	//time.Sleep(time.Second * time.Duration(interval))
 	return os.WriteFile(file, data, 0666)
 
 }
