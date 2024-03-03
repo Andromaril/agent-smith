@@ -9,8 +9,8 @@ import (
 )
 
 type MemStorage struct {
-	Gauge   map[string]float64
-	Counter map[string]int64
+	gauge   map[string]float64
+	counter map[string]int64
 }
 
 type SerializedMemStorage struct {
@@ -20,29 +20,29 @@ type SerializedMemStorage struct {
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		Gauge:   make(map[string]float64),
-		Counter: make(map[string]int64),
+		gauge:   make(map[string]float64),
+		counter: make(map[string]int64),
 	}
 }
 
 func (m *MemStorage) SetMetricsData(gauge map[string]float64, counter map[string]int64) {
 
-	m.Gauge = gauge
-	m.Counter = counter
+	m.gauge = gauge
+	m.counter = counter
 }
 
 func (m *MemStorage) NewGauge(key string, value float64) error {
-	m.Gauge[key] = value
+	m.gauge[key] = value
 	return nil
 }
 
 func (m *MemStorage) NewCounter(key string, value int64) error {
-	m.Counter[key] += value
+	m.counter[key] += value
 	return nil
 }
 
 func (m *MemStorage) GetCounter(key string) (int64, error) {
-	k, ok := m.Counter[key]
+	k, ok := m.counter[key]
 	if !ok {
 		return 0, fmt.Errorf("not found")
 	}
@@ -50,7 +50,7 @@ func (m *MemStorage) GetCounter(key string) (int64, error) {
 }
 
 func (m *MemStorage) GetGauge(key string) (float64, error) {
-	k, ok := m.Gauge[key]
+	k, ok := m.gauge[key]
 	if !ok {
 		return 0, fmt.Errorf("not found")
 	}
@@ -59,10 +59,10 @@ func (m *MemStorage) GetGauge(key string) (float64, error) {
 
 func (m *MemStorage) PrintMetric() string {
 	var result string
-	for k1, v1 := range m.Gauge {
+	for k1, v1 := range m.gauge {
 		result += fmt.Sprintf("%s: %v\n", k1, v1)
 	}
-	for k2, v2 := range m.Counter {
+	for k2, v2 := range m.counter {
 		result += fmt.Sprintf("%s: %v\n", k2, v2)
 	}
 	return result
