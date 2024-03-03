@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/andromaril/agent-smith/internal/flag"
 	logging "github.com/andromaril/agent-smith/internal/loger"
@@ -43,7 +44,17 @@ func main() {
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
-	//storage.RestoreData(newMetric)
-	//storage.Save(newMetric)
-	//storage.Load(newMetric)
+	storage.RestoreData(newMetric)
+	var i int64
+	if flag.StoreInterval != 0 {
+		for i = 0; ; i++ {
+			time.Sleep(time.Second)
+			if i%flag.StoreInterval == 0 {
+				storage.Save(newMetric)
+				time.Sleep(time.Second * time.Duration(flag.StoreInterval))
+			}
+		}
+		//storage.Save(newMetric)
+		//storage.Load(newMetric)
+	}
 }

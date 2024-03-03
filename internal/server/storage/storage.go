@@ -13,11 +13,22 @@ type MemStorage struct {
 	Counter map[string]int64
 }
 
+type SerializedMemStorage struct {
+	Gauge   map[string]float64 `json:"gauge"`
+	Counter map[string]int64   `json:"counter"`
+}
+
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		Gauge:   make(map[string]float64),
 		Counter: make(map[string]int64),
 	}
+}
+
+func (m *MemStorage) SetMetricsData(gauge map[string]float64, counter map[string]int64) {
+
+	m.Gauge = gauge
+	m.Counter = counter
 }
 
 func (m *MemStorage) NewGauge(key string, value float64) error {
@@ -73,11 +84,16 @@ func Save(m *MemStorage) error {
 func Load(m *MemStorage) error {
 	data, err := os.ReadFile(flag.FileStoragePath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return err
 	}
-	if err := json.Unmarshal(data, m); err != nil {
+	data2 := SerializedMemStorage{}
+	if err := json.Unmarshal(data, &data2); err != nil {
 		return err
 	}
+	m.SetMetricsData(data2.Gauge, data2.Counter)
 	return nil
 }
 
