@@ -68,7 +68,7 @@ func (m *MemStorage) PrintMetric() string {
 
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
-	data, err := json.Marshal(m)
+	data, err := json.Marshal(&m)
 	if err != nil {
 		return err
 	}
@@ -87,8 +87,8 @@ func (m *MemStorage) Load(file string) error {
 		}
 		return err
 	}
-	data2 := &MemStorage{}
-	if err := json.Unmarshal(data, data2); err != nil {
+	data2 := &SerializedMemStorage{}
+	if err := json.Unmarshal(data, &data2); err != nil {
 		return err
 	}
 	m.SetMetricsData(data2.Gauge, data2.Counter)
