@@ -43,6 +43,10 @@ func main() {
 	//newMetric.Save(serverflag.FileStoragePath)
 	//fmt.Printf(flag.FileStoragePath)
 	//}
+	if serverflag.Restore {
+		newMetric.Load(serverflag.FileStoragePath)
+		fmt.Println(123)
+	}
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
@@ -60,9 +64,7 @@ func main() {
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
-	if serverflag.Restore {
-		newMetric.Load(serverflag.FileStoragePath)
-	}
+
 	//var i int64
 	if serverflag.StoreInterval != 0 {
 		//for i = 0; ; i++ {
