@@ -43,7 +43,7 @@ func main() {
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
-	storage.RestoreData(newMetric)
-	storage.Save(newMetric)
-	storage.Load(newMetric)
+	//storage.RestoreData(newMetric)
+	//storage.Save(newMetric)
+	//storage.Load(newMetric)
 }
