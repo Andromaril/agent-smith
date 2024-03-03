@@ -98,7 +98,7 @@ func (m *MemStorage) Load() error {
 }
 
 func RestoreData(m *MemStorage) {
-	//if flag.Restore {
+	if flag.Restore {
 		m.Load()
-	//}
+	}
 }

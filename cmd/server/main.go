@@ -56,5 +56,7 @@ func main() {
 		}
 		//storage.Save(newMetric)
 		//storage.Load(newMetric)
+	} else {
+		newMetric.Save()
 	}
 }
