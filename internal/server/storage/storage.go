@@ -68,7 +68,7 @@ func (m *MemStorage) PrintMetric() string {
 	return result
 }
 
-func Save(m *MemStorage) error {
+func (m *MemStorage) Save() error {
 	// сериализуем структуру в JSON формат
 	data, err := json.Marshal(m)
 	if err != nil {
@@ -81,7 +81,7 @@ func Save(m *MemStorage) error {
 	return nil
 }
 
-func Load(m *MemStorage) error {
+func (m *MemStorage) Load() error {
 	data, err := os.ReadFile(flag.FileStoragePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -89,8 +89,8 @@ func Load(m *MemStorage) error {
 		}
 		return err
 	}
-	data2 := SerializedMemStorage{}
-	if err := json.Unmarshal(data, &data2); err != nil {
+	data2 := &MemStorage{}
+	if err := json.Unmarshal(data, data2); err != nil {
 		return err
 	}
 	m.SetMetricsData(data2.Gauge, data2.Counter)
@@ -99,6 +99,6 @@ func Load(m *MemStorage) error {
 
 func RestoreData(m *MemStorage) {
 	if flag.Restore {
-		Load(m)
+		m.Load()
 	}
 }

@@ -50,7 +50,7 @@ func main() {
 		for i = 0; ; i++ {
 			time.Sleep(time.Second)
 			if i%flag.StoreInterval == 0 {
-				storage.Save(newMetric)
+				newMetric.Save()
 				time.Sleep(time.Second * time.Duration(flag.StoreInterval))
 			}
 		}
