@@ -87,11 +87,12 @@ func (m *MemStorage) Load(file string) error {
 		}
 		return err
 	}
-	data2 := &SerializedMemStorage{}
-	if err := json.Unmarshal(data, &data2); err != nil {
-		return err
-	}
-	m.SetMetricsData(data2.Gauge, data2.Counter)
+	// data2 := &SerializedMemStorage{}
+	// if err := json.Unmarshal(data, &data2); err != nil {
+	// 	return err
+	// }
+	// m.SetMetricsData(data2.Gauge, data2.Counter)
+	json.Unmarshal(data, m)
 	return nil
 }
 
