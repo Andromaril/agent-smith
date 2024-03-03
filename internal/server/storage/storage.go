@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/andromaril/agent-smith/internal/serverflag"
 )
 
 type MemStorage struct {
@@ -75,14 +75,14 @@ func (m *MemStorage) Save() error {
 		return err
 	}
 	// сохраняем данные в файл
-	if err := os.WriteFile(flag.FileStoragePath, data, 0666); err != nil {
+	if err := os.WriteFile(serverflag.FileStoragePath, data, 0666); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (m *MemStorage) Load() error {
-	data, err := os.ReadFile(flag.FileStoragePath)
+	data, err := os.ReadFile(serverflag.FileStoragePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -98,7 +98,7 @@ func (m *MemStorage) Load() error {
 }
 
 func RestoreData(m *MemStorage) {
-	if flag.Restore {
+	if serverflag.Restore {
 		m.Load()
 	}
 }

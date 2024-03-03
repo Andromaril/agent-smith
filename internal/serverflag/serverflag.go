@@ -93,8 +93,8 @@ import (
 
 var (
 	FlagRunAddr     string
-	ReportInterval  int64
-	PollInterval    int64
+	//ReportInterval  int64
+	//PollInterval    int64
 	StoreInterval   int64
 	FileStoragePath string
 	Restore         bool

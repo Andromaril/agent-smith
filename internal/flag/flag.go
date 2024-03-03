@@ -7,25 +7,25 @@ import (
 )
 
 var (
-	FlagRunAddr     string
+	//FlagRunAddr     string
 	ReportInterval  int64
 	PollInterval    int64
-	StoreInterval   int64
-	FileStoragePath string
-	Restore         bool
+	//StoreInterval   int64
+	//FileStoragePath string
+	//Restore         bool
 )
 
 func ParseFlags() {
 	flag.Int64Var(&ReportInterval, "r", 10, "time to sleep for report interval")
 	flag.Int64Var(&PollInterval, "p", 2, "time to sleep for poll interval")
-	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
+	//flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	// flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")
 	// flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
 	// flag.BoolVar(&Restore, "rs", true, "download files")
 	flag.Parse()
-	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
-		FlagRunAddr = envRunAddr
-	}
+	// if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
+	// 	FlagRunAddr = envRunAddr
+	// }
 	// if envFileStoragePath := os.Getenv("FILE_STORAGE_PATH"); envFileStoragePath != "" {
 	// 	FileStoragePath = envFileStoragePath
 	// }

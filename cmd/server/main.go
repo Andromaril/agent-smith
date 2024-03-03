@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/andromaril/agent-smith/internal/flag"
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
@@ -19,7 +17,7 @@ var sugar zap.SugaredLogger
 
 func main() {
 	serverflag.ParseFlags()
-	fmt.Printf(flag.FileStoragePath)
+	//fmt.Printf(flag.FileStoragePath)
 	logger, err1 := zap.NewDevelopment()
 	if err1 != nil {
 		panic(err1)
@@ -28,7 +26,7 @@ func main() {
 	sugar = *logger.Sugar()
 	sugar.Infow(
 		"Starting server",
-		"addr", flag.FlagRunAddr,
+		"addr", serverflag.FlagRunAddr,
 	)
 	newMetric := storage.NewMemStorage()
 	r := chi.NewRouter()
@@ -44,18 +42,18 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
+	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
 	storage.RestoreData(newMetric)
 	var i int64
-	if flag.StoreInterval != 0 {
+	if serverflag.StoreInterval != 0 {
 		for i = 0; ; i++ {
 			time.Sleep(time.Second)
-			if i%flag.StoreInterval == 0 {
+			if i%serverflag.StoreInterval == 0 {
 				newMetric.Save()
 				//fmt.Printf(flag.FileStoragePath)
-				time.Sleep(time.Second * time.Duration(flag.StoreInterval))
+				time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
 			}
 		}
 		//storage.Save(newMetric)
