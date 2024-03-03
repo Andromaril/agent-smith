@@ -68,15 +68,13 @@ func (m *MemStorage) PrintMetric() string {
 
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
-	data, err := json.Marshal(m)
+	data, err := json.MarshalIndent(&m, "", "   ")
 	if err != nil {
 		return err
 	}
 	// сохраняем данные в файл
-	if err := os.WriteFile(file, data, 0666); err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(file, data, 0666)
+
 }
 
 func (m *MemStorage) Load(file string) error {

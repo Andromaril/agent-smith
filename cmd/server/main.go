@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -45,7 +44,6 @@ func main() {
 	//}
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
-		fmt.Println(123)
 	}
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
@@ -60,24 +58,31 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-
+	// var i int64
+	// if serverflag.StoreInterval != 0 {
+	// 	for i = 0; ; i++ {
+	// 		if i%serverflag.StoreInterval == 0 {
+	// 			newMetric.Save(serverflag.FileStoragePath)
+	// 			fmt.Printf(serverflag.FileStoragePath)
+	// 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+	// 		} else {
+	// 			newMetric.Save(serverflag.FileStoragePath)
+	// 		}
+	// 	}
+	// }
+	go func() {
+		newMetric.Save(serverflag.FileStoragePath)
+		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+	}()
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
-	}
 
-	//var i int64
-	if serverflag.StoreInterval != 0 {
-		//for i = 0; ; i++ {
-		//time.Sleep(time.Second)
-		//if i%serverflag.StoreInterval == 0 {
-		go func() {
-			newMetric.Save(serverflag.FileStoragePath)
-			fmt.Printf(serverflag.FileStoragePath)
-			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
-		}()
-	} else {
-		newMetric.Save(serverflag.FileStoragePath)
 	}
-
-	//storage.RestoreData(newMetric, serverflag.Restore)
 }
+
+// func saveMetrics(path string, interval int) {
+// 	for {
+// 		storage.Save(path)
+// 		time.Sleep(time.Duration(interval) * time.Second)
+// 	}
+// }
