@@ -89,11 +89,11 @@ func (m *MemStorage) Load() error {
 		}
 		return err
 	}
-	data2 := &MemStorage{}
-	if err := json.Unmarshal(data, data2); err != nil {
+	//data2 := &MemStorage{}
+	if err := json.Unmarshal(data, m); err != nil {
 		return err
 	}
-	m.SetMetricsData(data2.Gauge, data2.Counter)
+	//m.SetMetricsData(data2.Gauge, data2.Counter)
 	return nil
 }
 
