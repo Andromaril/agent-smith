@@ -29,23 +29,6 @@ func main() {
 		"addr", serverflag.FlagRunAddr,
 	)
 	newMetric := storage.NewMemStorage()
-	r := chi.NewRouter()
-	r.Use(middleware.GzipMiddleware)
-	r.Use(logging.WithLogging(sugar))
-	r.Route("/value", func(r chi.Router) {
-		r.Post("/", handler.GetMetricJSON(newMetric))
-		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
-	})
-
-	r.Route("/update", func(r chi.Router) {
-		r.Post("/", handler.GaugeandCounterJSON(newMetric))
-		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
-	})
-	r.Get("/", handler.GetHTMLMetric(newMetric))
-	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
-		sugar.Fatalw(err.Error(), "event", "start server")
-	}
-	//storage.RestoreData(newMetric, serverflag.Restore)
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
 	}
@@ -65,4 +48,21 @@ func main() {
 		newMetric.Save(serverflag.FileStoragePath)
 		//fmt.Printf(flag.FileStoragePath)
 	}
+	r := chi.NewRouter()
+	r.Use(middleware.GzipMiddleware)
+	r.Use(logging.WithLogging(sugar))
+	r.Route("/value", func(r chi.Router) {
+		r.Post("/", handler.GetMetricJSON(newMetric))
+		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
+	})
+
+	r.Route("/update", func(r chi.Router) {
+		r.Post("/", handler.GaugeandCounterJSON(newMetric))
+		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
+	})
+	r.Get("/", handler.GetHTMLMetric(newMetric))
+	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
+		sugar.Fatalw(err.Error(), "event", "start server")
+	}
+	//storage.RestoreData(newMetric, serverflag.Restore)
 }
