@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
+	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/model"
-	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -22,7 +22,7 @@ func SendMetricJSON(res *model.Metrics) {
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
-	url := fmt.Sprintf("http://%s/update/", serverflag.FlagRunAddr)
+	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
 	client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
 }
 
