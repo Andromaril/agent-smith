@@ -29,25 +29,19 @@ func main() {
 		"addr", serverflag.FlagRunAddr,
 	)
 	newMetric := storage.NewMemStorage()
-	if serverflag.Restore {
-		newMetric.Load(serverflag.FileStoragePath)
-	}
-	var i int64
-	if serverflag.StoreInterval != 0 {
-		for i = 0; ; i++ {
-			time.Sleep(time.Second)
-			if i%serverflag.StoreInterval == 0 {
-				newMetric.Save(serverflag.FileStoragePath)
-				//fmt.Printf(flag.FileStoragePath)
-				time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
-			}
-		}
-		//storage.Save(newMetric)
-		//storage.Load(newMetric)
-	} else {
-		newMetric.Save(serverflag.FileStoragePath)
-		//fmt.Printf(flag.FileStoragePath)
-	}
+	//var i int64
+	//if serverflag.StoreInterval != 0 {
+	//for i = 0; ; i++ {
+	//time.Sleep(time.Second)
+	//if i%serverflag.StoreInterval == 0 {
+	//}
+	//}
+	//storage.Save(newMetric)
+	//storage.Load(newMetric)
+	//} else {
+	//newMetric.Save(serverflag.FileStoragePath)
+	//fmt.Printf(flag.FileStoragePath)
+	//}
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
@@ -64,5 +58,19 @@ func main() {
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
+	if serverflag.Restore {
+		newMetric.Load(serverflag.FileStoragePath)
+	}
+	//var i int64
+	//if serverflag.StoreInterval != 0 {
+	//for i = 0; ; i++ {
+	//time.Sleep(time.Second)
+	//if i%serverflag.StoreInterval == 0 {
+	for {
+		newMetric.Save(serverflag.FileStoragePath)
+		//fmt.Printf(flag.FileStoragePath)
+		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+	}
+
 	//storage.RestoreData(newMetric, serverflag.Restore)
 }
