@@ -1,52 +1,40 @@
 package metric
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/flag"
-	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/go-resty/resty/v2"
 )
 
-func SendMetricJSON(res *model.Metrics) {
-	jsonData, err := json.Marshal(res)
-
+func SendGaugeMetric(name string, value float64) {
+	client := resty.New()
+	url := fmt.Sprintf("http://%s/update/gauge/%s/%v", flag.FlagRunAddr, name, value)
+	//fmt.Print(url)
+	_, err := client.R().Post(url)
 	if err != nil {
 		panic(err)
 	}
-	client := resty.New()
-	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
-	//fmt.Print(url)
-	client.R().SetHeader("Content-Type", "application/json").SetBody(jsonData).Post(url)
-	// if err1 != nil {
-	// 	panic(err1)
-	// }
 }
 
-func SendAllMetricJSON2() error {
+func SendCounterMetric(name string, value int64) {
+	client := resty.New()
+	url := fmt.Sprintf("http://%s/update/counter/%s/%v", flag.FlagRunAddr, name, value)
+	_, err := client.R().Post(url)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func SendAllMetric() error {
 	f := creator.CreateFloatMetric()
 	i := creator.CreateIntMetric()
-
 	for key, value := range f {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "gauge",
-			Delta: nil,
-			Value: &value,
-		}
-		SendMetricJSON(&resp)
+		SendGaugeMetric(key, value)
 	}
 	for key, value := range i {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "counter",
-			Delta: &value,
-			Value: nil,
-		}
-
-		SendMetricJSON(&resp)
+		SendCounterMetric(key, value)
 	}
 	return nil
 }

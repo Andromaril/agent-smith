@@ -19,29 +19,13 @@ func UpdateMetric() {
 
 func main() {
 	flag.ParseFlags()
-	var i int64
-	var t1 bool
-	var t2 bool
-	t1 = true
-	t2 = false
-	for i = 0; ; i++ {
-		time.Sleep(time.Second)
-		if t1 && i%flag.PollInterval == 0 {
-			creator.PollCount++
-			creator.RandomValue = rand.Float64()
-			t2 = true
-			t1 = false
-			time.Sleep(time.Second * time.Duration(flag.PollInterval))
-
+	time.Sleep(time.Second)
+	go UpdateMetric()
+	for {
+		err := metric.SendAllMetric()
+		if err != nil {
+			panic(err)
 		}
-		if t2 && i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON2()
-			if err != nil {
-				panic(err)
-			}
-			t1 = true
-			t2 = false
-			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
-		}
+		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }

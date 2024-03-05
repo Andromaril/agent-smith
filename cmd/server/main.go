@@ -29,17 +29,14 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
-		r.Post("/", handler.GetMetricJSON(newMetric))
 		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 	})
 
 	r.Route("/update", func(r chi.Router) {
-		r.Post("/", handler.GaugeandCounterJSON(newMetric))
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	//r.Post("/update/", handler.GaugeandCounterJSON(newMetric))
-	//r.Post("/value/", handler.GetMetricJSON(newMetric))
+
 	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
 	}
