@@ -46,10 +46,12 @@ func main() {
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
 
-	go func() {
-		time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
-		newMetric.Save(serverflag.FileStoragePath)
-	}()
+	if serverflag.StoreInterval != 0 {
+		go func() {
+			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+			newMetric.Save(serverflag.FileStoragePath)
+		}()
+	}
 
 	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
 		sugar.Fatalw(err.Error(), "event", "start server")
