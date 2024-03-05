@@ -22,7 +22,7 @@ func CreateFloatMetric() map[string]float64 {
 		"HeapSys":       float64(metr.HeapSys),
 		"LastGC":        float64(metr.LastGC),
 		"Lookups":       float64(metr.Lookups),
-		"MCacheInuse":   float64(metr.MCacheInuse),
+		"CacheInuse":    float64(metr.MCacheInuse),
 		"MCacheSys":     float64(metr.MCacheSys),
 		"MSpanInuse":    float64(metr.MSpanInuse),
 		"MSpanSys":      float64(metr.MSpanSys),
