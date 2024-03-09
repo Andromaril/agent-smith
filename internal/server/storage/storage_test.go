@@ -2,6 +2,8 @@ package storage
 
 import (
 	"testing"
+
+	"github.com/andromaril/agent-smith/internal/serverflag"
 )
 
 func TestMemStorage_NewGauge(t *testing.T) {
@@ -24,7 +26,7 @@ func TestMemStorage_NewGauge(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewMemStorage()
+			s := NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 			for key, value := range tt.args.gauge {
 				err := s.NewGauge(key, value)
 				if err != nil {
@@ -55,7 +57,7 @@ func TestMemStorage_NewCounter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewMemStorage()
+			s := NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 			for key, value := range tt.args.counter {
 				err := s.NewCounter(key, value)
 				if err != nil {

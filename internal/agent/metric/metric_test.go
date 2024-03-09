@@ -7,12 +7,13 @@ import (
 
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSendGaugeMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
@@ -40,7 +41,7 @@ func TestSendGaugeMetric(t *testing.T) {
 }
 
 func TestSendCounterMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()

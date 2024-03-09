@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGaugeandCounter(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
@@ -40,7 +41,7 @@ func TestGaugeandCounter(t *testing.T) {
 }
 
 func TestGetMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
@@ -75,7 +76,7 @@ func TestGetMetric(t *testing.T) {
 }
 
 func TestGetHTMLMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()

@@ -27,7 +27,7 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
-	newMetric := storage.NewMemStorage()
+	newMetric := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)

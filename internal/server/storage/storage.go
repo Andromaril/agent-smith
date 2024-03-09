@@ -7,24 +7,46 @@ import (
 )
 
 type MemStorage struct {
-	Gauge   map[string]float64
-	Counter map[string]int64
+	Gauge     map[string]float64
+	Counter   map[string]int64
+	WriteSync bool
+	Path      string
 }
 
-func NewMemStorage() *MemStorage {
-	return &MemStorage{
-		Gauge:   make(map[string]float64),
-		Counter: make(map[string]int64),
-	}
+func NewMemStorage(b bool, p string) *MemStorage {
+	m := MemStorage{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
+	// return &MemStorage{
+	// 	Gauge:   make(map[string]float64),
+	// 	Counter: make(map[string]int64),
+	// 	writeSync:
+	// }
+	m.SyncWrite(b)
+	return &m
+}
+
+func (m *MemStorage) SyncWrite(b bool) {
+	m.WriteSync = b
 }
 
 func (m *MemStorage) NewGauge(key string, value float64) error {
 	m.Gauge[key] = value
+	if m.WriteSync {
+		err := m.Save(m.Path)
+		if err != nil {
+			panic(err)
+		}
+	}
 	return nil
 }
 
 func (m *MemStorage) NewCounter(key string, value int64) error {
 	m.Counter[key] += value
+	if m.WriteSync {
+		err := m.Save(m.Path)
+		if err != nil {
+			panic(err)
+		}
+	}
 	return nil
 }
 
