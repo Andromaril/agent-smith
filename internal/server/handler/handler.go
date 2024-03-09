@@ -166,6 +166,7 @@ func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
+		req.Header.Add("Content-Type", "text/html")
 		s := m.PrintMetric()
 		tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
 		res.Header().Set("Content-Type", "text/html")
