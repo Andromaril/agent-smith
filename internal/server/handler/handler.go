@@ -179,7 +179,8 @@ func Ping(db *sql.DB) http.HandlerFunc {
 		err := db.Ping()
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
+		} else {
+			res.WriteHeader(http.StatusOK)
 		}
-		res.WriteHeader(http.StatusOK)
 	}
 }
