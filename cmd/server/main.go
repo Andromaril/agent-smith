@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
 	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/middleware"
@@ -27,6 +30,12 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
+
+	db, err := sql.Open("pgx", serverflag.Databaseflag)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 	newMetric := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 
 	if serverflag.Restore {
@@ -45,6 +54,7 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
+	r.Get("/ping", handler.Ping(db))
 	//В задании указано, что StoreInterval = 0 делает запись синхронной.
 	//Запись в бесконечном цикле - не то же самое.
 	if serverflag.StoreInterval != 0 {

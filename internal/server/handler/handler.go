@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -170,5 +171,15 @@ func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
 		tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
 		res.Header().Set("Content-Type", "text/html")
 		res.Write([]byte(tem))
+	}
+}
+
+func Ping(db *sql.DB) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		err := db.Ping()
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+		}
+		res.WriteHeader(http.StatusOK)
 	}
 }
