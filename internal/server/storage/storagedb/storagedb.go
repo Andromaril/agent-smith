@@ -77,5 +77,5 @@ func (m *StorageDB) Save(file string) error {
 
 func (m *StorageDB) PrintMetric() string {
 
-	return nil
+	return "error"
 }
