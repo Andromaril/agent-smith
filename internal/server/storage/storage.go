@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -21,12 +22,12 @@ type Storage interface {
 	GetGauge(key string) (float64, error)
 	Load(file string) error
 	Save(file string) error
-	Init(path string, ctx context.Context) error
+	Init(path string, ctx context.Context) (*sql.DB, error)
 	PrintMetric() string
 }
 
-func (store *MemStorage) Init(path string, ctx context.Context) error {
-	return nil
+func (store *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
+	return nil, nil
 }
 
 // type MemStorageDB struct {
