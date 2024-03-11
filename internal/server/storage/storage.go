@@ -24,10 +24,13 @@ type Storage interface {
 	Save(file string) error
 	Init(path string, ctx context.Context) (*sql.DB, error)
 	PrintMetric() string
-	
+	Ping() error
 }
 
-func (store *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
+func (m *MemStorage) Ping() error {
+	return nil
+}
+func (m *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
 	return nil, nil
 }
 
