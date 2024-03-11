@@ -50,11 +50,11 @@ func main() {
 	// 	newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
 	// }
 
-	db, err := sql.Open("pgx", serverflag.Databaseflag)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	// db, err := sql.Open("pgx", serverflag.Databaseflag)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer db.Close()
 
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
