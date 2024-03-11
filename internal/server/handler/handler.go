@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -174,7 +174,7 @@ func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 	}
 }
 
-func Ping(db *sql.DB) http.HandlerFunc {
+func Ping(db storagedb.Interface) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := db.Ping()
 		if err != nil {

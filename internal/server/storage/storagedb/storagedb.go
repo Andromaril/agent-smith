@@ -3,12 +3,19 @@ package storagedb
 import (
 	"context"
 	"database/sql"
+
+	"github.com/andromaril/agent-smith/internal/server/storage"
 )
 
 type StorageDB struct {
 	DB   *sql.DB
 	Path string
 	Ctx  context.Context
+}
+
+type Interface interface {
+	storage.Storage
+	Ping() error
 }
 
 func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
@@ -30,6 +37,10 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	}
 	return m.DB, nil
 
+}
+
+func (s *StorageDB) Ping() error {
+	return s.DB.Ping()
 }
 
 func (m *StorageDB) NewGauge(key string, value float64) error {
