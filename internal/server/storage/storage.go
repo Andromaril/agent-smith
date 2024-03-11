@@ -24,6 +24,7 @@ type Storage interface {
 	Save(file string) error
 	Init(path string, ctx context.Context) (*sql.DB, error)
 	PrintMetric() string
+	
 }
 
 func (store *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
