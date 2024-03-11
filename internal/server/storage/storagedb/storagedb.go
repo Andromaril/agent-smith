@@ -3,8 +3,6 @@ package storagedb
 import (
 	"context"
 	"database/sql"
-
-	"github.com/sirupsen/logrus"
 )
 
 type StorageDB struct {
