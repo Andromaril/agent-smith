@@ -11,15 +11,8 @@ type StorageDB struct {
 	ctx  context.Context
 }
 
-func (m *StorageDB) Init(path string, ctx context.Context) error {
+func (m *StorageDB) Init(ctx context.Context) error {
 	var err error
-	m.ctx = ctx
-	m.Path = path
-	m.db, err = sql.Open("pgx", path)
-	if err != nil {
-		return err
-	}
-	defer m.db.Close()
 	_, err = m.db.QueryContext(m.ctx, "CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION);")
 	if err != nil {
 		return err

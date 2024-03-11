@@ -21,11 +21,11 @@ type Storage interface {
 	GetGauge(key string) (float64, error)
 	Load(file string) error
 	Save(file string) error
-	Init(path string, ctx context.Context) error
+	Init(ctx context.Context) error
 	PrintMetric() string
 }
 
-func (store *MemStorage) Init(path string, ctx context.Context) error {
+func (store *MemStorage) Init(ctx context.Context) error {
 	return nil
 }
 
