@@ -38,12 +38,7 @@ func main() {
 	var db *sql.DB
 	if serverflag.Databaseflag != "" {
 		newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
-		db, err := sql.Open("pgx", serverflag.Databaseflag)
-		if err != nil {
-			panic(err)
-		}
-		defer db.Close()
-		newMetric.Init(context.Background())
+		newMetric.Init(serverflag.FileStoragePath, context.Background())
 	} else {
 		newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
 	}
@@ -55,11 +50,11 @@ func main() {
 	// 	newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
 	// }
 
-	// db, err := sql.Open("pgx", serverflag.Databaseflag)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer db.Close()
+	db, err := sql.Open("pgx", serverflag.Databaseflag)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
