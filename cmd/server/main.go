@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"net/http"
 	"time"
@@ -38,8 +37,8 @@ func main() {
 	var db *sql.DB
 	if serverflag.Databaseflag != "" {
 		newMetric = &storagedb.StorageDB{Path: serverflag.Databaseflag}
-		db, err = newMetric.Init(serverflag.Databaseflag, context.Background())
-		// db, err = sql.Open("pgx", serverflag.Databaseflag)
+		//db, err = newMetric.Init(serverflag.Databaseflag, context.Background())
+		db, err = sql.Open("pgx", serverflag.Databaseflag)
 		if err != nil {
 			panic(err)
 		}
