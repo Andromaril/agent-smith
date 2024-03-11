@@ -19,14 +19,14 @@ func ParseFlags() {
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")
 	flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
 	flag.BoolVar(&Restore, "r", true, "download files")
-	flag.StringVar(&Databaseflag, "d", "host=localhost user=postgres password=mypass dbname=agent sslmode=disable", "database path")
+	flag.StringVar(&Databaseflag, "d", "", "database path")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
 	}
-	if envDatabaseflag := os.Getenv("DATABASE_DSN"); envDatabaseflag != "" {
-		Databaseflag = envDatabaseflag
-	}
+	// if envDatabaseflag := os.Getenv("DATABASE_DSN"); envDatabaseflag != "" {
+	// 	Databaseflag = envDatabaseflag
+	// }
 	if envFileStoragePath := os.Getenv("FILE_STORAGE_PATH"); envFileStoragePath != "" {
 		FileStoragePath = envFileStoragePath
 	}
