@@ -3,6 +3,8 @@ package storagedb
 import (
 	"context"
 	"database/sql"
+
+	"github.com/sirupsen/logrus"
 )
 
 type StorageDB struct {
@@ -33,6 +35,27 @@ func (m *StorageDB) Init(path string, ctx context.Context) error {
 }
 
 func (m *StorageDB) NewGauge(key string, value float64) error {
+	var err error
+	var count int
+	gaugeCountQuery := m.db.QueryRowContext(m.ctx, "SELECT COUNT(*) FROM gauge WHERE key=$1", key)
+	if err = gaugeCountQuery.Err(); err != nil {
+		return err
+	}
+	err = gaugeCountQuery.Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		_, err = m.db.ExecContext(m.ctx, "INSERT INTO gauge (key, value) VALUES ($1, $2)", key, value)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = m.db.ExecContext(m.ctx, "UPDATE gauge SET value=$1 WHERE key=$2", value, key)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
