@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -20,6 +22,7 @@ var sugar zap.SugaredLogger
 
 func main() {
 	serverflag.ParseFlags()
+
 	logger, err1 := zap.NewDevelopment()
 	if err1 != nil {
 		panic(err1)
@@ -30,13 +33,27 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
+	var newMetric storage.Storage
+	if serverflag.Databaseflag != "" {
+		newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
+		newMetric.Init(serverflag.FileStoragePath, context.Background())
+	} else {
+
+		newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
+	}
+
+	// var newMetric *storage.MemStorage
+	// if serverflag.Databaseflag != "" {
+	// 	newMetric = storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
+	// } else {
+	// 	newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
+	// }
 
 	db, err := sql.Open("pgx", serverflag.Databaseflag)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	newMetric := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
 
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)

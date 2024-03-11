@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -13,6 +14,39 @@ type MemStorage struct {
 	Path      string
 }
 
+type Storage interface {
+	NewGauge(key string, value float64) error
+	NewCounter(key string, value int64) error
+	GetCounter(key string) (int64, error)
+	GetGauge(key string) (float64, error)
+	Load(file string) error
+	Save(file string) error
+	Init(path string, ctx context.Context) error
+	PrintMetric() string
+}
+
+func (store *MemStorage) Init(path string, ctx context.Context) error {
+	return nil
+}
+
+// type MemStorageDB struct {
+// 	Gauge     map[string]float64
+// 	Counter   map[string]int64
+// 	WriteSync bool
+// 	Path      string
+// }
+
+// func NewMemStorageDB(b bool, p string) *MemStorageDB {
+// 	m := MemStorageDB{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
+// 	// return &MemStorage{
+// 	// 	Gauge:   make(map[string]float64),
+// 	// 	Counter: make(map[string]int64),
+// 	// 	writeSync:
+// 	// }
+// 	m.SyncWrite(b)
+// 	return &m
+// }
+
 func NewMemStorage(b bool, p string) *MemStorage {
 	m := MemStorage{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
 	// return &MemStorage{
@@ -23,6 +57,10 @@ func NewMemStorage(b bool, p string) *MemStorage {
 	m.SyncWrite(b)
 	return &m
 }
+
+// func (m *MemStorageDB) SyncWrite(b bool) {
+// 	m.WriteSync = b
+// }
 
 func (m *MemStorage) SyncWrite(b bool) {
 	m.WriteSync = b

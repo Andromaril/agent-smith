@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
+func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
@@ -55,7 +55,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
+func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
@@ -113,7 +113,7 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
+func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
@@ -136,7 +136,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GetMetric(m *storage.MemStorage) http.HandlerFunc {
+func GetMetric(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
@@ -161,7 +161,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
+func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodGet {
 			res.WriteHeader(http.StatusMethodNotAllowed)
