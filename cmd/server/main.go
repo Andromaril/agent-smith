@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 	"time"
 
@@ -34,8 +33,8 @@ func main() {
 		"addr", serverflag.FlagRunAddr,
 	)
 	var newMetric storage.Storage
-	var err error
-	var db *sql.DB
+	//var err error
+	//var db *sql.DB
 	if serverflag.Databaseflag != "" {
 		newMetric = &storagedb.StorageDB{Path: serverflag.Databaseflag}
 
@@ -47,7 +46,7 @@ func main() {
 	// if err != nil {
 	// 	panic(err)
 	// }
-	db, err = newMetric.Init(serverflag.Databaseflag, context.Background())
+	db, err := newMetric.Init(serverflag.Databaseflag, context.Background())
 	// db, err = sql.Open("pgx", serverflag.Databaseflag)
 	if err != nil {
 		panic(err)
