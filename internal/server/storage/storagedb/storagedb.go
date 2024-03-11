@@ -39,8 +39,8 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 
 }
 
-func (s *StorageDB) Ping() error {
-	return s.DB.Ping()
+func (m *StorageDB) Ping() error {
+	return m.DB.Ping()
 }
 
 func (m *StorageDB) NewGauge(key string, value float64) error {
