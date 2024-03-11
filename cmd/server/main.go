@@ -37,10 +37,11 @@ func main() {
 	if serverflag.Databaseflag != "" {
 		newMetric = &storagedb.StorageDB{Path: serverflag.FileStoragePath}
 		newMetric.Init(serverflag.FileStoragePath, context.Background())
-	} else {
-
-		newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
 	}
+	//else {
+
+	newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
+	//}
 
 	// var newMetric *storage.MemStorage
 	// if serverflag.Databaseflag != "" {
