@@ -27,11 +27,11 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 		return nil, err
 	}
 	//defer m.db.Close()
-	_, err = m.DB.QueryContext(m.Ctx, "CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION);")
+	_, err = m.DB.Exec("CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION);")
 	if err != nil {
 		return nil, err
 	}
-	_, err = m.DB.QueryContext(m.Ctx, "CREATE TABLE IF NOT EXISTS counter (key varchar(100), value int8);")
+	_, err = m.DB.Exec("CREATE TABLE IF NOT EXISTS counter (key varchar(100), value int8);")
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,9 @@ func (m *StorageDB) NewGauge(key string, value float64) error {
 }
 
 func (m *StorageDB) NewCounter(key string, value int64) error {
-	return nil
+	_, err := m.DB.Exec(`
+		INSERT INTO counter (key, value) VALUES ($1, $2)`, key, value)
+	return err
 }
 
 func (m *StorageDB) GetCounter(key string) (int64, error) {
