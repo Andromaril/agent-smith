@@ -28,11 +28,11 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 		return nil, err
 	}
 	//defer m.db.Close()
-	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS gauge (id SERIAL PRIMARY KEY, key varchar(100), value DOUBLE PRECISION)`)
+	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
 	if err != nil {
 		return nil, err
 	}
-	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS counter (id SERIAL PRIMARY KEY, key varchar(100) UNIQUE NOT NULL, value int8)`)
+	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
 	if err != nil {
 		return nil, err
 	}
