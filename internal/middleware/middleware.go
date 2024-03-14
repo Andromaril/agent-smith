@@ -18,9 +18,10 @@ func GzipMiddleware(h http.Handler) http.Handler {
 		support := slices.Contains(contentType, "application/json")
 		support2 := slices.Contains(contentType, "text/html")
 		//support3 := strings.Contains(accept, "html/text")
-		if support || support2 {
+		//if support || support2 {
 			//По заданию мы проверяем не только Accept-Encoding, но и Content-Type для принятия решения о сжатии ответа.
 			if supportsGzip {
+				if support || support2 {
 				cw := gzip.NewCompressWriter(w)
 				ow = cw
 				ow.Header().Set("Content-Encoding", "gzip")
@@ -36,7 +37,7 @@ func GzipMiddleware(h http.Handler) http.Handler {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			ow.Header().Set("Content-Encoding", "gzip")
+			//ow.Header().Set("Content-Encoding", "gzip")
 			r.Body = cr
 			defer cr.Close()
 		}
