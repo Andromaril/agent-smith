@@ -12,7 +12,7 @@ func GzipMiddleware(h http.Handler) http.Handler {
 		ow := w
 		acceptEncoding := r.Header.Get("Accept-Encoding")
 		supportsGzip := strings.Contains(acceptEncoding, "gzip")
-		contentType := w.Header().Get("Content-Type")
+		contentType := ow.Header().Get("Content-Type")
 		//accept := r.Header.Get("Accept")
 		support := strings.Contains(contentType, "application/json")
 		support2 := strings.Contains(contentType, "text/html")
