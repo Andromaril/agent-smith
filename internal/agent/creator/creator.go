@@ -12,7 +12,6 @@ var PollCount int64
 func CreateFloatMetric(storage storage.MemStorage) {
 	var metr runtime.MemStats
 	runtime.ReadMemStats(&metr)
-	//return map[string]float64{
 	storage.NewGauge("Alloc", float64(metr.Alloc))
 	storage.NewGauge("BuckHashSys", float64(metr.BuckHashSys))
 	storage.NewGauge("Frees", float64(metr.Frees))
@@ -41,11 +40,8 @@ func CreateFloatMetric(storage storage.MemStorage) {
 	storage.NewGauge("Sys", float64(metr.Sys))
 	storage.NewGauge("TotalAlloc", float64(metr.TotalAlloc))
 	storage.NewGauge("RandomValue", RandomValue)
-	//}
 }
 
 func CreateIntMetric(storage storage.MemStorage) {
-	//return map[string]int64{
 	storage.NewCounter("PollCount", PollCount)
-	//}
 }

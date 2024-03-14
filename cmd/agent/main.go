@@ -24,9 +24,9 @@ func UpdateMetric() {
 func main() {
 	flag.ParseFlags()
 	var i int64
-	logger, err1 := zap.NewDevelopment()
-	if err1 != nil {
-		panic(err1)
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
 	}
 	defer logger.Sync()
 	sugar = *logger.Sugar()
@@ -43,7 +43,7 @@ func main() {
 
 		}
 		if i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON(storage)
+			err := metric.SendAllMetricJSON(sugar, storage)
 			if err != nil {
 				sugar.Errorw(
 					"Error send metric", err)

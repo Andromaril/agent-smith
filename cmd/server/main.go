@@ -45,8 +45,6 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	//В задании указано, что StoreInterval = 0 делает запись синхронной.
-	//Запись в бесконечном цикле - не то же самое.
 	if serverflag.StoreInterval != 0 {
 		go func() {
 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))

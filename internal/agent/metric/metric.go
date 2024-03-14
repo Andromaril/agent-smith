@@ -10,12 +10,13 @@ import (
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
 )
 
-func SendMetricJSON(res *model.Metrics) {
+func SendMetricJSON(sugar zap.SugaredLogger, res *model.Metrics) {
 	jsonData, err := json.Marshal(res)
 	if err != nil {
-		panic(err)
+		sugar.Errorw("marshalling error", err)
 	}
 	buf := bytes.NewBuffer(nil)
 	zb := gzip.NewWriter(buf)
@@ -23,10 +24,13 @@ func SendMetricJSON(res *model.Metrics) {
 	zb.Close()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
-	client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
+	client.R().SetHeader("Content-Type", "application/json").
+		SetHeader("Content-Encoding", "gzip").
+		SetBody(buf).
+		Post(url)
 }
 
-func SendAllMetricJSON(storage storage.MemStorage) error {
+func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) error {
 	f := storage.GetFloatMetric()
 	i := storage.GetIntMetric()
 
@@ -36,7 +40,7 @@ func SendAllMetricJSON(storage storage.MemStorage) error {
 			MType: "gauge",
 			Value: &value,
 		}
-		SendMetricJSON(&resp)
+		SendMetricJSON(sugar, &resp)
 	}
 	for key, value := range i {
 		resp := model.Metrics{
@@ -45,7 +49,7 @@ func SendAllMetricJSON(storage storage.MemStorage) error {
 			Delta: &value,
 		}
 
-		SendMetricJSON(&resp)
+		SendMetricJSON(sugar, &resp)
 	}
 	return nil
 }
