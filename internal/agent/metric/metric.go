@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/model"
+	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -26,9 +26,9 @@ func SendMetricJSON(res *model.Metrics) {
 	client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
 }
 
-func SendAllMetricJSON2() error {
-	f := creator.CreateFloatMetric()
-	i := creator.CreateIntMetric()
+func SendAllMetricJSON(storage storage.MemStorage) error {
+	f := storage.GetFloatMetric()
+	i := storage.GetIntMetric()
 
 	for key, value := range f {
 		resp := model.Metrics{

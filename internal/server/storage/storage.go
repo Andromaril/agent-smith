@@ -98,3 +98,11 @@ func (m *MemStorage) Load(file string) error {
 	json.Unmarshal(data, m)
 	return nil
 }
+
+func (m *MemStorage) GetIntMetric() map[string]int64 {
+	return m.Counter
+}
+
+func (m *MemStorage) GetFloatMetric() map[string]float64 {
+	return m.Gauge
+}

@@ -7,7 +7,11 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/andromaril/agent-smith/internal/server/storage"
+	"go.uber.org/zap"
 )
+
+var sugar zap.SugaredLogger
 
 func UpdateMetric() {
 	for {
@@ -20,28 +24,30 @@ func UpdateMetric() {
 func main() {
 	flag.ParseFlags()
 	var i int64
-	var t1 bool
-	var t2 bool
-	t1 = true
-	t2 = false
+	logger, err1 := zap.NewDevelopment()
+	if err1 != nil {
+		panic(err1)
+	}
+	defer logger.Sync()
+	sugar = *logger.Sugar()
+	sugar.Infow(
+		"Starting agent")
+	storage := storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}}
 	for i = 0; ; i++ {
 		time.Sleep(time.Second)
-		if t1 && i%flag.PollInterval == 0 {
+		if i%flag.PollInterval == 0 {
 			creator.PollCount++
 			creator.RandomValue = rand.Float64()
-			t2 = true
-			t1 = false
-			time.Sleep(time.Second * time.Duration(flag.PollInterval))
+			creator.CreateFloatMetric(storage)
+			creator.CreateIntMetric(storage)
 
 		}
-		if t2 && i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON2()
+		if i%flag.ReportInterval == 0 {
+			err := metric.SendAllMetricJSON(storage)
 			if err != nil {
-				panic(err)
+				sugar.Errorw(
+					"Error send metric", err)
 			}
-			t1 = true
-			t2 = false
-			time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 		}
 	}
 }

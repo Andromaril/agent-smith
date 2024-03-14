@@ -1,47 +1,51 @@
 package creator
 
-import "runtime"
+import (
+	"runtime"
+
+	"github.com/andromaril/agent-smith/internal/server/storage"
+)
 
 var RandomValue float64
 var PollCount int64
 
-func CreateFloatMetric() map[string]float64 {
+func CreateFloatMetric(storage storage.MemStorage) {
 	var metr runtime.MemStats
 	runtime.ReadMemStats(&metr)
-	return map[string]float64{
-		"Alloc":         float64(metr.Alloc),
-		"BuckHashSys":   float64(metr.BuckHashSys),
-		"Frees":         float64(metr.Frees),
-		"GCCPUFraction": float64(metr.GCCPUFraction),
-		"GCSys":         float64(metr.GCSys),
-		"HeapAlloc":     float64(metr.HeapAlloc),
-		"HeapIdle":      float64(metr.HeapIdle),
-		"HeapInuse":     float64(metr.HeapInuse),
-		"HeapObjects":   float64(metr.HeapObjects),
-		"HeapReleased":  float64(metr.HeapReleased),
-		"HeapSys":       float64(metr.HeapSys),
-		"LastGC":        float64(metr.LastGC),
-		"Lookups":       float64(metr.Lookups),
-		"MCacheInuse":   float64(metr.MCacheInuse),
-		"MCacheSys":     float64(metr.MCacheSys),
-		"MSpanInuse":    float64(metr.MSpanInuse),
-		"MSpanSys":      float64(metr.MSpanSys),
-		"Mallocs":       float64(metr.Mallocs),
-		"NextGC":        float64(metr.NextGC),
-		"NumForcedGC":   float64(metr.NumForcedGC),
-		"NumGC":         float64(metr.NumGC),
-		"OtherSys":      float64(metr.OtherSys),
-		"PauseTotalNs":  float64(metr.PauseTotalNs),
-		"StackInuse":    float64(metr.StackInuse),
-		"StackSys":      float64(metr.StackSys),
-		"Sys":           float64(metr.Sys),
-		"TotalAlloc":    float64(metr.TotalAlloc),
-		"RandomValue":   RandomValue,
-	}
+	//return map[string]float64{
+	storage.NewGauge("Alloc", float64(metr.Alloc))
+	storage.NewGauge("BuckHashSys", float64(metr.BuckHashSys))
+	storage.NewGauge("Frees", float64(metr.Frees))
+	storage.NewGauge("GCCPUFraction", float64(metr.GCCPUFraction))
+	storage.NewGauge("GCSys", float64(metr.GCSys))
+	storage.NewGauge("HeapAlloc", float64(metr.HeapAlloc))
+	storage.NewGauge("HeapIdle", float64(metr.HeapIdle))
+	storage.NewGauge("HeapInuse", float64(metr.HeapInuse))
+	storage.NewGauge("HeapObjects", float64(metr.HeapObjects))
+	storage.NewGauge("HeapReleased", float64(metr.HeapReleased))
+	storage.NewGauge("HeapSys", float64(metr.HeapSys))
+	storage.NewGauge("LastGC", float64(metr.LastGC))
+	storage.NewGauge("Lookups", float64(metr.Lookups))
+	storage.NewGauge("MCacheInuse", float64(metr.MCacheInuse))
+	storage.NewGauge("MCacheSys", float64(metr.MCacheSys))
+	storage.NewGauge("MSpanInuse", float64(metr.MSpanInuse))
+	storage.NewGauge("MSpanSys", float64(metr.MSpanSys))
+	storage.NewGauge("Mallocs", float64(metr.Mallocs))
+	storage.NewGauge("NextGC", float64(metr.NextGC))
+	storage.NewGauge("NumForcedGC", float64(metr.NumForcedGC))
+	storage.NewGauge("NumGC", float64(metr.NumGC))
+	storage.NewGauge("OtherSys", float64(metr.OtherSys))
+	storage.NewGauge("PauseTotalNs", float64(metr.PauseTotalNs))
+	storage.NewGauge("StackInuse", float64(metr.StackInuse))
+	storage.NewGauge("StackSys", float64(metr.StackSys))
+	storage.NewGauge("Sys", float64(metr.Sys))
+	storage.NewGauge("TotalAlloc", float64(metr.TotalAlloc))
+	storage.NewGauge("RandomValue", RandomValue)
+	//}
 }
 
-func CreateIntMetric() map[string]int64 {
-	return map[string]int64{
-		"PollCount": PollCount,
-	}
+func CreateIntMetric(storage storage.MemStorage) {
+	//return map[string]int64{
+	storage.NewCounter("PollCount", PollCount)
+	//}
 }
