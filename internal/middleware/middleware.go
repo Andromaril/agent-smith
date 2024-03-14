@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"slices"
 	"strings"
@@ -21,13 +20,13 @@ func GzipMiddleware(h http.Handler) http.Handler {
 		//fmt.Print(support, support2)
 		//support3 := strings.Contains(accept, "html/text")
 		if support {
-		//По заданию мы проверяем не только Accept-Encoding, но и Content-Type для принятия решения о сжатии ответа.
-		if supportsGzip {
-			//if support || support2 {
-			cw := gzip.NewCompressWriter(w)
-			ow = cw
-			ow.Header().Set("Content-Encoding", "gzip")
-			defer cw.Close()
+			//По заданию мы проверяем не только Accept-Encoding, но и Content-Type для принятия решения о сжатии ответа.
+			if supportsGzip {
+				//if support || support2 {
+				cw := gzip.NewCompressWriter(w)
+				ow = cw
+				ow.Header().Set("Content-Encoding", "gzip")
+				defer cw.Close()
 			}
 		}
 		contentEncoding := r.Header.Get("Content-Encoding")
