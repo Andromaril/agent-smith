@@ -20,6 +20,7 @@ func GzipMiddleware(h http.Handler) http.Handler {
 				cw := gzip.NewCompressWriter(w)
 				ow = cw
 				defer cw.Close()
+				ow.Header().Set("Content-Encoding", "gzip")
 			}
 			ow.Header().Set("Content-Encoding", "gzip")
 		}
