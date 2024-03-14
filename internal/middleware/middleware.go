@@ -18,26 +18,27 @@ func GzipMiddleware(h http.Handler) http.Handler {
 		support2 := strings.Contains(contentType, "text/html")
 		//support3 := strings.Contains(accept, "html/text")
 		if support || support2 {
-		//По заданию мы проверяем не только Accept-Encoding, но и Content-Type для принятия решения о сжатии ответа.
-		if supportsGzip {
-			cw := gzip.NewCompressWriter(w)
-			ow = cw
-			ow.Header().Set("Content-Encoding", "gzip")
-			defer cw.Close()
-		}
+			//По заданию мы проверяем не только Accept-Encoding, но и Content-Type для принятия решения о сжатии ответа.
+			if supportsGzip {
+				cw := gzip.NewCompressWriter(w)
+				ow = cw
+				ow.Header().Set("Content-Encoding", "gzip")
+				defer cw.Close()
+			}
 		}
 		contentEncoding := r.Header.Get("Content-Encoding")
 		sendsGzip := strings.Contains(contentEncoding, "gzip")
 		//if support || support2 {
-			if sendsGzip {
-				cr, err := gzip.NewCompressReader(r.Body)
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-				r.Body = cr
-				defer cr.Close()
+		if sendsGzip {
+			cr, err := gzip.NewCompressReader(r.Body)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
+			ow.Header().Set("Content-Encoding", "gzip")
+			r.Body = cr
+			defer cr.Close()
+		}
 		//}
 		h.ServeHTTP(ow, r)
 	})
