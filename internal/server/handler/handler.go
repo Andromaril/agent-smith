@@ -22,6 +22,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			return
 		}
 		if r.MType == "counter" {
+			res.Header().Set("Content-Type", "application/json")
 			value, err := m.GetCounter(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -35,9 +36,11 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
+			res.WriteHeader(http.StatusOK)
 
 		}
 		if r.MType == "gauge" {
+			res.Header().Set("Content-Type", "application/json")
 			value, err := m.GetGauge(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -51,9 +54,10 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
+			res.WriteHeader(http.StatusOK)
 		}
-		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
+		//res.Header().Set("Content-Type", "application/json")
+		//res.WriteHeader(http.StatusOK)
 		//w.Write(resp)
 	}
 }
