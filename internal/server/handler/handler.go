@@ -16,6 +16,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
+		res.Header().Set("Content-Encoding", "gzip")
 		dec := json.NewDecoder(req.Body)
 		if err := dec.Decode(&r); err != nil {
 			res.WriteHeader(http.StatusBadRequest)
@@ -58,6 +59,7 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
+		res.Header().Set("Content-Encoding", "gzip")
 		dec := json.NewDecoder(req.Body)
 		if err := dec.Decode(&r); err != nil {
 			res.WriteHeader(http.StatusBadRequest)
