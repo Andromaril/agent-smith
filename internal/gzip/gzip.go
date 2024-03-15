@@ -31,6 +31,7 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	support2 := strings.Contains(contentType, "text/html")
 	if support || support2 {
 		c.w.Header().Set("Content-Encoding", "gzip")
+		c.Close()
 		return c.zw.Write(p)
 	}
 	return c.w.Write(p)
