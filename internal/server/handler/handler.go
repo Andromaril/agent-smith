@@ -117,6 +117,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
 		value := chi.URLParam(req, "value")
+		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			if v, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, v)
@@ -139,6 +140,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
+		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			r, err := m.GetCounter(name)
 			if err != nil {
