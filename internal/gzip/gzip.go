@@ -28,9 +28,9 @@ func (c *compressWriter) Header() http.Header {
 func (c *compressWriter) Write(p []byte) (int, error) {
 	contentType := c.w.Header().Get("Content-Type")
 	support := strings.Contains(contentType, "application/json")
-	//support2 := strings.Contains(contentType, "text/html")
+	support2 := strings.Contains(contentType, "text/html")
 	//support3 := strings.Contains(contentType, "")
-	if support {
+	if support || support2 {
 		c.w.Header().Set("Content-Encoding", "gzip")
 		c.zw = gzip.NewWriter(c.w)
 		c.Close()
