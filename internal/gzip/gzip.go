@@ -31,8 +31,9 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	support2 := strings.Contains(contentType, "text/html")
 	if support || support2 {
 		return c.zw.Write(p)
+	} else {
+		return c.w.Write(p)
 	}
-	return c.w.Write(p)
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
