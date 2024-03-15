@@ -32,6 +32,7 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	if support || support2 {
 		return c.zw.Write(p)
 	} else {
+		c.zw = nil
 		return c.w.Write(p)
 	}
 }
