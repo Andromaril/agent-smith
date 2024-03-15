@@ -51,10 +51,10 @@ func (c *compressWriter) WriteHeader(statusCode int) {
 }
 
 func (c *compressWriter) Close() error {
-	if c.zw != nil {
+	//if c.zw != nil {
 		return c.zw.Close()
-	}
-	return nil
+	//}
+	//return nil
 }
 
 type compressReader struct {
