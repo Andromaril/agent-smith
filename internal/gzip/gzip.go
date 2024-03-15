@@ -28,23 +28,27 @@ func (c *compressWriter) Header() http.Header {
 func (c *compressWriter) Write(p []byte) (int, error) {
 	contentType := c.w.Header().Get("Content-Type")
 	support := strings.Contains(contentType, "application/json")
-	support2 := strings.Contains(contentType, "text/html")
+	//support2 := strings.Contains(contentType, "text/html")
 	//support3 := strings.Contains(contentType, "")
-	if support || support2 {
+	if support {
+		c.w.Header().Set("Content-Encoding", "gzip")
+		c.zw = gzip.NewWriter(c.w)
+		c.Close()
 		return c.zw.Write(p)
 	} else {
-		c.zw = nil
+		//c.zw = nil
 		return c.w.Write(p)
 	}
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
-	contentType := c.w.Header().Get("Content-Type")
-	support := strings.Contains(contentType, "application/json")
-	support2 := strings.Contains(contentType, "text/html")
-	if support || support2 {
-		c.w.Header().Set("Content-Encoding", "gzip")
-	}
+	// contentType := c.w.Header().Get("Content-Type")
+	// support := strings.Contains(contentType, "application/json")
+	//support2 := strings.Contains(contentType, "text/html")
+	//support2 := strings.Contains(contentType, "text/plain")
+	// if support {
+	// 	c.w.Header().Set("Content-Encoding", "zip")
+	// }
 	c.w.WriteHeader(statusCode)
 }
 
