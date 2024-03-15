@@ -30,6 +30,7 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	support := strings.Contains(contentType, "application/json")
 	support2 := strings.Contains(contentType, "text/html")
 	if support || support2 {
+		c.zw = gzip.NewWriter(c.w)
 		return c.zw.Write(p)
 	} else {
 		c.zw = nil
