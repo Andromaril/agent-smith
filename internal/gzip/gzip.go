@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // compressWriter реализует интерфейс http.ResponseWriter и позволяет прозрачно для сервера
@@ -25,7 +26,14 @@ func (c *compressWriter) Header() http.Header {
 }
 
 func (c *compressWriter) Write(p []byte) (int, error) {
-	return c.zw.Write(p)
+	contentType := c.w.Header().Get("Content-Type")
+	support := strings.Contains(contentType, "application/json")
+	support2 := strings.Contains(contentType, "text/html")
+	if support || support2 {
+		c.w.Header().Set("Content-Encoding", "gzip")
+		return c.zw.Write(p)
+	}
+	return c.w.Write(p)
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
