@@ -40,7 +40,6 @@ func main() {
 			creator.RandomValue = rand.Float64()
 			creator.CreateFloatMetric(storage)
 			creator.CreateIntMetric(storage)
-
 		}
 		if i%flag.ReportInterval == 0 {
 			err := metric.SendAllMetricJSON(sugar, storage)
