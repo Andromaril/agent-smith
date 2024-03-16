@@ -75,8 +75,6 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
-			//res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
 				MType: r.MType,
@@ -98,8 +96,6 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
-			//res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
 				MType: r.MType,

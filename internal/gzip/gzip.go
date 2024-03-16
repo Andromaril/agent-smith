@@ -32,13 +32,8 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	if support || support2 {
 		c.w.Header().Set("Content-Encoding", "gzip")
 		c.zw = gzip.NewWriter(c.w)
-		buf, err := c.zw.Write(p)
-		// err2 := c.Close()
-		// if err2 != nil {
-		// 	return 0, err2
-		// }
-
-		return buf, err
+		form, err := c.zw.Write(p)
+		return form, err
 	} else {
 		c.zw = nil
 		return c.w.Write(p)
@@ -49,7 +44,6 @@ func (c *compressWriter) WriteHeader(statusCode int) {
 	if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
 	}
-	c.w.WriteHeader(statusCode)
 }
 
 func (c *compressWriter) Close() error {
