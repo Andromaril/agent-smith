@@ -35,7 +35,6 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
-
 		}
 		if r.MType == "gauge" {
 			value, err := m.GetGauge(r.ID)
@@ -51,9 +50,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
-			//res.WriteHeader(http.StatusOK)
 		}
-		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -77,17 +74,17 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
+			//res.Header().Set("Content-Type", "application/json")
+			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
 				MType: r.MType,
 				Delta: &value,
 			}
-
 			enc := json.NewEncoder(res)
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
-			res.WriteHeader(http.StatusOK)
 		}
 		if r.MType == "gauge" {
 			err := m.NewGauge(r.ID, *r.Value)
@@ -100,6 +97,7 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
+			//res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
@@ -111,7 +109,6 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				return
 			}
 		}
-		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -120,7 +117,6 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
 		value := chi.URLParam(req, "value")
-		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			if v, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, v)
@@ -143,7 +139,6 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
-		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			r, err := m.GetCounter(name)
 			if err != nil {
@@ -174,7 +169,6 @@ func GetHTMLMetric(m *storage.MemStorage) http.HandlerFunc {
 		s := m.PrintMetric()
 		tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
 		res.Header().Set("Content-Type", "text/html")
-		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(tem))
 	}
 }
