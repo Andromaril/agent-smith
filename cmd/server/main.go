@@ -5,6 +5,7 @@ import (
 	"time"
 
 	logging "github.com/andromaril/agent-smith/internal/loger"
+	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/andromaril/agent-smith/internal/serverflag"
@@ -32,7 +33,7 @@ func main() {
 		newMetric.Load(serverflag.FileStoragePath)
 	}
 	r := chi.NewRouter()
-	//r.Use(middleware.GzipMiddleware)
+	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", handler.GetMetricJSON(newMetric))

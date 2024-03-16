@@ -46,26 +46,16 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
-	// contentType := c.w.Header().Get("Content-Type")
-	// support := strings.Contains(contentType, "application/json")
-	// support2 := strings.Contains(contentType, "text/html")
-	// if support || support2 {
 	if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
 	}
 	c.w.WriteHeader(statusCode)
 }
 
-// Close закрывает gzip.Writer и досылает все данные из буфера.
 func (c *compressWriter) Close() error {
-	//if c.zw != nil {
 	return c.zw.Close()
-	//}
-	//return nil
 }
 
-// compressReader реализует интерфейс io.ReadCloser и позволяет прозрачно для сервера
-// декомпрессировать получаемые от клиента данные
 type compressReader struct {
 	r  io.ReadCloser
 	zr *gzip.Reader
