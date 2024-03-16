@@ -30,10 +30,12 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 	support := strings.Contains(contentType, "application/json")
 	support2 := strings.Contains(contentType, "text/html")
 	if support || support2 {
+		c.w.Header().Set("Content-Encoding", "gzip")
 		c.zw = gzip.NewWriter(c.w)
+		buf, err := c.zw.Write(p)
 		c.Close()
 
-		return c.zw.Write(p)
+		return buf, err
 	} else {
 		c.zw = nil
 		return c.w.Write(p)
@@ -41,8 +43,13 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
-	if statusCode < 300 {
+	contentType := c.w.Header().Get("Content-Type")
+	support := strings.Contains(contentType, "application/json")
+	support2 := strings.Contains(contentType, "text/html")
+	if support || support2 {
+		// if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
+		// }
 	}
 	c.w.WriteHeader(statusCode)
 }

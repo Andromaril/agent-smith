@@ -51,7 +51,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 			if err := enc.Encode(resp); err != nil {
 				return
 			}
-			res.WriteHeader(http.StatusOK)
+			//res.WriteHeader(http.StatusOK)
 		}
 		res.WriteHeader(http.StatusOK)
 	}
