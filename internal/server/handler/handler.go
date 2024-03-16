@@ -51,9 +51,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 				return
 			}
 		}
-		//res.WriteHeader(http.StatusOK)
-		resp, _ := json.Marshal(r)
-		res.Write([]byte(resp))
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -108,9 +106,7 @@ func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 				return
 			}
 		}
-		//res.WriteHeader(http.StatusOK)
-		resp, _ := json.Marshal(r)
-		res.Write([]byte(resp))
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
