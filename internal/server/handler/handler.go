@@ -131,6 +131,7 @@ func GaugeandCounter(m *storage.MemStorage) http.HandlerFunc {
 		} else {
 			http.Error(res, "Incorrect metrics", http.StatusBadRequest)
 		}
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -156,7 +157,7 @@ func GetMetric(m *storage.MemStorage) http.HandlerFunc {
 		} else {
 			http.Error(res, "Incorrect metrics", http.StatusBadRequest)
 		}
-
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
