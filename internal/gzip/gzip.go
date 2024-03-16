@@ -44,6 +44,7 @@ func (c *compressWriter) WriteHeader(statusCode int) {
 	if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
 	}
+	c.WriteHeader(statusCode)
 }
 
 func (c *compressWriter) Close() error {
