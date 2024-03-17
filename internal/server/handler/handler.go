@@ -97,6 +97,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				// 	return
 				// }
 			}
+		}
 			if r.MType == "gauge" {
 				err := m.NewGauge(r.ID, *r.Value)
 				if err != nil {
@@ -132,8 +133,8 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 			}
 			res.WriteHeader(http.StatusOK)
 		}
-	}
 }
+
 func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
