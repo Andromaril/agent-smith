@@ -25,6 +25,8 @@ type Storage interface {
 	Init(path string, ctx context.Context) (*sql.DB, error)
 	PrintMetric() string
 	Ping() error
+	GetIntMetric() (map[string]int64, error)
+	GetFloatMetric() (map[string]float64, error)
 }
 
 func (m *MemStorage) Ping() error {
@@ -140,4 +142,12 @@ func (m *MemStorage) Load(file string) error {
 	}
 	json.Unmarshal(data, m)
 	return nil
+}
+
+func (m *MemStorage) GetIntMetric() (map[string]int64, error) {
+	return m.Counter, nil
+}
+
+func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
+	return m.Gauge, nil
 }

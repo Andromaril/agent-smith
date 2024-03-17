@@ -97,7 +97,7 @@ func (m *StorageDB) Save(file string) error {
 
 }
 
-func (m *StorageDB) CounterMetric() (map[string]int64, error) {
+func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 	counter := make(map[string]int64, 0)
 	//gauge := make(map[string]float64, 0)
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM counter")
@@ -125,7 +125,7 @@ func (m *StorageDB) CounterMetric() (map[string]int64, error) {
 	return counter, nil
 }
 
-func (m *StorageDB) GaugeMetric() (map[string]float64, error) {
+func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 	gauge := make(map[string]float64, 0)
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM gauge")
 	if err != nil {
@@ -153,8 +153,8 @@ func (m *StorageDB) GaugeMetric() (map[string]float64, error) {
 }
 
 func (m *StorageDB) PrintMetric() string {
-	counter, err := m.CounterMetric()
-	gauge, err2 := m.GaugeMetric()
+	counter, err := m.GetIntMetric()
+	gauge, err2 := m.GetFloatMetric()
 	if err != nil {
 		return "error"
 	}

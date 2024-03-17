@@ -52,6 +52,7 @@ func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 		}
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -75,8 +76,6 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
-			//res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
 				MType: r.MType,
@@ -98,8 +97,6 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
-			//res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusOK)
 			resp := model.Metrics{
 				ID:    r.ID,
 				MType: r.MType,
@@ -110,6 +107,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 		}
+		res.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -118,6 +116,7 @@ func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
 		value := chi.URLParam(req, "value")
+		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			if v, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, v)
@@ -140,6 +139,7 @@ func GetMetric(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
+		res.Header().Set("Content-Type", "text/plain")
 		if pattern == "counter" {
 			r, err := m.GetCounter(name)
 			if err != nil {
