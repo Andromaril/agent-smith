@@ -47,7 +47,10 @@ func (m *StorageDB) Ping() error {
 func (m *StorageDB) NewGauge(key string, value float64) error {
 	_, err := m.DB.Exec(`
 		INSERT INTO gauge (key, value) VALUES ($1, $2)`, key, value)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *StorageDB) NewCounter(key string, value int64) error {
@@ -57,7 +60,10 @@ func (m *StorageDB) NewCounter(key string, value int64) error {
 	ON CONFLICT (key) 
 	DO UPDATE SET value = counter.value + $2;
 `, key, value)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *StorageDB) GetCounter(key string) (int64, error) {
