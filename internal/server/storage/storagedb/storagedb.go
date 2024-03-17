@@ -54,7 +54,7 @@ func (m *StorageDB) NewGauge(key string, value float64) error {
 }
 
 func (m *StorageDB) NewCounter(key string, value int64) error {
-	_, err := m.DB.Exec(`
+	_, err := m.DB.ExecContext(m.Ctx, `
 	INSERT INTO counter (key, value)
 	VALUES($1, $2) 
 	ON CONFLICT (key) 
