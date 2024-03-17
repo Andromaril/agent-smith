@@ -13,7 +13,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func GetMetricJSON(m storage.Storage) http.HandlerFunc {
+
+func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
@@ -56,7 +57,7 @@ func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	}
 }
 
-func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
+func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
@@ -72,19 +73,18 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 			value, err := m.GetCounter(r.ID)
-			if err == nil {
-				//res.WriteHeader(http.StatusOK)
-				resp := model.Metrics{
-					ID:    r.ID,
-					MType: r.MType,
-					Delta: &value,
-				}
-				enc := json.NewEncoder(res)
-				if err := enc.Encode(resp); err != nil {
-					return
-				}
-			} else {
+			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
+			}
+			resp := model.Metrics{
+				ID:    r.ID,
+				MType: r.MType,
+				Delta: &value,
+			}
+			enc := json.NewEncoder(res)
+			if err := enc.Encode(resp); err != nil {
+				return
 			}
 		}
 		if r.MType == "gauge" {
@@ -94,19 +94,18 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 			value, err := m.GetGauge(r.ID)
-			if err == nil {
-				//res.WriteHeader(http.StatusOK)
-				resp := model.Metrics{
-					ID:    r.ID,
-					MType: r.MType,
-					Value: &value,
-				}
-				enc := json.NewEncoder(res)
-				if err := enc.Encode(resp); err != nil {
-					return
-				}
-			} else {
+			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
+				return
+			}
+			resp := model.Metrics{
+				ID:    r.ID,
+				MType: r.MType,
+				Value: &value,
+			}
+			enc := json.NewEncoder(res)
+			if err := enc.Encode(resp); err != nil {
+				return
 			}
 		}
 		res.WriteHeader(http.StatusOK)
