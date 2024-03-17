@@ -105,18 +105,30 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				}
 				value, err := m.GetGauge(r.ID)
 				if err != nil {
+					// res.WriteHeader(http.StatusNotFound)
+					// return
+					res.WriteHeader(http.StatusOK)
+					resp := model.Metrics{
+						ID:    r.ID,
+						MType: r.MType,
+						Value: &value,
+					}
+					enc := json.NewEncoder(res)
+					if err := enc.Encode(resp); err != nil {
+						return
+					}
+				} else {
 					res.WriteHeader(http.StatusNotFound)
-					return
 				}
-				resp := model.Metrics{
-					ID:    r.ID,
-					MType: r.MType,
-					Value: &value,
-				}
-				enc := json.NewEncoder(res)
-				if err := enc.Encode(resp); err != nil {
-					return
-				}
+				// resp := model.Metrics{
+				// 	ID:    r.ID,
+				// 	MType: r.MType,
+				// 	Value: &value,
+				// }
+				// enc := json.NewEncoder(res)
+				// if err := enc.Encode(resp); err != nil {
+				// 	return
+				// }
 			}
 			res.WriteHeader(http.StatusOK)
 		}
