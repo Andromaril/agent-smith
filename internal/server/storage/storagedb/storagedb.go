@@ -68,7 +68,7 @@ func (m *StorageDB) NewCounter(key string, value int64) error {
 
 func (m *StorageDB) GetCounter(key string) (int64, error) {
 	var value sql.NullInt64
-	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM counter WHERE key=?", key)
+	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM counter WHERE key=$1", key)
 	err := rows.Scan(&value)
 	if err != nil {
 		return 0, err
@@ -81,7 +81,7 @@ func (m *StorageDB) GetCounter(key string) (int64, error) {
 
 func (m *StorageDB) GetGauge(key string) (float64, error) {
 	var value sql.NullFloat64
-	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM gauge WHERE key=?", key)
+	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM gauge WHERE key=$1", key)
 	err := rows.Scan(&value)
 	if err != nil {
 		return 0, err
