@@ -72,7 +72,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 			value, err := m.GetCounter(r.ID)
-			if err != nil {
+			if err == nil {
 				//res.WriteHeader(http.StatusNotFound)
 				res.WriteHeader(http.StatusOK)
 				//return
@@ -98,41 +98,41 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				// }
 			}
 		}
-			if r.MType == "gauge" {
-				err := m.NewGauge(r.ID, *r.Value)
-				if err != nil {
-					res.WriteHeader(http.StatusNotFound)
+		if r.MType == "gauge" {
+			err := m.NewGauge(r.ID, *r.Value)
+			if err != nil {
+				res.WriteHeader(http.StatusNotFound)
+				return
+			}
+			value, err := m.GetGauge(r.ID)
+			if err == nil {
+				// res.WriteHeader(http.StatusNotFound)
+				// return
+				res.WriteHeader(http.StatusOK)
+				resp := model.Metrics{
+					ID:    r.ID,
+					MType: r.MType,
+					Value: &value,
+				}
+				enc := json.NewEncoder(res)
+				if err := enc.Encode(resp); err != nil {
 					return
 				}
-				value, err := m.GetGauge(r.ID)
-				if err != nil {
-					// res.WriteHeader(http.StatusNotFound)
-					// return
-					res.WriteHeader(http.StatusOK)
-					resp := model.Metrics{
-						ID:    r.ID,
-						MType: r.MType,
-						Value: &value,
-					}
-					enc := json.NewEncoder(res)
-					if err := enc.Encode(resp); err != nil {
-						return
-					}
-				} else {
-					res.WriteHeader(http.StatusNotFound)
-				}
-				// resp := model.Metrics{
-				// 	ID:    r.ID,
-				// 	MType: r.MType,
-				// 	Value: &value,
-				// }
-				// enc := json.NewEncoder(res)
-				// if err := enc.Encode(resp); err != nil {
-				// 	return
-				// }
+			} else {
+				res.WriteHeader(http.StatusNotFound)
 			}
-			res.WriteHeader(http.StatusOK)
+			// resp := model.Metrics{
+			// 	ID:    r.ID,
+			// 	MType: r.MType,
+			// 	Value: &value,
+			// }
+			// enc := json.NewEncoder(res)
+			// if err := enc.Encode(resp); err != nil {
+			// 	return
+			// }
 		}
+		//res.WriteHeader(http.StatusOK)
+	}
 }
 
 func GaugeandCounter(m storage.Storage) http.HandlerFunc {
