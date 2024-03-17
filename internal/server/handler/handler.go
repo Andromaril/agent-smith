@@ -13,8 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-
-func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
+func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
@@ -57,7 +56,7 @@ func GetMetricJSON(m *storage.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GaugeandCounterJSON(m *storage.MemStorage) http.HandlerFunc {
+func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
 		res.Header().Set("Content-Type", "application/json")
