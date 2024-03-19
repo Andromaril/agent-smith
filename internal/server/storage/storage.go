@@ -56,11 +56,6 @@ func (m *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
 
 func NewMemStorage(b bool, p string) *MemStorage {
 	m := MemStorage{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
-	// return &MemStorage{
-	// 	Gauge:   make(map[string]float64),
-	// 	Counter: make(map[string]int64),
-	// 	writeSync:
-	// }
 	m.SyncWrite(b)
 	return &m
 }
@@ -89,7 +84,7 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 	if m.WriteSync {
 		err := m.Save(m.Path)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("not found %q", err)
 		}
 	}
 	return nil

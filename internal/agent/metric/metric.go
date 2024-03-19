@@ -31,8 +31,8 @@ func SendMetricJSON(sugar zap.SugaredLogger, res *model.Metrics) {
 }
 
 func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) error {
-	f,_ := storage.GetFloatMetric()
-	i,_ := storage.GetIntMetric()
+	f, _ := storage.GetFloatMetric()
+	i, _ := storage.GetIntMetric()
 
 	for key, value := range f {
 		resp := model.Metrics{
