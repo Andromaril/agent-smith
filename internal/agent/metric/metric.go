@@ -10,7 +10,6 @@ import (
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 )
 

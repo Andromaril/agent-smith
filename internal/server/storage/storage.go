@@ -152,9 +152,19 @@ func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 }
 
 func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
+	for _, modelmetrics := range gauge {
+		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (m *MemStorage) NewCounterUpdate(gauge []model.Counter) error {
+func (m *MemStorage) NewCounterUpdate(counter []model.Counter) error {
+	for _, modelmetrics := range counter {
+		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
+			return err
+		}
+	}
 	return nil
 }
