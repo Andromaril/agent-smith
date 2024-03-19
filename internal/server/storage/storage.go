@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/andromaril/agent-smith/internal/model"
 )
 
 type MemStorage struct {
@@ -27,6 +29,8 @@ type Storage interface {
 	Ping() error
 	GetIntMetric() (map[string]int64, error)
 	GetFloatMetric() (map[string]float64, error)
+	NewGaugeUpdate(gauge []model.Gauge) error
+	NewCounterUpdate(gauge []model.Counter) error
 }
 
 func (m *MemStorage) Ping() error {
@@ -145,4 +149,12 @@ func (m *MemStorage) GetIntMetric() (map[string]int64, error) {
 
 func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 	return m.Gauge, nil
+}
+
+func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
+	return nil
+}
+
+func (m *MemStorage) NewCounterUpdate(gauge []model.Counter) error {
+	return nil
 }

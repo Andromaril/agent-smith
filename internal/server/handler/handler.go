@@ -184,3 +184,28 @@ func Ping(db storagedb.Interface) http.HandlerFunc {
 		}
 	}
 }
+
+func Update(db storagedb.Interface) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		r := make([]model.Metrics, 0)
+		res.Header().Set("Content-Type", "application/json")
+		dec := json.NewDecoder(req.Body)
+		if err := dec.Decode(&r); err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		gauge := make([]model.Gauge, 0)
+		counter := make([]model.Counter, 0)
+		for _, models := range r {
+			if models.MType == "gauge" {
+				gauge = append(gauge, model.Gauge{Key: models.ID, Value: *models.Value})
+			}
+			if models.MType == "counter" {
+				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
+			}
+		}
+		db.NewGaugeUpdate(gauge)
+		db.NewCounterUpdate(counter)
+		res.WriteHeader(http.StatusOK)
+	}
+}

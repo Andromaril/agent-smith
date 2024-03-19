@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 )
 
@@ -27,25 +28,87 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer m.db.Close()
-	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
-	if err != nil {
-		return nil, err
-	}
-	_, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
-	if err != nil {
-		return nil, err
-	}
+	m.Bootstrap(m.Ctx)
+	// //defer m.db.Close()
+	// _, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// _, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	return m.DB, nil
 
 }
 
+func (m *StorageDB) Bootstrap(ctx context.Context) error {
+	// запускаем транзакцию
+	tx, err := m.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// в случае неуспешного коммита все изменения транзакции будут отменены
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}
 func (m *StorageDB) Ping() error {
 	return m.DB.Ping()
 }
 
+func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
+	tx, err := m.DB.BeginTx(m.Ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, value := range gauge {
+		_, err = tx.ExecContext(m.Ctx, `
+			INSERT INTO gauge (key, value)
+			VALUES($1, $2) 
+			ON CONFLICT (key) 
+			DO UPDATE SET value = $2;
+		`, value.Key, value.Value)
+		if err != nil {
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
+func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
+	tx, err := m.DB.BeginTx(m.Ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, value := range counter {
+		_, err = tx.ExecContext(m.Ctx, `
+			INSERT INTO gauge (key, value)
+			VALUES($1, $2) 
+			ON CONFLICT (key) 
+			DO UPDATE SET value = $2;
+		`, value.Key, value.Value)
+		if err != nil {
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
 func (m *StorageDB) NewGauge(key string, value float64) error {
-	_, err := m.DB.Exec(`
+	_, err := m.DB.ExecContext(m.Ctx, `
 		INSERT INTO gauge (key, value) VALUES ($1, $2)`, key, value)
 	if err != nil {
 		return err

@@ -64,6 +64,7 @@ func main() {
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
 	r.Get("/ping", handler.Ping(newMetric.(storagedb.Interface)))
+	r.Post("/updates", handler.Update(newMetric))
 	//В задании указано, что StoreInterval = 0 делает запись синхронной.
 	//Запись в бесконечном цикле - не то же самое.
 	if serverflag.StoreInterval != 0 {
