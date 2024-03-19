@@ -42,7 +42,7 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 		// 	Value: &value,
 		// }
 		//modelmetrics = append(modelmetrics, resp)
-		//SendMetricJSON(sugar, &modelmetrics)
+		SendMetricJSON(sugar, modelmetrics)
 	}
 	for key, value := range i {
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Delta: &value})
@@ -53,9 +53,9 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 		// }
 		//modelmetrics = append(modelmetrics, resp)
 
-		//SendMetricJSON(sugar, &modelmetrics)
+		SendMetricJSON(sugar, modelmetrics)
 	}
-	SendMetricJSON(sugar, modelmetrics)
+	//SendMetricJSON(sugar, modelmetrics)
 	return nil
 	// client := resty.New()
 	// gauges,_ := storage.GetFloatMetric()
