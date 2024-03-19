@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func SendMetricJSON(sugar zap.SugaredLogger, res *model.Metrics) {
+func SendMetricJSON(sugar zap.SugaredLogger, res *[]model.Metrics) {
 	jsonData, err := json.Marshal(res)
 	if err != nil {
 		sugar.Errorw("marshalling error", err)
@@ -33,23 +33,25 @@ func SendMetricJSON(sugar zap.SugaredLogger, res *model.Metrics) {
 func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) error {
 	f, _ := storage.GetFloatMetric()
 	i, _ := storage.GetIntMetric()
-
+	modelmetrics := make([]model.Metrics, 0)
 	for key, value := range f {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "gauge",
-			Value: &value,
-		}
-		SendMetricJSON(sugar, &resp)
+		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
+		// resp := model.Metrics{
+		// 	ID:    key,
+		// 	MType: "gauge",
+		// 	Value: &value,
+		// }
+		SendMetricJSON(sugar, &modelmetrics)
 	}
 	for key, value := range i {
-		resp := model.Metrics{
-			ID:    key,
-			MType: "counter",
-			Delta: &value,
-		}
+		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Delta: &value})
+		// resp := model.Metrics{
+		// 	ID:    key,
+		// 	MType: "counter",
+		// 	Delta: &value,
+		// }
 
-		SendMetricJSON(sugar, &resp)
+		SendMetricJSON(sugar, &modelmetrics)
 	}
 	return nil
 }
