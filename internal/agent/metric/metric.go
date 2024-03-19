@@ -23,9 +23,8 @@ func SendMetricJSON(sugar zap.SugaredLogger, res *[]model.Metrics) {
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
-	r := client.NewRequest()
 	url := fmt.Sprintf("http://%s/updates/", flag.FlagRunAddr)
-	r.SetHeader("Content-Type", "application/json").
+	client.R().SetHeader("Content-Type", "application/json").
 		SetHeader("Content-Encoding", "gzip").
 		SetBody(buf).
 		Post(url)
