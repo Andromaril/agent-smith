@@ -74,9 +74,7 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 	for _, value := range gauge {
 		_, err = tx.ExecContext(m.Ctx, `
 			INSERT INTO gauge (key, value)
-			VALUES($1, $2) 
-			ON CONFLICT (key) 
-			DO UPDATE SET value = $2;
+			VALUES($1, $2);
 		`, value.Key, value.Value)
 		if err != nil {
 			return err
@@ -95,9 +93,7 @@ func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
 	for _, value := range counter {
 		_, err = tx.ExecContext(m.Ctx, `
 			INSERT INTO gauge (key, value)
-			VALUES($1, $2) 
-			ON CONFLICT (key) 
-			DO UPDATE SET value = $2;
+			VALUES($1, $2);
 		`, value.Key, value.Value)
 		if err != nil {
 			return err

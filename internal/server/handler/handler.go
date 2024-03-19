@@ -199,12 +199,13 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 		for _, models := range r {
 			if models.MType == "gauge" {
 				gauge = append(gauge, model.Gauge{Key: models.ID, Value: *models.Value})
-			}
-			if models.MType == "counter" {
+			} else if models.MType == "counter" {
 				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
 			}
 		}
-		db.NewGaugeUpdate(gauge)
+		if err := db.NewGaugeUpdate(gauge); err != nil {
+			fmt.Printf("error")
+		}
 		db.NewCounterUpdate(counter)
 		res.WriteHeader(http.StatusOK)
 	}
