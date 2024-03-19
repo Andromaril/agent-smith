@@ -23,7 +23,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res *[]model.Metrics) {
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
-	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
+	url := fmt.Sprintf("http://%s/updates/", flag.FlagRunAddr)
 	client.R().SetHeader("Content-Type", "application/json").
 		SetHeader("Content-Encoding", "gzip").
 		SetBody(buf).
@@ -35,23 +35,26 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 	i, _ := storage.GetIntMetric()
 	modelmetrics := make([]model.Metrics, 0)
 	for key, value := range f {
-		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
-		// resp := model.Metrics{
-		// 	ID:    key,
-		// 	MType: "gauge",
-		// 	Value: &value,
-		// }
-		SendMetricJSON(sugar, &modelmetrics)
+		//modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
+		resp := model.Metrics{
+			ID:    key,
+			MType: "gauge",
+			Value: &value,
+		}
+		modelmetrics = append(modelmetrics, resp)
+		//SendMetricJSON(sugar, &modelmetrics)
 	}
 	for key, value := range i {
-		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Delta: &value})
-		// resp := model.Metrics{
-		// 	ID:    key,
-		// 	MType: "counter",
-		// 	Delta: &value,
-		// }
+		//modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Delta: &value})
+		resp := model.Metrics{
+			ID:    key,
+			MType: "counter",
+			Delta: &value,
+		}
+		modelmetrics = append(modelmetrics, resp)
 
-		SendMetricJSON(sugar, &modelmetrics)
+		//SendMetricJSON(sugar, &modelmetrics)
 	}
+	SendMetricJSON(sugar, &modelmetrics)
 	return nil
 }

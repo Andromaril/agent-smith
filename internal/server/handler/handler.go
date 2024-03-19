@@ -188,7 +188,7 @@ func Ping(db storagedb.Interface) http.HandlerFunc {
 func Update(db storagedb.Interface) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		r := make([]model.Metrics, 0)
-		res.Header().Set("Content-Type", "application/json")
+		//res.Header().Set("Content-Type", "application/json")
 		dec := json.NewDecoder(req.Body)
 		if err := dec.Decode(&r); err != nil {
 			res.WriteHeader(http.StatusBadRequest)
@@ -206,6 +206,6 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 		}
 		db.NewGaugeUpdate(gauge)
 		db.NewCounterUpdate(counter)
-		res.WriteHeader(http.StatusOK)
+		//res.WriteHeader(http.StatusOK)
 	}
 }
