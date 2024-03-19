@@ -92,8 +92,10 @@ func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
 	defer tx.Rollback()
 	for _, value := range counter {
 		_, err = tx.ExecContext(m.Ctx, `
-			INSERT INTO gauge (key, value)
-			VALUES($1, $2);
+			INSERT INTO counter (key, value)
+			VALUES($1, $2)
+			ON CONFLICT (key) 
+			DO UPDATE SET value = counter.value + $2;
 		`, value.Key, value.Value)
 		if err != nil {
 			return err
