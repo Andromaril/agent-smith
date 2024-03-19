@@ -73,8 +73,10 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 	defer tx.Rollback()
 	for _, value := range gauge {
 		_, err = tx.ExecContext(m.Ctx, `
-			INSERT INTO gauge (key, value)
-			VALUES($1, $2);
+		INSERT INTO gauge (key, value)
+		VALUES($1, $2) 
+		ON CONFLICT (key) 
+		DO UPDATE SET value = $2;
 		`, value.Key, value.Value)
 		if err != nil {
 			return err
