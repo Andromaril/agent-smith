@@ -6,74 +6,50 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/model"
+	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
 )
 
-func SendMetricJSON(res *model.Metrics) {
+func SendMetricJSON(sugar zap.SugaredLogger, res *model.Metrics) {
 	jsonData, err := json.Marshal(res)
 	if err != nil {
-		panic(err)
+		sugar.Errorw("marshalling error", err)
 	}
-	// var b bytes.Buffer
-	// w, err := flate.NewWriter(&b, flate.BestCompression)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// _, err = w.Write(jsonData)
-
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = w.Close()
-	// if err != nil {
-	//    panic(err)
-	// }
-
 	buf := bytes.NewBuffer(nil)
 	zb := gzip.NewWriter(buf)
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/update/", flag.FlagRunAddr)
-	//fmt.Print(url)
-	client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetBody(buf).Post(url)
-	// var b bytes.Buffer
-	// gz := gzip.NewWriter(&b)
-	// gz.Write(jsonData)
-	// gz.Close()
-	// client.R().
-	// 	SetHeader("Content-Type", "application/json").
-	// 	SetHeader("Content-Encoding", "gzip").
-	// 	SetBody(b.Bytes()).
-	// 	Post(url)
-
+	client.R().SetHeader("Content-Type", "application/json").
+		SetHeader("Content-Encoding", "gzip").
+		SetBody(buf).
+		Post(url)
 }
 
-func SendAllMetricJSON2() error {
-	f := creator.CreateFloatMetric()
-	i := creator.CreateIntMetric()
+func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) error {
+	f := storage.GetFloatMetric()
+	i := storage.GetIntMetric()
 
 	for key, value := range f {
 		resp := model.Metrics{
 			ID:    key,
 			MType: "gauge",
-			//Delta: nil,
 			Value: &value,
 		}
-		SendMetricJSON(&resp)
+		SendMetricJSON(sugar, &resp)
 	}
 	for key, value := range i {
 		resp := model.Metrics{
 			ID:    key,
 			MType: "counter",
 			Delta: &value,
-			//Value: nil,
 		}
 
-		SendMetricJSON(&resp)
+		SendMetricJSON(sugar, &resp)
 	}
 	return nil
 }

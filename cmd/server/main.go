@@ -2,12 +2,13 @@ package main
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/andromaril/agent-smith/internal/flag"
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -15,7 +16,7 @@ import (
 var sugar zap.SugaredLogger
 
 func main() {
-	flag.ParseFlags()
+	serverflag.ParseFlags()
 	logger, err1 := zap.NewDevelopment()
 	if err1 != nil {
 		panic(err1)
@@ -24,9 +25,13 @@ func main() {
 	sugar = *logger.Sugar()
 	sugar.Infow(
 		"Starting server",
-		"addr", flag.FlagRunAddr,
+		"addr", serverflag.FlagRunAddr,
 	)
-	newMetric := storage.NewMemStorage()
+	newMetric := storage.NewMemStorage(serverflag.StoreInterval == 0, serverflag.FileStoragePath)
+
+	if serverflag.Restore {
+		newMetric.Load(serverflag.FileStoragePath)
+	}
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))
@@ -40,10 +45,15 @@ func main() {
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))
 	})
 	r.Get("/", handler.GetHTMLMetric(newMetric))
-	//r.Post("/update/", handler.GaugeandCounterJSON(newMetric))
-	//r.Post("/value/", handler.GetMetricJSON(newMetric))
-	if err := http.ListenAndServe(flag.FlagRunAddr, r); err != nil {
-		sugar.Fatalw(err.Error(), "event", "start server")
+	if serverflag.StoreInterval != 0 {
+		go func() {
+			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
+			newMetric.Save(serverflag.FileStoragePath)
+		}()
 	}
 
+	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
+		sugar.Fatalw(err.Error(), "event", "start server")
+
+	}
 }

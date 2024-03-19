@@ -11,7 +11,7 @@ import (
 )
 
 func TestGaugeandCounter(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(false, "test")
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
@@ -40,7 +40,7 @@ func TestGaugeandCounter(t *testing.T) {
 }
 
 func TestGetMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(false, "test")
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
@@ -75,7 +75,7 @@ func TestGetMetric(t *testing.T) {
 }
 
 func TestGetHTMLMetric(t *testing.T) {
-	s := storage.NewMemStorage()
+	s := storage.NewMemStorage(false, "test")
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
 	defer r.Close()
