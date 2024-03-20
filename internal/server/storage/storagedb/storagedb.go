@@ -51,14 +51,28 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 
 	// в случае неуспешного коммита все изменения транзакции будут отменены
 	defer tx.Rollback()
-	_, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
-	if err != nil {
-		return err
-	}
+	// _, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
+	// if err != nil {
+	// 	return err
+	// }
+	// _, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
+	// if err != nil {
+	// 	return err
+	// }
+	tx.ExecContext(m.Ctx, `
+		CREATE TABLE IF NOT EXISTS gauge (
+			id SERIAL PRIMARY KEY,
+			key varchar(100) UNIQUE NOT NULL, 
+			value DOUBLE PRECISION NOT NULL
+		);
+	`)
+	tx.ExecContext(m.Ctx, `
+		CREATE TABLE IF NOT EXISTS counter (
+			id SERIAL PRIMARY KEY,
+			key varchar(100) UNIQUE NOT NULL, 
+			value int8
+		);
+	`)
 	return tx.Commit()
 }
 func (m *StorageDB) Ping() error {
@@ -74,12 +88,15 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 	for _, value := range gauge {
 		_, err = tx.ExecContext(m.Ctx, `
 			INSERT INTO gauge (key, value)
-			VALUES($1, $2);
+			VALUES($1, $2) 
+			ON CONFLICT (key) 
+			DO UPDATE SET value = $2;
 		`, value.Key, value.Value)
 		if err != nil {
 			return err
 		}
 	}
+
 	tx.Commit()
 	return nil
 }
