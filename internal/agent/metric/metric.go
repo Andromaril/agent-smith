@@ -37,59 +37,12 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 	for key, val := range f {
 		value := val
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
-		// resp := model.Metrics{
-		// 	ID:    key,
-		// 	MType: "gauge",
-		// 	Value: &value,
-		// }
-		//modelmetrics = append(modelmetrics, resp)
 		SendMetricJSON(sugar, modelmetrics)
 	}
 	for key, val := range i {
 		value := val
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "counter", Delta: &value})
-		// resp := model.Metrics{
-		// 	ID:    key,
-		// 	MType: "counter",
-		// 	Delta: &value,
-		// }
-		//modelmetrics = append(modelmetrics, resp)
-
 		SendMetricJSON(sugar, modelmetrics)
 	}
-	//SendMetricJSON(sugar, modelmetrics)
 	return nil
-	// client := resty.New()
-	// gauges,_ := storage.GetFloatMetric()
-	// counters,_ := storage.GetIntMetric()
-	// metrics := make([]model.Metrics, 0)
-	// url := fmt.Sprintf("http://%s/updates/", flag.FlagRunAddr)
-	// buf := bytes.NewBuffer(nil)
-	// zb := gzip.NewWriter(buf)
-	// for key, val := range gauges {
-	// 	value := val
-	// 	metrics = append(metrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
-	// }
-	// for key, val := range counters {
-	// 	value := val
-	// 	metrics = append(metrics, model.Metrics{ID: key, MType: "counter", Delta: &value})
-	// }
-	// jsonMetric, err := json.Marshal(metrics)
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err = zb.Write(jsonMetric)
-	// if err != nil {
-	// 	return err
-	// }
-	// if err = zb.Close(); err != nil {
-	// 	return err
-	// }
-	// r := client.NewRequest()
-	// r.Header.Set("Content-Encoding", "gzip")
-	// r.SetBody(buf)
-	// if _, err = r.Post(url); err != nil {
-	// 	return err
-	// }
-	// return nil
 }

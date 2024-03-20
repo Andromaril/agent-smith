@@ -29,15 +29,6 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 		return nil, err
 	}
 	m.Bootstrap(m.Ctx)
-	// //defer m.db.Close()
-	// _, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// _, err = m.DB.Exec(`CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	return m.DB, nil
 
 }
@@ -48,17 +39,8 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	// в случае неуспешного коммита все изменения транзакции будут отменены
 	defer tx.Rollback()
-	// _, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS gauge (key varchar(100), value DOUBLE PRECISION)`)
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err = tx.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS counter (key varchar(100) UNIQUE NOT NULL, value int8)`)
-	// if err != nil {
-	// 	return err
-	// }
 	tx.ExecContext(m.Ctx, `
 		CREATE TABLE IF NOT EXISTS gauge (
 			id SERIAL PRIMARY KEY,
@@ -75,6 +57,7 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	`)
 	return tx.Commit()
 }
+
 func (m *StorageDB) Ping() error {
 	return m.DB.Ping()
 }
