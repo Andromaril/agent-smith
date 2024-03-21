@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/model"
 )
 
@@ -40,33 +41,11 @@ func (m *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
 	return nil, nil
 }
 
-// type MemStorageDB struct {
-// 	Gauge     map[string]float64
-// 	Counter   map[string]int64
-// 	WriteSync bool
-// 	Path      string
-// }
-
-// func NewMemStorageDB(b bool, p string) *MemStorageDB {
-// 	m := MemStorageDB{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
-// 	// return &MemStorage{
-// 	// 	Gauge:   make(map[string]float64),
-// 	// 	Counter: make(map[string]int64),
-// 	// 	writeSync:
-// 	// }
-// 	m.SyncWrite(b)
-// 	return &m
-// }
-
 func NewMemStorage(b bool, p string) *MemStorage {
 	m := MemStorage{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
 	m.SyncWrite(b)
 	return &m
 }
-
-// func (m *MemStorageDB) SyncWrite(b bool) {
-// 	m.WriteSync = b
-// }
 
 func (m *MemStorage) SyncWrite(b bool) {
 	m.WriteSync = b
@@ -88,7 +67,8 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 	if m.WriteSync {
 		err := m.Save(m.Path)
 		if err != nil {
-			return fmt.Errorf("not found %q", err)
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
 		}
 	}
 	return nil
@@ -125,7 +105,8 @@ func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
 	data, err := json.MarshalIndent(m, "", "   ")
 	if err != nil {
-		return err
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("not found %q", e.Error())
 	}
 	return os.WriteFile(file, data, 0666)
 
@@ -137,7 +118,8 @@ func (m *MemStorage) Load(file string) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return err
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("not found %q", e.Error())
 	}
 	json.Unmarshal(data, m)
 	return nil
@@ -154,7 +136,8 @@ func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
 	for _, modelmetrics := range gauge {
 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
-			return err
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
 		}
 	}
 	return nil
@@ -163,7 +146,8 @@ func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
 func (m *MemStorage) NewCounterUpdate(counter []model.Counter) error {
 	for _, modelmetrics := range counter {
 		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
-			return err
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
 		}
 	}
 	return nil

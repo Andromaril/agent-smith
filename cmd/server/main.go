@@ -67,8 +67,6 @@ func main() {
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", handler.Update(newMetric))
 	})
-	//В задании указано, что StoreInterval = 0 делает запись синхронной.
-	//Запись в бесконечном цикле - не то же самое.
 	if serverflag.StoreInterval != 0 {
 		go func() {
 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))

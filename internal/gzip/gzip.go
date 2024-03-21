@@ -2,9 +2,12 @@ package gzip
 
 import (
 	"compress/gzip"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/andromaril/agent-smith/internal/errormetric"
 )
 
 // compressWriter реализует интерфейс http.ResponseWriter и позволяет прозрачно для сервера
@@ -33,7 +36,8 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 		c.w.Header().Set("Content-Encoding", "gzip")
 		c.zw = gzip.NewWriter(c.w)
 		form, err := c.zw.Write(p)
-		return form, err
+		e := errormetric.NewMetricError(err)
+		return form, fmt.Errorf("error gzip %q", e.Error())
 	} else {
 		c.zw = nil
 		return c.w.Write(p)
@@ -65,7 +69,8 @@ type compressReader struct {
 func NewCompressReader(r io.ReadCloser) (*compressReader, error) {
 	zr, err := gzip.NewReader(r)
 	if err != nil {
-		return nil, err
+		e := errormetric.NewMetricError(err)
+		return nil, fmt.Errorf("error %q", e.Error())
 	}
 
 	return &compressReader{
@@ -80,7 +85,8 @@ func (c compressReader) Read(p []byte) (n int, err error) {
 
 func (c *compressReader) Close() error {
 	if err := c.r.Close(); err != nil {
-		return err
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("error %q", e.Error())
 	}
 	return c.zr.Close()
 }

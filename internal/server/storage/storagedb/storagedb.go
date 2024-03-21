@@ -36,7 +36,8 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	for {
 		if tries > 3 {
 			log.Println("Can't connect to DB")
-			return nil, errormetric.NewMetricError(err)
+			e := errormetric.NewMetricError(err)
+			return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
 		}
 		m.DB, err = sql.Open("pgx", path)
 		if err != nil {
@@ -61,7 +62,7 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	tx, err := m.DB.BeginTx(ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("Fatal start a transaction %s", e.Error())
+		return fmt.Errorf("fatal start a transaction %q", e.Error())
 	}
 	// в случае неуспешного коммита все изменения транзакции будут отменены
 	defer tx.Rollback()
@@ -90,7 +91,7 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 	tx, err := m.DB.BeginTx(m.Ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("Fatal start a transaction %s", e.Error())
+		return fmt.Errorf("fatal start a transaction %q", e.Error())
 	}
 	defer tx.Rollback()
 	for _, value := range gauge {
@@ -104,7 +105,7 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
 				e := errormetric.NewMetricError(err)
-				return fmt.Errorf("Fatal insert %s", e.Error())
+				return fmt.Errorf("error insert %q", e.Error())
 			}
 		}
 	}
@@ -117,7 +118,7 @@ func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
 	tx, err := m.DB.BeginTx(m.Ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("Fatal start a transaction %s", e.Error())
+		return fmt.Errorf("fatal start a transaction %q", e.Error())
 	}
 	defer tx.Rollback()
 	for _, value := range counter {
@@ -131,7 +132,7 @@ func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
 				e := errormetric.NewMetricError(err)
-				return fmt.Errorf("Fatal insert %s", e.Error())
+				return fmt.Errorf("error insert %q", e.Error())
 			}
 		}
 	}
@@ -147,7 +148,7 @@ func (m *StorageDB) NewGauge(key string, value float64) error {
 	DO UPDATE SET value = $2;`, key, value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("Fatal insert %s", e.Error())
+		return fmt.Errorf("error insert %q", e.Error())
 	}
 	return nil
 }
@@ -161,7 +162,7 @@ func (m *StorageDB) NewCounter(key string, value int64) error {
 `, key, value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("Fatal insert %s", e.Error())
+		return fmt.Errorf("error insert %q", e.Error())
 	}
 	return nil
 }
@@ -172,11 +173,11 @@ func (m *StorageDB) GetCounter(key string) (int64, error) {
 	err := rows.Scan(&value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("Fatal select %s", e.Error())
+		return 0, fmt.Errorf("error select %q", e.Error())
 	}
 	if !value.Valid {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("Invalid value %s", e.Error())
+		return 0, fmt.Errorf("invalid value %q", e.Error())
 	}
 	return value.Int64, nil
 }
@@ -187,11 +188,11 @@ func (m *StorageDB) GetGauge(key string) (float64, error) {
 	err := rows.Scan(&value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("Fatal select %s", e.Error())
+		return 0, fmt.Errorf("error select %q", e.Error())
 	}
 	if !value.Valid {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("Invalid value %s", e.Error())
+		return 0, fmt.Errorf("invalid value %q", e.Error())
 	}
 	return value.Float64, nil
 }
@@ -213,7 +214,7 @@ func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM counter")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return counter, fmt.Errorf("Fatal select %s", e.Error())
+		return counter, fmt.Errorf("error select %q", e.Error())
 	}
 
 	// обязательно закрываем перед возвратом функции
@@ -226,14 +227,14 @@ func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 		err = rows.Scan(&key, &value)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			return counter, fmt.Errorf("Not int64 metric %s", e.Error())
+			return counter, fmt.Errorf("not int64 metric %q", e.Error())
 		}
 		counter[key] = value
 	}
 	err = rows.Err()
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return counter, fmt.Errorf("Error %s", e.Error())
+		return counter, fmt.Errorf("error %q", e.Error())
 	}
 	return counter, nil
 }
@@ -243,7 +244,7 @@ func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM gauge")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return gauge, fmt.Errorf("Fatal select %s", e.Error())
+		return gauge, fmt.Errorf("error select %q", e.Error())
 	}
 
 	// обязательно закрываем перед возвратом функции
@@ -256,14 +257,14 @@ func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 		err = rows.Scan(&key, &value)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			return gauge, fmt.Errorf("Not float64 metric %s", e.Error())
+			return gauge, fmt.Errorf("not float64 metric %q", e.Error())
 		}
 		gauge[key] = value
 	}
 	err = rows.Err()
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return gauge, fmt.Errorf("Error %s", e.Error())
+		return gauge, fmt.Errorf("error %q", e.Error())
 	}
 	return gauge, nil
 }
