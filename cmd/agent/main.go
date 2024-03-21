@@ -43,10 +43,24 @@ func main() {
 
 		}
 		if i%flag.ReportInterval == 0 {
-			err := metric.SendAllMetricJSON(sugar, storage)
-			if err != nil {
-				sugar.Errorw(
-					"Error send metric", err)
+			tries := 0
+			wait := 1
+			for {
+				if tries > 3 {
+					sugar.Errorw(
+						"Error send metric", err)
+					break
+				}
+				err := metric.SendAllMetricJSON(sugar, storage)
+				if err != nil {
+					sugar.Errorw("Connection error. Trying to reconnect...")
+					time.Sleep(time.Duration(wait) * time.Second)
+					wait += 2
+					tries++
+					continue
+				}
+
+				break
 			}
 		}
 	}
