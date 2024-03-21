@@ -3,10 +3,16 @@ package storagedb
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
+	"time"
 
+	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type StorageDB struct {
@@ -24,10 +30,42 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	var err error
 	m.Ctx = ctx
 	m.Path = path
-	m.DB, err = sql.Open("pgx", path)
-	if err != nil {
-		return nil, err
+	//m.DB, err = sql.Open("pgx", path)
+	var pgErr *pgconn.PgError
+	tries := 0
+	wait := 1
+	for {
+		if tries > 3 {
+			log.Println("Can't connect to DB")
+			//break
+			return nil, errormetric.NewMetricError(err)
+		}
+		m.DB, err = sql.Open("pgx", path)
+		if err != nil {
+			// если ошибка подключения, то ждем 1 секунду и пытаемся снова
+			if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+				log.Println("Connection error. Trying to reconnect...")
+				time.Sleep(time.Duration(wait) * time.Second)
+				wait += 2
+				tries++
+				continue
+			}
+			log.Println("connect DB critical error", err)
+		}
+
+		// в противном случае ошибка критичная, логируем и выходим из цикла
+		//log.Println("connect DB critical error", err)
+		//}
+
+		break
+		//return nil, errormetric.NewMetricError(err)
 	}
+	// if errors.As(err, &pgErr) && pgerrcode.ConnectionException(pgErr.Code) {
+	// 	return nil, errormetric.NewMetricError(err)
+	// }
+	// if err != nil {
+	// 	return nil, errors.NewMetricError(err)
+	// }
 	m.Bootstrap(m.Ctx)
 	return m.DB, nil
 
