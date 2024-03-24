@@ -167,8 +167,25 @@ func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-		s := m.PrintMetric()
-		tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(s) + "</p> </body> </html>"
+		//s := m.PrintMetric()
+		gauge, err := m.GetFloatMetric()
+		if err != nil {
+			http.Error(res, "Incorrect metrics", http.StatusNotFound)
+			return
+		}
+		counter, err2 := m.GetIntMetric()
+		if err2 != nil {
+			http.Error(res, "Incorrect metrics", http.StatusNotFound)
+			return
+		}
+		var result string
+		for k1, v1 := range gauge {
+			result += fmt.Sprintf("%s: %v\n", k1, v1)
+		}
+		for k2, v2 := range counter {
+			result += fmt.Sprintf("%s: %v\n", k2, v2)
+		}
+		tem := "<html> <head> <title> Metric page</title> </head> <body> <h1> List of metrics </h1> <p>" + html.EscapeString(result) + "</p> </body> </html>"
 		res.Header().Set("Content-Type", "text/html")
 		res.Write([]byte(tem))
 	}
@@ -203,8 +220,6 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
 			}
 		}
-		// db.NewGaugeUpdate(gauge)
-		// db.NewCounterUpdate(counter)
 		err2 := db.CounterAndGaugeUpdateMetrics(gauge, counter)
 		if err2 != nil {
 			res.WriteHeader(http.StatusBadRequest)

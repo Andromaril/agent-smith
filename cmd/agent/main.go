@@ -7,6 +7,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/andromaril/agent-smith/internal/retry"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"go.uber.org/zap"
 )
@@ -43,25 +44,11 @@ func main() {
 
 		}
 		if i%flag.ReportInterval == 0 {
-			tries := 0
-			wait := 1
-			for {
-				if tries > 3 {
-					sugar.Errorw(
-						"Error send metric", err)
-					break
-				}
+			operation := func() error {
 				err := metric.SendAllMetricJSON(sugar, storage)
-				if err != nil {
-					sugar.Errorw("Connection error. Trying to reconnect...")
-					time.Sleep(time.Duration(wait) * time.Second)
-					wait += 2
-					tries++
-					continue
-				}
-
-				break
+				return err
 			}
+			retry.Retry(operation)
 		}
 	}
 }

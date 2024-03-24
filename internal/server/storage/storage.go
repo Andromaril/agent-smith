@@ -26,7 +26,7 @@ type Storage interface {
 	Load(file string) error
 	Save(file string) error
 	Init(path string, ctx context.Context) (*sql.DB, error)
-	PrintMetric() string
+	//PrintMetric() string
 	Ping() error
 	GetIntMetric() (map[string]int64, error)
 	GetFloatMetric() (map[string]float64, error)
@@ -91,16 +91,16 @@ func (m *MemStorage) GetGauge(key string) (float64, error) {
 	return k, nil
 }
 
-func (m *MemStorage) PrintMetric() string {
-	var result string
-	for k1, v1 := range m.Gauge {
-		result += fmt.Sprintf("%s: %v\n", k1, v1)
-	}
-	for k2, v2 := range m.Counter {
-		result += fmt.Sprintf("%s: %v\n", k2, v2)
-	}
-	return result
-}
+// func (m *MemStorage) PrintMetric() string {
+// 	var result string
+// 	for k1, v1 := range m.Gauge {
+// 		result += fmt.Sprintf("%s: %v\n", k1, v1)
+// 	}
+// 	for k2, v2 := range m.Counter {
+// 		result += fmt.Sprintf("%s: %v\n", k2, v2)
+// 	}
+// 	return result
+// }
 
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
@@ -133,26 +133,6 @@ func (m *MemStorage) GetIntMetric() (map[string]int64, error) {
 func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 	return m.Gauge, nil
 }
-
-// func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
-// 	for _, modelmetrics := range gauge {
-// 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
-// 			e := errormetric.NewMetricError(err)
-// 			return fmt.Errorf("not found %q", e.Error())
-// 		}
-// 	}
-// 	return nil
-// }
-
-// func (m *MemStorage) NewCounterUpdate(counter []model.Counter) error {
-// 	for _, modelmetrics := range counter {
-// 		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
-// 			e := errormetric.NewMetricError(err)
-// 			return fmt.Errorf("not found %q", e.Error())
-// 		}
-// 	}
-// 	return nil
-// }
 
 func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
 	for _, modelmetrics := range gauge {

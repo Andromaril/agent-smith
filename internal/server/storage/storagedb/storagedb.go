@@ -29,40 +29,16 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	var err error
 	m.Ctx = ctx
 	m.Path = path
-	//var pgErr *pgconn.PgError
 	operation := func() error {
 		m.DB, err = sql.Open("pgx", path)
 		return err
 	}
-	//m.DB := sql.Open("pgx", path)
 	retry.Retry(operation)
-	// tries := 0
-	// wait := 1
-	// for {
-	// 	if tries > 3 {
-	// 		log.Println("Can't connect to DB")
-	// 		e := errormetric.NewMetricError(err)
-	// 		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
-	// 	}
-	// 	m.DB, err = sql.Open("pgx", path)
-	// 	if err != nil {
-	// 		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
-	// 			log.Println("Connection error. Trying to reconnect...")
-	// 			time.Sleep(time.Duration(wait) * time.Second)
-	// 			wait += 2
-	// 			tries++
-	// 			continue
-	// 		}
-	// 		log.Println("connect DB critical error", err)
-	// 	}
-	// 	break
-	// }
 	err2 := m.Bootstrap(m.Ctx)
 	if err2 != nil {
 		e := errormetric.NewMetricError(err)
 		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
 	}
-	//defer m.DB.Close()
 	return m.DB, nil
 
 }
@@ -146,32 +122,6 @@ func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []
 	tx.Commit()
 	return nil
 }
-
-// func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
-// 	tx, err := m.DB.BeginTx(m.Ctx, nil)
-// 	if err != nil {
-// 		e := errormetric.NewMetricError(err)
-// 		return fmt.Errorf("fatal start a transaction %q", e.Error())
-// 	}
-// 	defer tx.Rollback()
-// 	for _, value := range counter {
-// 		_, err = tx.ExecContext(m.Ctx, `
-// 			INSERT INTO counter (key, value)
-// 			VALUES($1, $2)
-// 			ON CONFLICT (key)
-// 			DO UPDATE SET value = counter.value + $2;
-// 		`, value.Key, value.Value)
-// 		if err != nil {
-// 			var pgErr *pgconn.PgError
-// 			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-// 				e := errormetric.NewMetricError(err)
-// 				return fmt.Errorf("error insert %q", e.Error())
-// 			}
-// 		}
-// 	}
-// 	tx.Commit()
-// 	return nil
-// }
 
 func (m *StorageDB) NewGauge(key string, value float64) error {
 	_, err := m.DB.ExecContext(m.Ctx, `
@@ -300,26 +250,4 @@ func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 		return gauge, fmt.Errorf("error %q", e.Error())
 	}
 	return gauge, nil
-}
-
-func (m *StorageDB) PrintMetric() string {
-	counter, err := m.GetIntMetric()
-	gauge, err2 := m.GetFloatMetric()
-	if err != nil {
-		e := errormetric.NewMetricError(err)
-		return e.Error()
-	}
-	if err2 != nil {
-		e := errormetric.NewMetricError(err)
-		return e.Error()
-	}
-	var result string
-	for k1, v1 := range gauge {
-		result += fmt.Sprintf("%s: %v\n", k1, v1)
-	}
-	for k2, v2 := range counter {
-		result += fmt.Sprintf("%s: %v\n", k2, v2)
-	}
-	return result
-
 }

@@ -44,12 +44,10 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 	for key, val := range f {
 		value := val
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "gauge", Value: &value})
-		//SendMetricJSON(sugar, modelmetrics)
 	}
 	for key, val := range i {
 		value := val
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "counter", Delta: &value})
-		//SendMetricJSON(sugar, modelmetrics)
 	}
 	err := SendMetricJSON(sugar, modelmetrics)
 	if err != nil {
