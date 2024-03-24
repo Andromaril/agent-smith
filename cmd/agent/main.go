@@ -48,7 +48,13 @@ func main() {
 				err := metric.SendAllMetricJSON(sugar, storage)
 				return err
 			}
-			retry.Retry(operation)
+			err2 := retry.Retry(operation)
+
+			if err2 != nil {
+				sugar.Errorw(
+					"error when send mentric")
+			}
+
 		}
 	}
 }

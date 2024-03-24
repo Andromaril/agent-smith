@@ -42,7 +42,6 @@ func main() {
 		r.Post("/", handler.GetMetricJSON(newMetric))
 		r.Get("/{pattern}/{name}", handler.GetMetric(newMetric))
 	})
-
 	r.Route("/update", func(r chi.Router) {
 		r.Post("/", handler.GaugeandCounterJSON(newMetric))
 		r.Post("/{pattern}/{name}/{value}", handler.GaugeandCounter(newMetric))

@@ -26,12 +26,9 @@ type Storage interface {
 	Load(file string) error
 	Save(file string) error
 	Init(path string, ctx context.Context) (*sql.DB, error)
-	//PrintMetric() string
 	Ping() error
 	GetIntMetric() (map[string]int64, error)
 	GetFloatMetric() (map[string]float64, error)
-	// NewGaugeUpdate(gauge []model.Gauge) error
-	// NewCounterUpdate(gauge []model.Counter) error
 	CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error
 }
 
@@ -90,17 +87,6 @@ func (m *MemStorage) GetGauge(key string) (float64, error) {
 	}
 	return k, nil
 }
-
-// func (m *MemStorage) PrintMetric() string {
-// 	var result string
-// 	for k1, v1 := range m.Gauge {
-// 		result += fmt.Sprintf("%s: %v\n", k1, v1)
-// 	}
-// 	for k2, v2 := range m.Counter {
-// 		result += fmt.Sprintf("%s: %v\n", k2, v2)
-// 	}
-// 	return result
-// }
 
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат

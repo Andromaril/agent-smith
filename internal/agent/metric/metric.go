@@ -32,7 +32,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		Post(url)
 	if err2 != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error %q", e.Error())
+		return fmt.Errorf("error send request %q", e.Error())
 	}
 	return nil
 }

@@ -14,7 +14,7 @@ func Retry(function func() error) error {
 	wait := 1
 	var err error
 	for {
-		if tries > 3 {
+		if tries >= 3 {
 			e := errormetric.NewMetricError(err)
 			return fmt.Errorf("fatal  %q", e.Error())
 		}

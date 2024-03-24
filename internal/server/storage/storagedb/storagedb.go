@@ -33,9 +33,13 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 		m.DB, err = sql.Open("pgx", path)
 		return err
 	}
-	retry.Retry(operation)
-	err2 := m.Bootstrap(m.Ctx)
+	err2 := retry.Retry(operation)
 	if err2 != nil {
+		e := errormetric.NewMetricError(err)
+		return nil, fmt.Errorf("сonnection error %q", e.Error())
+	}
+	err3 := m.Bootstrap(m.Ctx)
+	if err3 != nil {
 		e := errormetric.NewMetricError(err)
 		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
 	}
