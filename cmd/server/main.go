@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"net/http"
 	"time"
 
@@ -11,7 +9,7 @@ import (
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
-	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/server/start"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/andromaril/agent-smith/internal/serverflag"
 	"github.com/go-chi/chi/v5"
@@ -33,23 +31,28 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
-	var newMetric storage.Storage
-	var err error
-	var db *sql.DB
-	if serverflag.Databaseflag != "" {
-		newMetric = &storagedb.StorageDB{Path: serverflag.Databaseflag}
-		db, err = newMetric.Init(serverflag.Databaseflag, context.Background())
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
-	}
-	defer db.Close()
+	// var newMetric storage.Storage
+	// var err error
+	// var db *sql.DB
+	// if serverflag.Databaseflag != "" {
+	// 	newMetric = &storagedb.StorageDB{Path: serverflag.Databaseflag}
+	// 	db, err = newMetric.Init(serverflag.Databaseflag, context.Background())
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// } else {
+	// 	newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
+	// }
+	//defer db.Close()
 
+	// if serverflag.Restore {
+	// 	newMetric.Load(serverflag.FileStoragePath)
+	// }
+	db, newMetric := start.Start()
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
 	}
+	defer db.Close()
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
 	r.Use(logging.WithLogging(sugar))

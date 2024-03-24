@@ -53,6 +53,7 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 		break
 	}
 	m.Bootstrap(m.Ctx)
+	//defer m.DB.Close()
 	return m.DB, nil
 
 }
