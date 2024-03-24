@@ -10,19 +10,6 @@ import (
 )
 
 func Start() (*sql.DB, storage.Storage) {
-	// var sugar zap.SugaredLogger
-	// serverflag.ParseFlags()
-	// //fmt.Print(serverflag.Databaseflag)
-	// logger, err1 := zap.NewDevelopment()
-	// if err1 != nil {
-	// 	panic(err1)
-	// }
-	// defer logger.Sync()
-	// sugar = *logger.Sugar()
-	// sugar.Infow(
-	// 	"Starting server",
-	// 	"addr", serverflag.FlagRunAddr,
-	// )
 	var newMetric storage.Storage
 	var err error
 	var db *sql.DB
@@ -35,9 +22,5 @@ func Start() (*sql.DB, storage.Storage) {
 	} else {
 		newMetric = &storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}, WriteSync: serverflag.StoreInterval == 0, Path: serverflag.FileStoragePath}
 	}
-	//defer db.Close()
-	// if serverflag.Restore {
-	// 	newMetric.Load(serverflag.FileStoragePath)
-	// }
 	return db, newMetric
 }
