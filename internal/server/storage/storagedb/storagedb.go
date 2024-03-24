@@ -5,11 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/model"
+	"github.com/andromaril/agent-smith/internal/retry"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -30,29 +29,39 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	var err error
 	m.Ctx = ctx
 	m.Path = path
-	var pgErr *pgconn.PgError
-	tries := 0
-	wait := 1
-	for {
-		if tries > 3 {
-			log.Println("Can't connect to DB")
-			e := errormetric.NewMetricError(err)
-			return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
-		}
+	//var pgErr *pgconn.PgError
+	operation := func() error {
 		m.DB, err = sql.Open("pgx", path)
-		if err != nil {
-			if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
-				log.Println("Connection error. Trying to reconnect...")
-				time.Sleep(time.Duration(wait) * time.Second)
-				wait += 2
-				tries++
-				continue
-			}
-			log.Println("connect DB critical error", err)
-		}
-		break
+		return err
 	}
-	m.Bootstrap(m.Ctx)
+	//m.DB := sql.Open("pgx", path)
+	retry.Retry(operation)
+	// tries := 0
+	// wait := 1
+	// for {
+	// 	if tries > 3 {
+	// 		log.Println("Can't connect to DB")
+	// 		e := errormetric.NewMetricError(err)
+	// 		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
+	// 	}
+	// 	m.DB, err = sql.Open("pgx", path)
+	// 	if err != nil {
+	// 		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+	// 			log.Println("Connection error. Trying to reconnect...")
+	// 			time.Sleep(time.Duration(wait) * time.Second)
+	// 			wait += 2
+	// 			tries++
+	// 			continue
+	// 		}
+	// 		log.Println("connect DB critical error", err)
+	// 	}
+	// 	break
+	// }
+	err2 := m.Bootstrap(m.Ctx)
+	if err2 != nil {
+		e := errormetric.NewMetricError(err)
+		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
+	}
 	//defer m.DB.Close()
 	return m.DB, nil
 
@@ -67,20 +76,28 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	}
 	// в случае неуспешного коммита все изменения транзакции будут отменены
 	defer tx.Rollback()
-	tx.ExecContext(m.Ctx, `
+	_, err = tx.ExecContext(m.Ctx, `
 		CREATE TABLE IF NOT EXISTS gauge (
 			id SERIAL PRIMARY KEY,
 			key varchar(100) UNIQUE NOT NULL, 
 			value DOUBLE PRECISION NOT NULL
 		);
 	`)
-	tx.ExecContext(m.Ctx, `
+	if err != nil {
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("fatal start a transaction %q", e.Error())
+	}
+	_, err = tx.ExecContext(m.Ctx, `
 		CREATE TABLE IF NOT EXISTS counter (
 			id SERIAL PRIMARY KEY,
 			key varchar(100) UNIQUE NOT NULL, 
-			value int8
+			value bigint
 		);
 	`)
+	if err != nil {
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("fatal start a transaction %q", e.Error())
+	}
 	return tx.Commit()
 }
 
@@ -88,7 +105,7 @@ func (m *StorageDB) Ping() error {
 	return m.DB.Ping()
 }
 
-func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
+func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
 	tx, err := m.DB.BeginTx(m.Ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
@@ -104,24 +121,12 @@ func (m *StorageDB) NewGaugeUpdate(gauge []model.Gauge) error {
 		`, value.Key, value.Value)
 		if err != nil {
 			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
+			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 				e := errormetric.NewMetricError(err)
 				return fmt.Errorf("error insert %q", e.Error())
 			}
 		}
 	}
-
-	tx.Commit()
-	return nil
-}
-
-func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
-	tx, err := m.DB.BeginTx(m.Ctx, nil)
-	if err != nil {
-		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("fatal start a transaction %q", e.Error())
-	}
-	defer tx.Rollback()
 	for _, value := range counter {
 		_, err = tx.ExecContext(m.Ctx, `
 			INSERT INTO counter (key, value)
@@ -131,15 +136,42 @@ func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
 		`, value.Key, value.Value)
 		if err != nil {
 			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
+			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 				e := errormetric.NewMetricError(err)
 				return fmt.Errorf("error insert %q", e.Error())
 			}
 		}
 	}
+
 	tx.Commit()
 	return nil
 }
+
+// func (m *StorageDB) NewCounterUpdate(counter []model.Counter) error {
+// 	tx, err := m.DB.BeginTx(m.Ctx, nil)
+// 	if err != nil {
+// 		e := errormetric.NewMetricError(err)
+// 		return fmt.Errorf("fatal start a transaction %q", e.Error())
+// 	}
+// 	defer tx.Rollback()
+// 	for _, value := range counter {
+// 		_, err = tx.ExecContext(m.Ctx, `
+// 			INSERT INTO counter (key, value)
+// 			VALUES($1, $2)
+// 			ON CONFLICT (key)
+// 			DO UPDATE SET value = counter.value + $2;
+// 		`, value.Key, value.Value)
+// 		if err != nil {
+// 			var pgErr *pgconn.PgError
+// 			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+// 				e := errormetric.NewMetricError(err)
+// 				return fmt.Errorf("error insert %q", e.Error())
+// 			}
+// 		}
+// 	}
+// 	tx.Commit()
+// 	return nil
+// }
 
 func (m *StorageDB) NewGauge(key string, value float64) error {
 	_, err := m.DB.ExecContext(m.Ctx, `

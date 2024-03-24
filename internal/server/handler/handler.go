@@ -203,8 +203,13 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
 			}
 		}
-		db.NewGaugeUpdate(gauge)
-		db.NewCounterUpdate(counter)
-		res.WriteHeader(http.StatusOK)
+		// db.NewGaugeUpdate(gauge)
+		// db.NewCounterUpdate(counter)
+		err2 := db.CounterAndGaugeUpdateMetrics(gauge, counter)
+		if err2 != nil {
+			res.WriteHeader(http.StatusBadRequest)
+		} else {
+			res.WriteHeader(http.StatusOK)
+		}
 	}
 }

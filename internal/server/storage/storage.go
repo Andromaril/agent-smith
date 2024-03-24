@@ -30,8 +30,9 @@ type Storage interface {
 	Ping() error
 	GetIntMetric() (map[string]int64, error)
 	GetFloatMetric() (map[string]float64, error)
-	NewGaugeUpdate(gauge []model.Gauge) error
-	NewCounterUpdate(gauge []model.Counter) error
+	// NewGaugeUpdate(gauge []model.Gauge) error
+	// NewCounterUpdate(gauge []model.Counter) error
+	CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error
 }
 
 func (m *MemStorage) Ping() error {
@@ -133,17 +134,33 @@ func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 	return m.Gauge, nil
 }
 
-func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
+// func (m *MemStorage) NewGaugeUpdate(gauge []model.Gauge) error {
+// 	for _, modelmetrics := range gauge {
+// 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
+// 			e := errormetric.NewMetricError(err)
+// 			return fmt.Errorf("not found %q", e.Error())
+// 		}
+// 	}
+// 	return nil
+// }
+
+// func (m *MemStorage) NewCounterUpdate(counter []model.Counter) error {
+// 	for _, modelmetrics := range counter {
+// 		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
+// 			e := errormetric.NewMetricError(err)
+// 			return fmt.Errorf("not found %q", e.Error())
+// 		}
+// 	}
+// 	return nil
+// }
+
+func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
 	for _, modelmetrics := range gauge {
 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
 			e := errormetric.NewMetricError(err)
 			return fmt.Errorf("not found %q", e.Error())
 		}
 	}
-	return nil
-}
-
-func (m *MemStorage) NewCounterUpdate(counter []model.Counter) error {
 	for _, modelmetrics := range counter {
 		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
 			e := errormetric.NewMetricError(err)
