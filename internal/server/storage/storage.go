@@ -1,9 +1,14 @@
 package storage
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/andromaril/agent-smith/internal/errormetric"
+	"github.com/andromaril/agent-smith/internal/model"
 )
 
 type MemStorage struct {
@@ -11,6 +16,27 @@ type MemStorage struct {
 	Counter   map[string]int64
 	WriteSync bool
 	Path      string
+}
+
+type Storage interface {
+	NewGauge(key string, value float64) error
+	NewCounter(key string, value int64) error
+	GetCounter(key string) (int64, error)
+	GetGauge(key string) (float64, error)
+	Load(file string) error
+	Save(file string) error
+	Init(path string, ctx context.Context) (*sql.DB, error)
+	Ping() error
+	GetIntMetric() (map[string]int64, error)
+	GetFloatMetric() (map[string]float64, error)
+	CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error
+}
+
+func (m *MemStorage) Ping() error {
+	return nil
+}
+func (m *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
+	return nil, nil
 }
 
 func NewMemStorage(b bool, p string) *MemStorage {
@@ -39,7 +65,8 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 	if m.WriteSync {
 		err := m.Save(m.Path)
 		if err != nil {
-			return fmt.Errorf("not found %q", err)
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
 		}
 	}
 	return nil
@@ -61,22 +88,12 @@ func (m *MemStorage) GetGauge(key string) (float64, error) {
 	return k, nil
 }
 
-func (m *MemStorage) PrintMetric() string {
-	var result string
-	for k1, v1 := range m.Gauge {
-		result += fmt.Sprintf("%s: %v\n", k1, v1)
-	}
-	for k2, v2 := range m.Counter {
-		result += fmt.Sprintf("%s: %v\n", k2, v2)
-	}
-	return result
-}
-
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
 	data, err := json.MarshalIndent(m, "", "   ")
 	if err != nil {
-		return err
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("not found %q", e.Error())
 	}
 	return os.WriteFile(file, data, 0666)
 
@@ -88,16 +105,33 @@ func (m *MemStorage) Load(file string) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return err
+		e := errormetric.NewMetricError(err)
+		return fmt.Errorf("not found %q", e.Error())
 	}
 	json.Unmarshal(data, m)
 	return nil
 }
 
-func (m *MemStorage) GetIntMetric() map[string]int64 {
-	return m.Counter
+func (m *MemStorage) GetIntMetric() (map[string]int64, error) {
+	return m.Counter, nil
 }
 
-func (m *MemStorage) GetFloatMetric() map[string]float64 {
-	return m.Gauge
+func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
+	return m.Gauge, nil
+}
+
+func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
+	for _, modelmetrics := range gauge {
+		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
+		}
+	}
+	for _, modelmetrics := range counter {
+		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
+			e := errormetric.NewMetricError(err)
+			return fmt.Errorf("not found %q", e.Error())
+		}
+	}
+	return nil
 }
