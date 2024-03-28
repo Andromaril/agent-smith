@@ -12,6 +12,7 @@ var (
 	FileStoragePath string
 	Restore         bool
 	Databaseflag    string
+	KeyHash         string
 )
 
 func ParseFlags() {
@@ -20,6 +21,7 @@ func ParseFlags() {
 	flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
 	flag.BoolVar(&Restore, "r", true, "download files")
 	flag.StringVar(&Databaseflag, "d", "", "database path")
+	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -43,5 +45,8 @@ func ParseFlags() {
 			panic(err)
 		}
 		Restore = n
+	}
+	if envKey := os.Getenv("KEY"); envKey != "" {
+		KeyHash = envKey
 	}
 }

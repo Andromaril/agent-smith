@@ -37,6 +37,7 @@ func main() {
 	defer db.Close()
 	r := chi.NewRouter()
 	r.Use(middleware.GzipMiddleware)
+	r.Use(middleware.HashMiddleware(serverflag.KeyHash))
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", handler.GetMetricJSON(newMetric))

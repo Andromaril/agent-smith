@@ -10,12 +10,14 @@ var (
 	FlagRunAddr    string
 	ReportInterval int64
 	PollInterval   int64
+	KeyHash        string
 )
 
 func ParseFlags() {
 	flag.Int64Var(&ReportInterval, "r", 10, "time to sleep for report interval")
 	flag.Int64Var(&PollInterval, "p", 2, "time to sleep for poll interval")
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
+	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -33,5 +35,8 @@ func ParseFlags() {
 			panic(err)
 		}
 		PollInterval = n
+	}
+	if envKey := os.Getenv("KEY"); envKey != "" {
+		KeyHash = envKey
 	}
 }
