@@ -3,6 +3,9 @@ package metric
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -26,12 +29,12 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	zb.Close()
 	client := resty.New()
 	url := fmt.Sprintf("http://%s/updates/", flag.FlagRunAddr)
-	// if flag.KeyHash != "" {
-	// 	hash := hmac.New(sha256.New, []byte(flag.KeyHash))
-	// 	hash.Write(jsonData)
-	// 	dst := hex.EncodeToString(hash.Sum(nil))
-	// 	client.R().SetHeader("HashSHA256", dst)
-	// }
+	if flag.KeyHash != "" {
+		hash := hmac.New(sha256.New, []byte(flag.KeyHash))
+		hash.Write(jsonData)
+		dst := hex.EncodeToString(hash.Sum(nil))
+		client.R().SetHeader("HashSHA256", dst)
+	}
 	_, err2 := client.R().SetHeader("Content-Type", "application/json").
 		SetHeader("Content-Encoding", "gzip").
 		SetBody(buf).
