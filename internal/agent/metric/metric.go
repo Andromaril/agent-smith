@@ -34,7 +34,6 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		hash := hmac.New(sha256.New, []byte(flag.KeyHash))
 		hash.Write(jsonData)
 		dst := hex.EncodeToString(hash.Sum(nil))
-		//client.R().SetHeader("HashSHA256", dst)
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
 			SetHeader("HashSHA256", dst).
