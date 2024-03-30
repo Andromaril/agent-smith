@@ -28,7 +28,6 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	zb.Write(jsonData)
 	zb.Close()
 	client := resty.New()
-	//r := client.NewRequest()
 	url := fmt.Sprintf("http://%s/updates/", flag.FlagRunAddr)
 	if flag.KeyHash != "" {
 		hash := hmac.New(sha256.New, []byte(flag.KeyHash))
