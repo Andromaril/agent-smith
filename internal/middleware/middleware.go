@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -53,6 +54,7 @@ func HashMiddleware(key string) func(http.Handler) http.Handler {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
+				r.Body = io.NopCloser(bytes.NewBuffer(body))
 				h := hmac.New(sha256.New, []byte(key))
 				h.Write(body)
 				if !hmac.Equal(h.Sum(nil), hash) {
