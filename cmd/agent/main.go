@@ -15,17 +15,16 @@ import (
 
 var sugar zap.SugaredLogger
 
-func UpdateMetric() {
-	for {
-		creator.PollCount++
-		creator.RandomValue = rand.Float64()
-		time.Sleep(time.Second * time.Duration(flag.PollInterval))
-	}
-}
+// func UpdateMetric() {
+// 	for {
+// 		creator.PollCount++
+// 		creator.RandomValue = rand.Float64()
+// 		time.Sleep(time.Second * time.Duration(flag.PollInterval))
+// 	}
+// }
 
 func main() {
 	flag.ParseFlags()
-	//var i int64
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		panic(err)
@@ -35,31 +34,11 @@ func main() {
 	sugar.Infow(
 		"Starting agent")
 	storage := storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}}
+
 	var wg sync.WaitGroup
-	wg.Add(1)
-	// for i = 0; ; i++ {
-	// 	time.Sleep(time.Second)
-	// 	if i%flag.PollInterval == 0 {
-	// 		creator.PollCount++
-	// 		creator.RandomValue = rand.Float64()
-	// 		creator.CreateFloatMetric(storage)
-	// 		creator.CreateIntMetric(storage)
+	ratelimit := flag.RateLimit
+	wg.Add(int(ratelimit))
 
-	// 	}
-	// 	if i%flag.ReportInterval == 0 {
-	// 		operation := func() error {
-	// 			err := metric.SendAllMetricJSON(sugar, storage)
-	// 			return err
-	// 		}
-	// 		err2 := retry.Retry(operation)
-
-	// 		if err2 != nil {
-	// 			sugar.Errorw(
-	// 				"error when send mentric")
-	// 		}
-
-	// 	}
-	// }
 	go func() {
 		defer wg.Done()
 		for {
@@ -68,8 +47,8 @@ func main() {
 				creator.RandomValue = rand.Float64()
 				creator.CreateFloatMetric(storage)
 				creator.CreateIntMetric(storage)
+				storage.AddNewMetric()
 			}()
-			//time.Sleep(time.Duration(flag.PollInterval) * time.Second)
 			time.Sleep(time.Duration(flag.PollInterval) * time.Second)
 		}
 	}()
@@ -89,7 +68,6 @@ func main() {
 						"error when send mentric")
 				}
 			}()
-			//time.Sleep(time.Duration(flag.PollInterval) * time.Second)
 			time.Sleep(time.Duration(flag.ReportInterval) * time.Second)
 		}
 	}()
