@@ -6,11 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/model"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/v3/mem"
 )
 
 type MemStorage struct {
@@ -18,6 +17,7 @@ type MemStorage struct {
 	Counter   map[string]int64
 	WriteSync bool
 	Path      string
+	Mutex     *sync.Mutex
 }
 
 type Storage interface {
@@ -134,21 +134,6 @@ func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter [
 			e := errormetric.NewMetricError(err)
 			return fmt.Errorf("not found %q", e.Error())
 		}
-	}
-	return nil
-}
-
-func (m *MemStorage) AddNewMetric() error{
-	v, _ := mem.VirtualMemory()
-	m.Gauge["TotalMemory"] = float64(v.Total)
-	m.Gauge["FreeMemory"] = float64(v.Free)
-	cpu, err := cpu.Percent(0, true)
-	if err != nil {
-		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error %q", e.Error())
-	}
-	for key, value := range cpu {
-		m.Gauge[fmt.Sprintf("CPUutilization%d", key+1)] = float64(value)
 	}
 	return nil
 }

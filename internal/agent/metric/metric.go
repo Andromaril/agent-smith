@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/flag"
@@ -19,6 +20,7 @@ import (
 
 func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	jsonData, err := json.Marshal(res)
+	fmt.Print(jsonData)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
 		return fmt.Errorf("error %q", e.Error())
@@ -32,7 +34,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	if flag.KeyHash != "" {
 		hash := hmac.New(sha256.New, []byte(flag.KeyHash))
 		hash.Write(jsonData)
-		dst := hex.EncodeToString(hash.Sum(nil))
+		dst := hex.EncodeToString(hash.Sum(jsonData))
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
 			SetHeader("HashSHA256", dst).
@@ -66,10 +68,12 @@ func SendAllMetricJSON(sugar zap.SugaredLogger, storage storage.MemStorage) erro
 		value := val
 		modelmetrics = append(modelmetrics, model.Metrics{ID: key, MType: "counter", Delta: &value})
 	}
-	err := SendMetricJSON(sugar, modelmetrics)
-	if err != nil {
-		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error %q", e.Error())
-	}
+	// err := SendMetricJSON(sugar, modelmetrics)
+	// if err != nil {
+	// 	e := errormetric.NewMetricError(err)
+	// 	return fmt.Errorf("error %q", e.Error())
+	// }
+	time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	return nil
+
 }

@@ -216,10 +216,12 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 		for _, models := range r {
 			if models.MType == "gauge" {
 				gauge = append(gauge, model.Gauge{Key: models.ID, Value: *models.Value})
+				//fmt.Print(gauge)
 			} else if models.MType == "counter" {
 				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
 			}
 		}
+		//fmt.Printf("eewr %s", r)
 		err2 := db.CounterAndGaugeUpdateMetrics(gauge, counter)
 		if err2 != nil {
 			res.WriteHeader(http.StatusBadRequest)
