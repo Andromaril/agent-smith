@@ -18,7 +18,6 @@ import (
 
 func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	jsonData, err := json.Marshal(res)
-	fmt.Print(jsonData)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
 		return fmt.Errorf("error %q", e.Error())

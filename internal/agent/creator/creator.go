@@ -50,7 +50,7 @@ func CreateFloatMetric(metrics chan<- []model.Metrics) {
 			"StackSys":      float64(metr.StackSys),
 			"Sys":           float64(metr.Sys),
 			"TotalAlloc":    float64(metr.TotalAlloc),
-			"RandomValue":   float64(rand.Intn(10)),
+			"RandomValue":   float64(rand.Intn(1000)),
 		}
 		for name, metricvalue := range metric {
 			value := metricvalue
@@ -85,5 +85,6 @@ func AddNewMetric(metrics chan<- []model.Metrics) {
 			modelmetrics = append(modelmetrics, model.Metrics{ID: name, MType: "gauge", Value: &value})
 		}
 		metrics <- modelmetrics
+		time.Sleep(time.Second * time.Duration(flag.PollInterval))
 	}
 }

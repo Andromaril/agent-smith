@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"runtime"
 	"sync"
 	"time"
 
@@ -27,7 +27,6 @@ func worker(jobs <-chan []model.Metrics, sugar zap.SugaredLogger) {
 			sugar.Errorw(
 				"error when send mentric")
 		}
-		fmt.Println(j)
 		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }
@@ -44,8 +43,7 @@ func main() {
 		"Starting agent")
 	var wg sync.WaitGroup
 	ratelimit := flag.RateLimit
-	num := 40
-	jobs := make(chan []model.Metrics, num)
+	jobs := make(chan []model.Metrics, runtime.GOMAXPROCS(0))
 	wg.Add(ratelimit)
 	go creator.CreateFloatMetric(jobs)
 	go creator.AddNewMetric(jobs)
