@@ -1,30 +1,38 @@
 package main
 
 import (
-	"math/rand"
+	"runtime"
+	"sync"
 	"time"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
 	"github.com/andromaril/agent-smith/internal/agent/metric"
 	"github.com/andromaril/agent-smith/internal/flag"
+	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/retry"
-	"github.com/andromaril/agent-smith/internal/server/storage"
 	"go.uber.org/zap"
 )
 
 var sugar zap.SugaredLogger
 
-func UpdateMetric() {
-	for {
-		creator.PollCount++
-		creator.RandomValue = rand.Float64()
-		time.Sleep(time.Second * time.Duration(flag.PollInterval))
+func worker(jobs <-chan []model.Metrics, sugar zap.SugaredLogger) {
+	for j := range jobs {
+		operation := func() error {
+			err := metric.SendMetricJSON(sugar, j)
+			return err
+		}
+		err2 := retry.Retry(operation)
+
+		if err2 != nil {
+			sugar.Errorw(
+				"error when send mentric")
+		}
+		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
 }
 
 func main() {
 	flag.ParseFlags()
-	var i int64
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		panic(err)
@@ -33,28 +41,15 @@ func main() {
 	sugar = *logger.Sugar()
 	sugar.Infow(
 		"Starting agent")
-	storage := storage.MemStorage{Gauge: map[string]float64{}, Counter: map[string]int64{}}
-	for i = 0; ; i++ {
-		time.Sleep(time.Second)
-		if i%flag.PollInterval == 0 {
-			creator.PollCount++
-			creator.RandomValue = rand.Float64()
-			creator.CreateFloatMetric(storage)
-			creator.CreateIntMetric(storage)
-
-		}
-		if i%flag.ReportInterval == 0 {
-			operation := func() error {
-				err := metric.SendAllMetricJSON(sugar, storage)
-				return err
-			}
-			err2 := retry.Retry(operation)
-
-			if err2 != nil {
-				sugar.Errorw(
-					"error when send mentric")
-			}
-
-		}
+	var wg sync.WaitGroup
+	ratelimit := flag.RateLimit
+	jobs := make(chan []model.Metrics, runtime.GOMAXPROCS(0))
+	wg.Add(ratelimit)
+	go creator.CreateFloatMetric(jobs)
+	go creator.AddNewMetric(jobs)
+	defer close(jobs)
+	for w := 1; w <= ratelimit; w++ {
+		go worker(jobs, sugar)
 	}
+	wg.Wait()
 }

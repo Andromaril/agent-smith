@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/model"
@@ -16,6 +17,7 @@ type MemStorage struct {
 	Counter   map[string]int64
 	WriteSync bool
 	Path      string
+	Mutex     *sync.Mutex
 }
 
 type Storage interface {
