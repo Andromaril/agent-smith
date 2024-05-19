@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
@@ -66,6 +67,8 @@ func CreateFloatMetric(metrics chan<- []model.Metrics) {
 
 func AddNewMetric(metrics chan<- []model.Metrics) {
 	for {
+		var m sync.RWMutex
+
 		modelmetrics := make([]model.Metrics, 0)
 		v, _ := mem.VirtualMemory()
 		metric := map[string]float64{
@@ -78,7 +81,9 @@ func AddNewMetric(metrics chan<- []model.Metrics) {
 			log.Printf("fatal get metric %q", e.Error())
 		}
 		for key, value := range cpu {
+			m.Lock()
 			metric[fmt.Sprintf("CPUutilization%d", key+1)] = float64(value)
+			m.Unlock()
 		}
 		for name, metricvalue := range metric {
 			value := metricvalue
