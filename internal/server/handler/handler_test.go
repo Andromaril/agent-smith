@@ -1,13 +1,17 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestGaugeandCounter(t *testing.T) {
@@ -87,4 +91,138 @@ func TestGetHTMLMetric(t *testing.T) {
 	response.Body.Close()
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	assert.Equal(t, "text/html", response.Header.Get("Content-Type"))
+}
+
+func TestGetMetricJSON(t *testing.T) {
+	s := storage.NewMemStorage(false, "test")
+	ts := chi.NewRouter()
+	r := httptest.NewServer(ts)
+	defer r.Close()
+	ts.Post("/value/", GetMetricJSON(s))
+	type args struct {
+		sugar      zap.SugaredLogger
+		statusCode int
+		res        []model.Metrics
+	}
+	var sugar zap.SugaredLogger
+	delta := int64(1)
+	value := float64(1.1)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "TestSendMetric1",
+			args: args{
+				sugar:      sugar,
+				statusCode: 200,
+				res: []model.Metrics{{
+					ID:    "test1",
+					MType: "counter",
+					Delta: &delta,
+				}, {
+					ID:    "test2",
+					MType: "gauge",
+					Value: &value,
+				}},
+			},
+		},
+		{
+			name: "TestSendMetric2",
+			args: args{
+				sugar:      sugar,
+				statusCode: 400,
+				res: []model.Metrics{{
+					ID:    "test3",
+					MType: "none",
+					Delta: &delta,
+				}, {
+					ID:    "test4",
+					MType: "none",
+					Value: &value,
+				}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			jsonData, err := json.Marshal(tt.args.res)
+			if err != nil {
+				t.Errorf("err in jsonData %v", err)
+			}
+			r1, err := http.NewRequest(http.MethodPost, r.URL+"/value/", strings.NewReader(string(jsonData)))
+			assert.NoError(t, err)
+			response, err := r.Client().Do(r1)
+			assert.NoError(t, err)
+			response.Body.Close()
+		})
+
+	}
+}
+
+func TestGaugeandCounterJSON(t *testing.T) {
+	s := storage.NewMemStorage(false, "test")
+	ts := chi.NewRouter()
+	r := httptest.NewServer(ts)
+	defer r.Close()
+	ts.Post("/update/", GaugeandCounterJSON(s))
+	type args struct {
+		sugar      zap.SugaredLogger
+		statusCode int
+		res        []model.Metrics
+	}
+	var sugar zap.SugaredLogger
+	delta := int64(1)
+	value := float64(1.1)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "TestSendMetric1",
+			args: args{
+				sugar:      sugar,
+				statusCode: 200,
+				res: []model.Metrics{{
+					ID:    "test1",
+					MType: "counter",
+					Delta: &delta,
+				}, {
+					ID:    "test2",
+					MType: "gauge",
+					Value: &value,
+				}},
+			},
+		},
+		{
+			name: "TestSendMetric2",
+			args: args{
+				sugar:      sugar,
+				statusCode: 400,
+				res: []model.Metrics{{
+					ID:    "test3",
+					MType: "none",
+					Delta: &delta,
+				}, {
+					ID:    "test4",
+					MType: "none",
+					Value: &value,
+				}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			jsonData, err := json.Marshal(tt.args.res)
+			if err != nil {
+				t.Errorf("err in jsonData %v", err)
+			}
+			r1, err := http.NewRequest(http.MethodPost, r.URL+"/update/", strings.NewReader(string(jsonData)))
+			assert.NoError(t, err)
+			response, err := r.Client().Do(r1)
+			assert.NoError(t, err)
+			response.Body.Close()
+		})
+
+	}
 }
