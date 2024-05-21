@@ -1,3 +1,4 @@
+// Package storagedb необходим для работы с базой данных, где хранятся метрики
 package storagedb
 
 import (
@@ -14,17 +15,20 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// StorageDB для работы с базой данных
 type StorageDB struct {
 	DB   *sql.DB
-	Path string
+	Path string // путь до файла с метриками
 	Ctx  context.Context
 }
 
+// Interface для работы с базой данных
 type Interface interface {
 	storage.Storage
 	Ping() error
 }
 
+// Init инициализация базы данных
 func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	var err error
 	m.Ctx = ctx
@@ -47,6 +51,7 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 
 }
 
+// Bootstrap запуск транзакций при создании 2 баз данных для gauge и counter метрик
 func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	// запускаем транзакцию
 	tx, err := m.DB.BeginTx(ctx, nil)
@@ -81,10 +86,12 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	return tx.Commit()
 }
 
+// Ping проверка работоспособности базы данных
 func (m *StorageDB) Ping() error {
 	return m.DB.Ping()
 }
 
+// CounterAndGaugeUpdateMetrics обновление метрик gauge и counter
 func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
 	tx, err := m.DB.BeginTx(m.Ctx, nil)
 	if err != nil {
@@ -127,6 +134,7 @@ func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []
 	return nil
 }
 
+// NewGauge вставка gauge-метрики
 func (m *StorageDB) NewGauge(key string, value float64) error {
 	_, err := m.DB.ExecContext(m.Ctx, `
 	INSERT INTO gauge (key, value)
@@ -140,6 +148,7 @@ func (m *StorageDB) NewGauge(key string, value float64) error {
 	return nil
 }
 
+// NewCounter вставка counter-метрики
 func (m *StorageDB) NewCounter(key string, value int64) error {
 	_, err := m.DB.ExecContext(m.Ctx, `
 	INSERT INTO counter (key, value)
@@ -154,6 +163,7 @@ func (m *StorageDB) NewCounter(key string, value int64) error {
 	return nil
 }
 
+// GetCounter получение counter-метрики
 func (m *StorageDB) GetCounter(key string) (int64, error) {
 	var value sql.NullInt64
 	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM counter WHERE key=$1", key)
@@ -169,6 +179,7 @@ func (m *StorageDB) GetCounter(key string) (int64, error) {
 	return value.Int64, nil
 }
 
+// GetGauge получение gauge-метрики
 func (m *StorageDB) GetGauge(key string) (float64, error) {
 	var value sql.NullFloat64
 	rows := m.DB.QueryRowContext(m.Ctx, "SELECT value FROM gauge WHERE key=$1", key)
@@ -184,20 +195,22 @@ func (m *StorageDB) GetGauge(key string) (float64, error) {
 	return value.Float64, nil
 }
 
+// Load пустой в данной реализации
 func (m *StorageDB) Load(file string) error {
 
 	return nil
 }
 
+// Save пустой в данной реализации
 func (m *StorageDB) Save(file string) error {
 
 	return nil
 
 }
 
+// GetIntMetric получение списка counter-метрик
 func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 	counter := make(map[string]int64, 0)
-	//gauge := make(map[string]float64, 0)
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM counter")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
@@ -226,6 +239,7 @@ func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 	return counter, nil
 }
 
+// GetFloatMetric получение списка gauge-метрик
 func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 	gauge := make(map[string]float64, 0)
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM gauge")

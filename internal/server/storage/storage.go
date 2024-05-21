@@ -1,3 +1,4 @@
+// Package storage содержит необходимое для работы с map как с хранилищем метрик
 package storage
 
 import (
@@ -12,14 +13,16 @@ import (
 	"github.com/andromaril/agent-smith/internal/model"
 )
 
+// MemStorage для дальнейшей работы map
 type MemStorage struct {
-	Gauge     map[string]float64
-	Counter   map[string]int64
-	WriteSync bool
-	Path      string
+	Gauge     map[string]float64 // map c gauge метриками
+	Counter   map[string]int64 // map c counter метриками
+	WriteSync bool // для решения записи в файл метрик
+	Path      string // путь, где лежит файл с метриками
 	Mutex     *sync.Mutex
 }
 
+// Storage для работы с map и бд
 type Storage interface {
 	NewGauge(key string, value float64) error
 	NewCounter(key string, value int64) error
@@ -34,23 +37,29 @@ type Storage interface {
 	CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error
 }
 
+// Ping для работы с бд, пустой в данном пакет
 func (m *MemStorage) Ping() error {
 	return nil
 }
+
+// Init для работы с бд, пустой в данном пакет
 func (m *MemStorage) Init(path string, ctx context.Context) (*sql.DB, error) {
 	return nil, nil
 }
 
+// NewMemStorage для создания новых экземпляров MemStorage
 func NewMemStorage(b bool, p string) *MemStorage {
 	m := MemStorage{Gauge: make(map[string]float64), Counter: make(map[string]int64), Path: p}
 	m.SyncWrite(b)
 	return &m
 }
 
+// SyncWrite от значений зависит, будет ли происходить запись в файл
 func (m *MemStorage) SyncWrite(b bool) {
 	m.WriteSync = b
 }
 
+// NewGauge для создание gauge-метрик
 func (m *MemStorage) NewGauge(key string, value float64) error {
 	m.Gauge[key] = value
 	if m.WriteSync {
@@ -62,6 +71,7 @@ func (m *MemStorage) NewGauge(key string, value float64) error {
 	return nil
 }
 
+// NewCounter для создания counter метрик
 func (m *MemStorage) NewCounter(key string, value int64) error {
 	m.Counter[key] += value
 	if m.WriteSync {
@@ -74,6 +84,7 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 	return nil
 }
 
+// GetCounter для получения 1 counter метрики
 func (m *MemStorage) GetCounter(key string) (int64, error) {
 	k, ok := m.Counter[key]
 	if !ok {
@@ -82,6 +93,7 @@ func (m *MemStorage) GetCounter(key string) (int64, error) {
 	return k, nil
 }
 
+// GetGauge для получений 1 gauge-метрики
 func (m *MemStorage) GetGauge(key string) (float64, error) {
 	k, ok := m.Gauge[key]
 	if !ok {
@@ -90,6 +102,7 @@ func (m *MemStorage) GetGauge(key string) (float64, error) {
 	return k, nil
 }
 
+// Save для сохранения метрик в отдельный файл
 func (m *MemStorage) Save(file string) error {
 	// сериализуем структуру в JSON формат
 	data, err := json.MarshalIndent(m, "", "   ")
@@ -101,6 +114,7 @@ func (m *MemStorage) Save(file string) error {
 
 }
 
+// Load для чтения метрик из ранее созданного файла в Save
 func (m *MemStorage) Load(file string) error {
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -114,14 +128,17 @@ func (m *MemStorage) Load(file string) error {
 	return nil
 }
 
+// GetIntMetric для получения 1 counter-метрики при работе с бд
 func (m *MemStorage) GetIntMetric() (map[string]int64, error) {
 	return m.Counter, nil
 }
 
+// GetFloatMetric для получения 1 gauge-метрики при работе с бд
 func (m *MemStorage) GetFloatMetric() (map[string]float64, error) {
 	return m.Gauge, nil
 }
 
+// CounterAndGaugeUpdateMetrics для получения списка gauge и counter метрик
 func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []model.Counter) error {
 	for _, modelmetrics := range gauge {
 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {

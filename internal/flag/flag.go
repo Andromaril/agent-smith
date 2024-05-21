@@ -1,3 +1,4 @@
+// Package flag считывает флаги агента
 package flag
 
 import (
@@ -7,13 +8,14 @@ import (
 )
 
 var (
-	FlagRunAddr    string
-	ReportInterval int64
-	PollInterval   int64
-	KeyHash        string
-	RateLimit      int
+	FlagRunAddr    string // адрес запуска агента
+	ReportInterval int64  // время между отправкой метрик
+	PollInterval   int64  // время сбора метрик
+	KeyHash        string // хеш
+	RateLimit      int    // количество горутин
 )
 
+// ParseFlags для флагов либо переменных окружения
 func ParseFlags() {
 	flag.Int64Var(&ReportInterval, "r", 10, "time to sleep for report interval")
 	flag.Int64Var(&PollInterval, "p", 2, "time to sleep for poll interval")

@@ -1,3 +1,4 @@
+// Package gzip поддержку сжатия и декомпрессии данных
 package gzip
 
 import (
@@ -17,6 +18,7 @@ type compressWriter struct {
 	zw *gzip.Writer
 }
 
+// NewCompressWriter создание нового compressWriter
 func NewCompressWriter(w http.ResponseWriter) *compressWriter {
 	return &compressWriter{
 		w:  w,
@@ -66,6 +68,7 @@ type compressReader struct {
 	zr *gzip.Reader
 }
 
+// NewCompressReader создание нового ридера
 func NewCompressReader(r io.ReadCloser) (*compressReader, error) {
 	zr, err := gzip.NewReader(r)
 	if err != nil {

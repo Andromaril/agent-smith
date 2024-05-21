@@ -1,3 +1,4 @@
+// Package creator создает метрики на отправку серверу
 package creator
 
 import (
@@ -15,9 +16,13 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
+// RandomValue переменная для рандомной gauge-метрики
 var RandomValue float64
+
+// PollCount переменная для подсчета отправок
 var PollCount int64
 
+// CreateFloatMetric создает gauge-метрики
 func CreateFloatMetric(metrics chan<- []model.Metrics) {
 	for {
 		modelmetrics := make([]model.Metrics, 0)
@@ -65,6 +70,7 @@ func CreateFloatMetric(metrics chan<- []model.Metrics) {
 
 }
 
+// AddNewMetric создает дополнительную gauge cpu  метрику
 func AddNewMetric(metrics chan<- []model.Metrics) {
 	for {
 		var m sync.RWMutex

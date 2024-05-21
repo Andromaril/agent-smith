@@ -1,3 +1,4 @@
+// Package start необходим для создания хранилища метрик
 package start
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/serverflag"
 )
 
+// Start в зависимости от заданного флага(переменной окружение) создает либо map, либо базу данных для хранения метрик
 func Start() (*sql.DB, storage.Storage) {
 	var newMetric storage.Storage
 	var err error

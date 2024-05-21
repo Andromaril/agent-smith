@@ -1,3 +1,4 @@
+// Package logging для логирования агента и сервера
 package logging
 
 import (
@@ -21,6 +22,7 @@ type (
 
 var sugar zap.SugaredLogger
 
+// WithLogging middleware для логирования запросов
 func WithLogging(sugar zap.SugaredLogger) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -1,3 +1,4 @@
+// Package metric модержит функцию, отправлющую метрики в json-формате
 package metric
 
 import (
@@ -16,6 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// SendMetricJSON функция, отправляющая метрики в формате json по эндпоинту /updates/
 func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	jsonData, err := json.Marshal(res)
 	if err != nil {
