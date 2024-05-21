@@ -1,0 +1,7 @@
+{
+   "Gauge": {},
+   "Counter": {},
+   "WriteSync": false,
+   "Path": "/tmp/test-1.json",
+   "Mutex": null
+}

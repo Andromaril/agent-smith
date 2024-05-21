@@ -13,7 +13,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/model"
 )
 
-// MemStorage для дальнейшей работы map
+// MemStorage хранит информацию о метриках для работы с хранилищем map
 type MemStorage struct {
 	Gauge     map[string]float64 // map c gauge метриками
 	Counter   map[string]int64 // map c counter метриками

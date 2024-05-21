@@ -1,3 +1,4 @@
+// Package main запускает сервис
 package main
 
 import (

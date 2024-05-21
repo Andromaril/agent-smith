@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// GetMetricJSON отдает все метрики в json-формате по запросу к /value
+// GetMetricJSON 1 метрику в json-формате по запросу к /value
 func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
@@ -196,7 +196,7 @@ func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 	}
 }
 
-// Ping по GET-запросу к /ping проверяет состаяние базы данных
+// Ping по GET-запросу к /ping проверяет состояние базы данных
 func Ping(db storagedb.Interface) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := db.Ping()

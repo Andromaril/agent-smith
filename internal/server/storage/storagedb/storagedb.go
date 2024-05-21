@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-// StorageDB для работы с базой данных
+// StorageDB хранит информацию о базе данных
 type StorageDB struct {
 	DB   *sql.DB
 	Path string // путь до файла с метриками
