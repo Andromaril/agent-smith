@@ -15,8 +15,8 @@ func (te *MetricError) Error() string {
 }
 
 func NewMetricError(err error) error {
-    return &MetricError{
-        Time: time.Now(),
-        Err:  err,
-    }
-} 
+	return &MetricError{
+		Time: time.Now(),
+		Err:  err,
+	}
+}
