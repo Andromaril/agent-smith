@@ -1,3 +1,4 @@
+// Package handler содержит хэндлеры
 package handler
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetMetricJSON 1 метрику в json-формате по запросу к /value
 func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
@@ -56,6 +58,7 @@ func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 	}
 }
 
+// GaugeandCounterJSON позволяет создать новую метрику по post запросу /update/ принимая данные в json-формате
 func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var r model.Metrics
@@ -111,6 +114,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 	}
 }
 
+// GaugeandCounter позволяет создать новую метрику по post запросу update/{pattern}/{name}/{value} принимая данные в url-параметрах запроса
 func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
@@ -135,6 +139,7 @@ func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 	}
 }
 
+// GetMetric по GET запросу к value/{pattern}/{name} выводит значение метрики
 func GetMetric(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		pattern := chi.URLParam(req, "pattern")
@@ -161,13 +166,13 @@ func GetMetric(m storage.Storage) http.HandlerFunc {
 	}
 }
 
+// GetHTMLMetric по GET запросу к /value/ выводит значение всех метрик в отдельной html-странице
 func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodGet {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-		//s := m.PrintMetric()
 		gauge, err := m.GetFloatMetric()
 		if err != nil {
 			http.Error(res, "Incorrect metrics", http.StatusNotFound)
@@ -191,6 +196,7 @@ func GetHTMLMetric(m storage.Storage) http.HandlerFunc {
 	}
 }
 
+// Ping по GET-запросу к /ping проверяет состояние базы данных
 func Ping(db storagedb.Interface) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := db.Ping()
@@ -202,6 +208,7 @@ func Ping(db storagedb.Interface) http.HandlerFunc {
 	}
 }
 
+// Update по Post запросу /updates обновляет метрики в базе данных
 func Update(db storagedb.Interface) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		r := make([]model.Metrics, 0)

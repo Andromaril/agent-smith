@@ -1,3 +1,4 @@
+// Package serverflag считывает флаги сервера
 package serverflag
 
 import (
@@ -7,14 +8,15 @@ import (
 )
 
 var (
-	FlagRunAddr     string
-	StoreInterval   int64
-	FileStoragePath string
-	Restore         bool
-	Databaseflag    string
-	KeyHash         string
+	FlagRunAddr     string // адрес запуска сервиса
+	StoreInterval   int64  // время между сохранениями метрик в файл
+	FileStoragePath string // путь для файла с метриками
+	Restore         bool   // определяет загружать или нет метрики с файла
+	Databaseflag    string // адрес бд
+	KeyHash         string // хеш
 )
 
+// ParseFlags для флагов либо переменных окружения
 func ParseFlags() {
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")

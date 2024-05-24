@@ -1,3 +1,4 @@
+// Package retry служит для возможности ретрая операций
 package retry
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/errormetric"
 )
 
+// Retry выполняет ретрай определенной функции 3 раза, если после 3 ретраев заданная функция не прошла - выводит ошибку
 func Retry(function func() error) error {
 
 	tries := 0

@@ -15,7 +15,8 @@ import (
 
 var sugar zap.SugaredLogger
 
-func worker(jobs <-chan []model.Metrics, sugar zap.SugaredLogger) {
+func worker(wg *sync.WaitGroup, jobs <-chan []model.Metrics, sugar zap.SugaredLogger) {
+	defer wg.Done()
 	for j := range jobs {
 		operation := func() error {
 			err := metric.SendMetricJSON(sugar, j)
@@ -49,7 +50,8 @@ func main() {
 	go creator.AddNewMetric(jobs)
 	defer close(jobs)
 	for w := 1; w <= ratelimit; w++ {
-		go worker(jobs, sugar)
+		go worker(&wg, jobs, sugar)
 	}
 	wg.Wait()
+	defer wg.Done()
 }

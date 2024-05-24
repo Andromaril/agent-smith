@@ -1,3 +1,4 @@
+// Package main запускает сервис
 package main
 
 import (
@@ -6,13 +7,17 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
+	_ "net/http/pprof"
+
 	logging "github.com/andromaril/agent-smith/internal/loger"
-	"github.com/andromaril/agent-smith/internal/middleware"
+	"github.com/andromaril/agent-smith/internal/midleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/start"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/andromaril/agent-smith/internal/serverflag"
-	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+
 	"go.uber.org/zap"
 )
 
@@ -36,9 +41,9 @@ func main() {
 	}
 	defer db.Close()
 	r := chi.NewRouter()
-	r.Use(middleware.GzipMiddleware)
+	r.Use(midleware.GzipMiddleware)
 	if serverflag.KeyHash != "" {
-		r.Use(middleware.HashMiddleware(serverflag.KeyHash))
+		r.Use(midleware.HashMiddleware(serverflag.KeyHash))
 	}
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
@@ -54,6 +59,7 @@ func main() {
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", handler.Update(newMetric))
 	})
+	r.Mount("/debug", middleware.Profiler())
 	if serverflag.StoreInterval != 0 {
 		go func() {
 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))

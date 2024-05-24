@@ -1,4 +1,5 @@
-package middleware
+// Package midleware содержит middleware для сжатия и хеширования
+package midleware
 
 import (
 	"bytes"
@@ -12,6 +13,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/gzip"
 )
 
+// GzipMiddleware middleware для передачи сжатия данных запроса
 func GzipMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ow := w
@@ -40,6 +42,7 @@ func GzipMiddleware(h http.Handler) http.Handler {
 
 }
 
+// HashMiddleware middleware для хеширования
 func HashMiddleware(key string) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

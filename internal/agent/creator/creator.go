@@ -1,3 +1,4 @@
+// Package creator создает метрики на отправку серверу
 package creator
 
 import (
@@ -5,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
@@ -14,9 +16,13 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
+// RandomValue переменная для рандомной gauge-метрики
 var RandomValue float64
+
+// PollCount переменная для подсчета отправок
 var PollCount int64
 
+// CreateFloatMetric создает gauge-метрики
 func CreateFloatMetric(metrics chan<- []model.Metrics) {
 	for {
 		modelmetrics := make([]model.Metrics, 0)
@@ -64,8 +70,11 @@ func CreateFloatMetric(metrics chan<- []model.Metrics) {
 
 }
 
+// AddNewMetric создает дополнительную gauge cpu  метрику
 func AddNewMetric(metrics chan<- []model.Metrics) {
 	for {
+		var m sync.RWMutex
+
 		modelmetrics := make([]model.Metrics, 0)
 		v, _ := mem.VirtualMemory()
 		metric := map[string]float64{
@@ -78,7 +87,9 @@ func AddNewMetric(metrics chan<- []model.Metrics) {
 			log.Printf("fatal get metric %q", e.Error())
 		}
 		for key, value := range cpu {
+			m.Lock()
 			metric[fmt.Sprintf("CPUutilization%d", key+1)] = float64(value)
+			m.Unlock()
 		}
 		for name, metricvalue := range metric {
 			value := metricvalue
