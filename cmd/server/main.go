@@ -15,8 +15,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/server/start"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/andromaril/agent-smith/internal/serverflag"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 
 	"go.uber.org/zap"
 )
@@ -59,7 +58,7 @@ func main() {
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", handler.Update(newMetric))
 	})
-	r.Mount("/debug", middleware.Profiler())
+	//r.Mount("/debug", middleware.Profiler())
 	if serverflag.StoreInterval != 0 {
 		go func() {
 			time.Sleep(time.Second * time.Duration(serverflag.StoreInterval))
