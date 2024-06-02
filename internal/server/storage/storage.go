@@ -15,11 +15,11 @@ import (
 
 // MemStorage хранит информацию о метриках для работы с хранилищем map
 type MemStorage struct {
-	Gauge     map[string]float64 // map c gauge метриками
-	Counter   map[string]int64 // map c counter метриками
-	WriteSync bool // для решения записи в файл метрик
-	Path      string // путь, где лежит файл с метриками
+	Gauge     map[string]float64
+	Counter   map[string]int64
 	Mutex     *sync.Mutex
+	Path      string
+	WriteSync bool
 }
 
 // Storage для работы с map и бд
@@ -78,7 +78,7 @@ func (m *MemStorage) NewCounter(key string, value int64) error {
 		err := m.Save(m.Path)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			return fmt.Errorf("not found %q", e.Error())
+			return fmt.Errorf("not found %w", e)
 		}
 	}
 	return nil
@@ -108,7 +108,7 @@ func (m *MemStorage) Save(file string) error {
 	data, err := json.MarshalIndent(m, "", "   ")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("not found %q", e.Error())
+		return fmt.Errorf("not found %w", e)
 	}
 	return os.WriteFile(file, data, 0666)
 
@@ -122,7 +122,7 @@ func (m *MemStorage) Load(file string) error {
 			return nil
 		}
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("not found %q", e.Error())
+		return fmt.Errorf("not found %w", e)
 	}
 	json.Unmarshal(data, m)
 	return nil
@@ -143,13 +143,13 @@ func (m *MemStorage) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter [
 	for _, modelmetrics := range gauge {
 		if err := m.NewGauge(modelmetrics.Key, modelmetrics.Value); err != nil {
 			e := errormetric.NewMetricError(err)
-			return fmt.Errorf("not found %q", e.Error())
+			return fmt.Errorf("not found %w", e)
 		}
 	}
 	for _, modelmetrics := range counter {
 		if err := m.NewCounter(modelmetrics.Key, modelmetrics.Value); err != nil {
 			e := errormetric.NewMetricError(err)
-			return fmt.Errorf("not found %q", e.Error())
+			return fmt.Errorf("not found %w", e)
 		}
 	}
 	return nil

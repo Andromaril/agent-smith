@@ -18,7 +18,7 @@ func Retry(function func() error) error {
 	for {
 		if tries >= 3 {
 			e := errormetric.NewMetricError(err)
-			return fmt.Errorf("fatal  %q", e.Error())
+			return fmt.Errorf("fatal  %w", e)
 		}
 		err = function()
 		if err != nil {

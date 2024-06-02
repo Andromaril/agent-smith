@@ -17,9 +17,9 @@ import (
 
 // StorageDB хранит информацию о базе данных
 type StorageDB struct {
-	DB   *sql.DB
-	Path string // путь до файла с метриками
 	Ctx  context.Context
+	DB   *sql.DB
+	Path string
 }
 
 // Interface для работы с базой данных
@@ -40,12 +40,12 @@ func (m *StorageDB) Init(path string, ctx context.Context) (*sql.DB, error) {
 	err2 := retry.Retry(operation)
 	if err2 != nil {
 		e := errormetric.NewMetricError(err)
-		return nil, fmt.Errorf("сonnection error %q", e.Error())
+		return nil, fmt.Errorf("сonnection error %w", e)
 	}
 	err3 := m.Bootstrap(m.Ctx)
 	if err3 != nil {
 		e := errormetric.NewMetricError(err)
-		return nil, fmt.Errorf("fatal start a transaction %q", e.Error())
+		return nil, fmt.Errorf("fatal start a transaction %w", e)
 	}
 	return m.DB, nil
 
@@ -57,7 +57,7 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	tx, err := m.DB.BeginTx(ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("fatal start a transaction %q", e.Error())
+		return fmt.Errorf("fatal start a transaction %w", e)
 	}
 	// в случае неуспешного коммита все изменения транзакции будут отменены
 	defer tx.Rollback()
@@ -70,7 +70,7 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	`)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("fatal start a transaction %q", e.Error())
+		return fmt.Errorf("fatal start a transaction %w", e)
 	}
 	_, err = tx.ExecContext(m.Ctx, `
 		CREATE TABLE IF NOT EXISTS counter (
@@ -81,7 +81,7 @@ func (m *StorageDB) Bootstrap(ctx context.Context) error {
 	`)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("fatal start a transaction %q", e.Error())
+		return fmt.Errorf("fatal start a transaction %w", e)
 	}
 	return tx.Commit()
 }
@@ -96,7 +96,7 @@ func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []
 	tx, err := m.DB.BeginTx(m.Ctx, nil)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("fatal start a transaction %q", e.Error())
+		return fmt.Errorf("fatal start a transaction %w", e)
 	}
 	defer tx.Rollback()
 	for _, value := range gauge {
@@ -110,7 +110,7 @@ func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 				e := errormetric.NewMetricError(err)
-				return fmt.Errorf("error insert %q", e.Error())
+				return fmt.Errorf("error insert %w", e)
 			}
 		}
 	}
@@ -125,7 +125,7 @@ func (m *StorageDB) CounterAndGaugeUpdateMetrics(gauge []model.Gauge, counter []
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 				e := errormetric.NewMetricError(err)
-				return fmt.Errorf("error insert %q", e.Error())
+				return fmt.Errorf("error insert %w", e)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func (m *StorageDB) NewGauge(key string, value float64) error {
 	DO UPDATE SET value = $2;`, key, value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error insert %q", e.Error())
+		return fmt.Errorf("error insert %w", e)
 	}
 	return nil
 }
@@ -158,7 +158,7 @@ func (m *StorageDB) NewCounter(key string, value int64) error {
 `, key, value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error insert %q", e.Error())
+		return fmt.Errorf("error insert %w", e)
 	}
 	return nil
 }
@@ -170,11 +170,11 @@ func (m *StorageDB) GetCounter(key string) (int64, error) {
 	err := rows.Scan(&value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("error select %q", e.Error())
+		return 0, fmt.Errorf("error select %w", e)
 	}
 	if !value.Valid {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("invalid value %q", e.Error())
+		return 0, fmt.Errorf("invalid value %w", e)
 	}
 	return value.Int64, nil
 }
@@ -186,11 +186,11 @@ func (m *StorageDB) GetGauge(key string) (float64, error) {
 	err := rows.Scan(&value)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("error select %q", e.Error())
+		return 0, fmt.Errorf("error select %w", e)
 	}
 	if !value.Valid {
 		e := errormetric.NewMetricError(err)
-		return 0, fmt.Errorf("invalid value %q", e.Error())
+		return 0, fmt.Errorf("invalid value %w", e)
 	}
 	return value.Float64, nil
 }
@@ -214,7 +214,7 @@ func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM counter")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return counter, fmt.Errorf("error select %q", e.Error())
+		return counter, fmt.Errorf("error select %w", e)
 	}
 
 	// обязательно закрываем перед возвратом функции
@@ -227,14 +227,14 @@ func (m *StorageDB) GetIntMetric() (map[string]int64, error) {
 		err = rows.Scan(&key, &value)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			return counter, fmt.Errorf("not int64 metric %q", e.Error())
+			return counter, fmt.Errorf("not int64 metric %w", e)
 		}
 		counter[key] = value
 	}
 	err = rows.Err()
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return counter, fmt.Errorf("error %q", e.Error())
+		return counter, fmt.Errorf("error %w", e)
 	}
 	return counter, nil
 }
@@ -245,7 +245,7 @@ func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 	rows, err := m.DB.QueryContext(m.Ctx, "SELECT key, value FROM gauge")
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return gauge, fmt.Errorf("error select %q", e.Error())
+		return gauge, fmt.Errorf("error select %w", e)
 	}
 
 	// обязательно закрываем перед возвратом функции
@@ -258,14 +258,14 @@ func (m *StorageDB) GetFloatMetric() (map[string]float64, error) {
 		err = rows.Scan(&key, &value)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			return gauge, fmt.Errorf("not float64 metric %q", e.Error())
+			return gauge, fmt.Errorf("not float64 metric %w", e)
 		}
 		gauge[key] = value
 	}
 	err = rows.Err()
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return gauge, fmt.Errorf("error %q", e.Error())
+		return gauge, fmt.Errorf("error %w", e)
 	}
 	return gauge, nil
 }

@@ -22,7 +22,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	jsonData, err := json.Marshal(res)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error %q", e.Error())
+		return fmt.Errorf("error %w", e)
 	}
 	buf := bytes.NewBuffer(nil)
 	zb := gzip.NewWriter(buf)
@@ -41,7 +41,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 			Post(url)
 		if err2 != nil {
 			e := errormetric.NewMetricError(err)
-			return fmt.Errorf("error send request %q", e.Error())
+			return fmt.Errorf("error send request %w", e)
 		}
 	}
 	_, err2 := client.R().SetHeader("Content-Type", "application/json").
@@ -50,7 +50,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		Post(url)
 	if err2 != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error send request %q", e.Error())
+		return fmt.Errorf("error send request %w", e)
 	}
 	return nil
 }
