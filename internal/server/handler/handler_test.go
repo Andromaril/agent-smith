@@ -121,8 +121,8 @@ func TestGetMetricJSON(t *testing.T) {
 	ts.Post("/value/", GetMetricJSON(s))
 	type args struct {
 		sugar      zap.SugaredLogger
-		statusCode int
 		res        []model.Metrics
+		statusCode int
 	}
 	var sugar zap.SugaredLogger
 	tests := []struct {
@@ -192,8 +192,8 @@ func TestGaugeandCounterJSON(t *testing.T) {
 	ts.Post("/update/", GaugeandCounterJSON(s))
 	type args struct {
 		sugar      zap.SugaredLogger
-		statusCode int
 		res        []model.Metrics
+		statusCode int
 	}
 	var sugar zap.SugaredLogger
 	delta := int64(1)

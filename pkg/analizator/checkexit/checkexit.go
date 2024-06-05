@@ -18,7 +18,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	if pass.Pkg.Name() != "main" {
 		return nil, nil
 	}
-
+	for _, pkg := range pass.Pkg.Imports() {
+		if pkg.Name() == "testing" {
+			return nil, nil
+		}
+	}
 	for _, v := range pass.Files {
 		if v.Name.Name != "main" {
 			return nil, nil
@@ -28,20 +32,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			if f, ok := n.(*ast.FuncDecl); ok && f.Name.Name != "main" {
 				return false
 			}
-			callExpr, ok := n.(*ast.CallExpr)
-			if !ok {
-				return true
-			}
-
-			f, ok := callExpr.Fun.(*ast.SelectorExpr)
-			if !ok {
-				return true
-			}
-			if i, ok := f.X.(*ast.Ident); ok && i.Name == "os" && f.Sel.Name == "Exit" {
-				pass.Reportf(n.(*ast.CallExpr).Pos(), "calling os.Exit")
+			if c, ok := n.(*ast.CallExpr); ok {
+				if f, ok := c.Fun.(*ast.SelectorExpr); ok {
+					if i, ok := f.X.(*ast.Ident); ok {
+						if i.Name == "os" && f.Sel.Name == "Exit" {
+							pass.Reportf(n.(*ast.CallExpr).Pos(), "calling os.Exit")
+						}
+					}
+				}
 			}
 			return true
-
 		})
 	}
 	return nil, nil
