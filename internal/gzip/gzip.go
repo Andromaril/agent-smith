@@ -39,7 +39,7 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 		c.zw = gzip.NewWriter(c.w)
 		form, err := c.zw.Write(p)
 		e := errormetric.NewMetricError(err)
-		return form, fmt.Errorf("error gzip %q", e.Error())
+		return form, fmt.Errorf("error gzip %w", e)
 	} else {
 		c.zw = nil
 		return c.w.Write(p)
@@ -73,7 +73,7 @@ func NewCompressReader(r io.ReadCloser) (*compressReader, error) {
 	zr, err := gzip.NewReader(r)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
-		return nil, fmt.Errorf("error %q", e.Error())
+		return nil, fmt.Errorf("error %w", e)
 	}
 
 	return &compressReader{
@@ -89,7 +89,7 @@ func (c compressReader) Read(p []byte) (n int, err error) {
 func (c *compressReader) Close() error {
 	if err := c.r.Close(); err != nil {
 		e := errormetric.NewMetricError(err)
-		return fmt.Errorf("error %q", e.Error())
+		return fmt.Errorf("error %w", e)
 	}
 	return c.zr.Close()
 }

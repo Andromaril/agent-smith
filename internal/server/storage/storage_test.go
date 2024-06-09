@@ -13,8 +13,8 @@ func TestMemStorage_NewGauge(t *testing.T) {
 		gauge map[string]float64
 	}
 	tests := []struct {
-		name string
 		args args
+		name string
 	}{
 		{
 			name: "test",
@@ -44,8 +44,8 @@ func TestMemStorage_NewCounter(t *testing.T) {
 		counter map[string]int64
 	}
 	tests := []struct {
-		name string
 		args args
+		name string
 	}{
 		{
 			name: "test",

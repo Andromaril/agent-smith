@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 	"sync"
 	"time"
@@ -14,6 +15,11 @@ import (
 )
 
 var sugar zap.SugaredLogger
+var (
+	buildVersion string = "N/A"
+	buildDate    string = "N/A"
+	buildCommit  string = "N/A"
+)
 
 func worker(wg *sync.WaitGroup, jobs <-chan []model.Metrics, sugar zap.SugaredLogger) {
 	defer wg.Done()
@@ -42,6 +48,7 @@ func main() {
 	sugar = *logger.Sugar()
 	sugar.Infow(
 		"Starting agent")
+	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	var wg sync.WaitGroup
 	ratelimit := flag.RateLimit
 	jobs := make(chan []model.Metrics, runtime.GOMAXPROCS(0))

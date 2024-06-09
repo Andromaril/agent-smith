@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,6 +21,11 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	buildVersion string = "N/A"
+	buildDate    string = "N/A"
+	buildCommit  string = "N/A"
+)
 var sugar zap.SugaredLogger
 
 func main() {
@@ -34,6 +40,7 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
+	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	db, newMetric := start.Start()
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
