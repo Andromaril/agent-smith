@@ -14,9 +14,9 @@ import (
 
 func TestStorageDB_Bootstrap(t *testing.T) {
 	//var ctx context.Background()
-	ctx := context.Background()
+	//ctx := context.Background()
 	db, mock, err := sqlmock.New()
-	s := StorageDB{DB: db}
+	//s := StorageDB{DB: db}
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
