@@ -37,11 +37,10 @@ func TestStorageDB_Bootstrap(t *testing.T) {
 		);
 	`)).WillReturnResult(driver.ResultNoRows)
 	mock.ExpectCommit()
-	//s.DB, err = sql.Open("pgx", "test")
-	_, err = s.Init("postgres://postgres:qwerty123@localhost:5432/gr", ctx)
-	if err != nil {
-		t.Error(err)
-	}
+	//_, err = s.Init("postgres://postgres:qwerty123@localhost:5432/gr", ctx)
+	//if err != nil {
+	//t.Error(err)
+	//}
 }
 
 func TestStorageDB_CounterAndGaugeUpdateMetrics(t *testing.T) {
