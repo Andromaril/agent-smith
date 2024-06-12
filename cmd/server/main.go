@@ -2,14 +2,18 @@
 package main
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	_ "net/http/pprof"
 
+	"github.com/andromaril/agent-smith/internal/errormetric"
 	logging "github.com/andromaril/agent-smith/internal/loger"
 	"github.com/andromaril/agent-smith/internal/midleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
@@ -50,6 +54,19 @@ func main() {
 	r.Use(midleware.GzipMiddleware)
 	if serverflag.KeyHash != "" {
 		r.Use(midleware.HashMiddleware(serverflag.KeyHash))
+	}
+	if serverflag.CryptoKey != "" {
+		data, err := os.ReadFile(serverflag.CryptoKey)
+		if err != nil {
+			e := errormetric.NewMetricError(err)
+			sugar.Errorf(
+				"error read file",
+				"error", e,
+			)
+		}
+		pemDecode, _ := pem.Decode(data)
+		priv, err := x509.ParsePKCS1PrivateKey(pemDecode.Bytes)
+		r.Use(midleware.CryptoMiddleware(priv))
 	}
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {

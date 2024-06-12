@@ -13,6 +13,7 @@ var (
 	PollInterval   int64  // время сбора метрик
 	KeyHash        string // хеш
 	RateLimit      int    // количество горутин
+	CryptoKey      string // публичный ключ
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -22,6 +23,7 @@ func ParseFlags() {
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.IntVar(&RateLimit, "l", 2, "rate limit")
+	flag.StringVar(&CryptoKey, "crypto-key", "", "key public")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -49,5 +51,8 @@ func ParseFlags() {
 			panic(err)
 		}
 		RateLimit = int(n)
+	}
+	if envCryptoKey := os.Getenv("CRYPTO_KEY"); envCryptoKey != "" {
+		CryptoKey = envCryptoKey
 	}
 }

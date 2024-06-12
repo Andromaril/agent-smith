@@ -14,6 +14,7 @@ var (
 	Restore         bool   // определяет загружать или нет метрики с файла
 	Databaseflag    string // адрес бд
 	KeyHash         string // хеш
+	CryptoKey       string // приватный ключ
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -24,6 +25,7 @@ func ParseFlags() {
 	flag.BoolVar(&Restore, "r", true, "download files")
 	flag.StringVar(&Databaseflag, "d", "", "database path")
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
+	flag.StringVar(&CryptoKey, "crypto-key", "", "key private")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -50,5 +52,8 @@ func ParseFlags() {
 	}
 	if envKey := os.Getenv("KEY"); envKey != "" {
 		KeyHash = envKey
+	}
+	if envCryptoKey := os.Getenv("CRYPTO_KEY"); envCryptoKey != "" {
+		CryptoKey = envCryptoKey
 	}
 }
