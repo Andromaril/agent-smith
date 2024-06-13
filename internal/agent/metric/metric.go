@@ -56,12 +56,12 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 			return fmt.Errorf("error read file %w", e)
 		}
 		pemDecode, _ := pem.Decode(data)
-		pub, err := x509.ParsePKCS1PublicKey(pemDecode.Bytes)
+		pub, err := x509.ParsePKIXPublicKey(pemDecode.Bytes)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
 			return fmt.Errorf("error decode public key %w", e)
 		}
-		buf2, err := rsa.EncryptPKCS1v15(rand.Reader, pub, buf.Bytes())
+		buf2, err := rsa.EncryptPKCS1v15(rand.Reader, pub.(*rsa.PublicKey), buf.Bytes())
 		if err != nil {
 			e := errormetric.NewMetricError(err)
 			return fmt.Errorf("error decode public key %w", e)

@@ -1,11 +1,13 @@
 package storage
 
 import (
+	"context"
 	"math/rand"
 	"testing"
 
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMemStorage_NewGauge(t *testing.T) {
@@ -261,4 +263,29 @@ func BenchmarkAddCounter(b *testing.B) {
 			logrus.Error(err)
 		}
 	}
+}
+
+func TestMemStorage_Ping(t *testing.T) {
+	s := NewMemStorage(false, "test")
+	err := s.Ping()
+	assert.NoError(t, err)
+}
+
+func TestMemStorage_Init(t *testing.T) {
+	s := NewMemStorage(false, "test")
+	var ctx context.Context
+	_, err := s.Init(s.Path, ctx)
+	assert.NoError(t, err)
+}
+
+func TestMemStorage_GetIntMetric(t *testing.T) {
+	s := NewMemStorage(false, "test")
+	_, err := s.GetIntMetric()
+	assert.NoError(t, err)
+}
+
+func TestMemStorage_GetFloatMetric(t *testing.T) {
+	s := NewMemStorage(false, "test")
+	_, err := s.GetFloatMetric()
+	assert.NoError(t, err)
 }

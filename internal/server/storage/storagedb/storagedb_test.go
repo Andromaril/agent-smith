@@ -1,4 +1,5 @@
 // Package storagedb необходим для работы с базой данных, где хранятся метрики
+
 package storagedb
 
 import (
@@ -10,13 +11,14 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/andromaril/agent-smith/internal/model"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStorageDB_Bootstrap(t *testing.T) {
 	//var ctx context.Background()
-	//ctx := context.Background()
+	ctx := context.Background()
 	db, mock, err := sqlmock.New()
-	//s := StorageDB{DB: db}
+	s := StorageDB{DB: db}
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
@@ -37,10 +39,10 @@ func TestStorageDB_Bootstrap(t *testing.T) {
 		);
 	`)).WillReturnResult(driver.ResultNoRows)
 	mock.ExpectCommit()
-	//_, err = s.Init("postgres://postgres:qwerty123@localhost:5432/gr", ctx)
-	//if err != nil {
-	//t.Error(err)
-	//}
+	_, err = s.Init("postgres://postgres:qwerty123@localhost:5432/gr", ctx)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestStorageDB_CounterAndGaugeUpdateMetrics(t *testing.T) {
@@ -254,4 +256,37 @@ func TestStorageDB_GetFloatMetric(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestStorageDB_Ping(t *testing.T) {
+	ctx := context.Background()
+	db, _, err := sqlmock.New()
+	s := StorageDB{DB: db, Ctx: ctx}
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	err = s.Ping()
+	assert.NoError(t, err)
+}
+
+func TestStorageDB_Load(t *testing.T) {
+	ctx := context.Background()
+	db, _, err := sqlmock.New()
+	s := StorageDB{DB: db, Ctx: ctx, Path: "test"}
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	err = s.Load(s.Path)
+	assert.NoError(t, err)
+}
+
+func TestStorageDB_Save(t *testing.T) {
+	ctx := context.Background()
+	db, _, err := sqlmock.New()
+	s := StorageDB{DB: db, Ctx: ctx, Path: "test"}
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	err = s.Save(s.Path)
+	assert.NoError(t, err)
 }
