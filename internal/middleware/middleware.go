@@ -1,5 +1,5 @@
 // Package midleware содержит middleware для сжатия и хеширования
-package midleware
+package middleware
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package midleware
+package middleware
 
 import (
 	"bytes"
@@ -103,7 +103,10 @@ func TestCryptoMiddleware(t *testing.T) {
 	}
 	pemDecode2, _ := pem.Decode(data2)
 	priv, err := x509.ParsePKCS1PrivateKey(pemDecode2.Bytes)
-
+	if err != nil {
+		e := errormetric.NewMetricError(err)
+		t.Error("error parse %w", e)
+	}
 	r := httptest.NewRequest(http.MethodPost, "/test", strings.NewReader(string(buf2)))
 
 	rw := httptest.NewRecorder()

@@ -114,47 +114,8 @@ func ExampleGetHTMLMetric() {
 	// В ответ выводит html-страницу со всеми метриками
 }
 
-func ExampleGetMetricJSON() {
-	// Выполняет Post-запрос по адресу /value/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter"
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge"
-	//}
-}
-
-func ExampleGaugeandCounterJSON() {
-	// Выполняет Post-запрос по адресу /update/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter",
-	// Delta: 1
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge",
-	// Value: 1.1
-	//}
-	// обновляет метрики в map
-}
-
 func ExamplePing() {
 	// Выполняет GET-запрос по адресу /ping и проверяет состояние базы данных
-}
-
-func ExampleUpdate() {
-	// Выполняет Post-запрос по адресу /updates/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter",
-	// Delta: 1
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge",
-	// Value: 1.1
-	//}
-	// обновляет метрики в базе даных
 }
 
 func TestPing(t *testing.T) {

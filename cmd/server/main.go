@@ -15,7 +15,7 @@ import (
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	logging "github.com/andromaril/agent-smith/internal/loger"
-	"github.com/andromaril/agent-smith/internal/midleware"
+	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/handlerdb"
 	"github.com/andromaril/agent-smith/internal/server/start"
@@ -52,9 +52,9 @@ func main() {
 	}
 	defer db.Close()
 	r := chi.NewRouter()
-	r.Use(midleware.GzipMiddleware)
+	r.Use(middleware.GzipMiddleware)
 	if serverflag.KeyHash != "" {
-		r.Use(midleware.HashMiddleware(serverflag.KeyHash))
+		r.Use(middleware.HashMiddleware(serverflag.KeyHash))
 	}
 	if serverflag.CryptoKey != "" {
 		data, err := os.ReadFile(serverflag.CryptoKey)
@@ -67,7 +67,14 @@ func main() {
 		}
 		pemDecode, _ := pem.Decode(data)
 		priv, err := x509.ParsePKCS1PrivateKey(pemDecode.Bytes)
-		r.Use(midleware.CryptoMiddleware(priv))
+		if err != nil {
+			e := errormetric.NewMetricError(err)
+			sugar.Errorf(
+				"error parse",
+				"error", e,
+			)
+		}
+		r.Use(middleware.CryptoMiddleware(priv))
 	}
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
