@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/go-chi/chi/v5"
@@ -121,6 +122,10 @@ func ExamplePing() {
 func TestPing(t *testing.T) {
 	ctx := context.Background()
 	db, _, err := sqlmock.New()
+	if err != nil {
+		e := errormetric.NewMetricError(err)
+		t.Error("error mock %w", e)
+	}
 	s := &storagedb.StorageDB{DB: db, Ctx: ctx}
 	ts := chi.NewRouter()
 	r := httptest.NewServer(ts)
