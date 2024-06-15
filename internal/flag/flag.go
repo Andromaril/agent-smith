@@ -2,10 +2,19 @@
 package flag
 
 import (
+	"encoding/json"
 	"flag"
+	"log"
 	"os"
 	"strconv"
 )
+
+type Config struct {
+	FlagRunAddr    string `json:"address"`
+	ReportInterval int64  `json:"report_interval"`
+	PollInterval   int64  `json:"poll_interval"`
+	CryptoKey      string `json:"crypto_key"`
+}
 
 var (
 	FlagRunAddr    string // адрес запуска агента
@@ -14,6 +23,7 @@ var (
 	KeyHash        string // хеш
 	RateLimit      int    // количество горутин
 	CryptoKey      string // публичный ключ
+	ConfigKey      string // файл с конфигом в формате json
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -24,6 +34,7 @@ func ParseFlags() {
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.IntVar(&RateLimit, "l", 2, "rate limit")
 	flag.StringVar(&CryptoKey, "crypto-key", "", "key public")
+	flag.StringVar(&ConfigKey, "-c", "", "json-file flag")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -54,5 +65,32 @@ func ParseFlags() {
 	}
 	if envCryptoKey := os.Getenv("CRYPTO_KEY"); envCryptoKey != "" {
 		CryptoKey = envCryptoKey
+	}
+	if envConfigKey := os.Getenv("CONFIG"); envConfigKey != "" {
+		ConfigKey = envConfigKey
+	}
+
+	if ConfigKey != "" {
+		c, err := os.ReadFile(ConfigKey)
+		if err != nil {
+			panic(err)
+		}
+		var conf Config
+		err = json.Unmarshal(c, &conf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if FlagRunAddr == "localhost:8080" {
+			FlagRunAddr = conf.FlagRunAddr
+		}
+		if ReportInterval == 10 {
+			ReportInterval = conf.ReportInterval
+		}
+		if PollInterval == 2 {
+			PollInterval = conf.PollInterval
+		}
+		if CryptoKey == "" {
+			CryptoKey = conf.CryptoKey
+		}
 	}
 }
