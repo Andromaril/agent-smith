@@ -34,7 +34,7 @@ func ParseFlags() {
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.IntVar(&RateLimit, "l", 2, "rate limit")
 	flag.StringVar(&CryptoKey, "crypto-key", "", "key public")
-	flag.StringVar(&ConfigKey, "-c", "", "json-file flag")
+	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr

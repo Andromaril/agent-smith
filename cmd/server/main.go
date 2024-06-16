@@ -2,11 +2,15 @@
 package main
 
 import (
+	"context"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -97,9 +101,25 @@ func main() {
 			newMetric.Save(serverflag.FileStoragePath)
 		}()
 	}
-
-	if err := http.ListenAndServe(serverflag.FlagRunAddr, r); err != nil {
+	var srv = http.Server{Addr: serverflag.FlagRunAddr, Handler: r}
+	idleConnsClosed := make(chan struct{})
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	go func() {
+		<-sigint
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Printf("HTTP server Shutdown: %v", err)
+		}
+		err := newMetric.Save(serverflag.FileStoragePath)
+		if err != nil {
+			log.Printf("error save to file %v", err)
+		}
+		close(idleConnsClosed)
+	}()
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		sugar.Fatalw(err.Error(), "event", "start server")
-
 	}
+
+	<-idleConnsClosed
+	fmt.Println("Server Shutdown gracefully")
 }
