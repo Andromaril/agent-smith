@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"runtime"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/andromaril/agent-smith/internal/agent/creator"
@@ -61,4 +64,18 @@ func main() {
 	}
 	wg.Wait()
 	defer wg.Done()
+	idleConnsClosed := make(chan struct{})
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	go func() {
+		<-sigint
+		err := metric.SendMetricJSON(sugar, <-jobs)
+		if err != nil {
+			sugar.Errorw(
+				"error when send mentric")
+		}
+		close(idleConnsClosed)
+	}()
+	<-idleConnsClosed
+	fmt.Println("Agent stop")
 }

@@ -1,9 +1,11 @@
 // Package midleware содержит middleware для сжатия и хеширования
-package midleware
+package middleware
 
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
@@ -64,6 +66,29 @@ func HashMiddleware(key string) func(http.Handler) http.Handler {
 					w.WriteHeader(http.StatusBadRequest)
 				}
 			}
+			h.ServeHTTP(w, r)
+
+		})
+
+	}
+}
+
+func CryptoMiddleware(key *rsa.PrivateKey) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			body, err1 := io.ReadAll(r.Body)
+			if err1 != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			msgDecode, err := rsa.DecryptPKCS1v15(rand.Reader, key, body)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			r.Body = io.NopCloser(bytes.NewBuffer(msgDecode))
+
 			h.ServeHTTP(w, r)
 
 		})

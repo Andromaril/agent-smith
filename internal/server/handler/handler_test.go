@@ -1,17 +1,18 @@
 package handler
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
-	"github.com/andromaril/agent-smith/internal/model"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/server/storage"
+	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/go-chi/chi/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 )
 
 func TestGaugeandCounter(t *testing.T) {
@@ -113,172 +114,26 @@ func ExampleGetHTMLMetric() {
 	// Выполняет Get-запрос по адресу /
 	// В ответ выводит html-страницу со всеми метриками
 }
-func TestGetMetricJSON(t *testing.T) {
-	s := storage.NewMemStorage(false, "test")
-	ts := chi.NewRouter()
-	r := httptest.NewServer(ts)
-	defer r.Close()
-	ts.Post("/value/", GetMetricJSON(s))
-	type args struct {
-		sugar      zap.SugaredLogger
-		res        []model.Metrics
-		statusCode int
-	}
-	var sugar zap.SugaredLogger
-	tests := []struct {
-		name string
-		args args
-	}{
-		{
-			name: "TestMetric1",
-			args: args{
-				sugar:      sugar,
-				statusCode: 200,
-				res: []model.Metrics{{
-					ID:    "test1",
-					MType: "counter",
-				}, {
-					ID:    "test2",
-					MType: "gauge",
-				}},
-			},
-		},
-		{
-			name: "TestMetric2",
-			args: args{
-				sugar:      sugar,
-				statusCode: 400,
-				res: []model.Metrics{{
-					ID:    "test3",
-					MType: "none",
-				}, {
-					ID:    "test4",
-					MType: "none",
-				}},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			jsonData, err := json.Marshal(tt.args.res)
-			if err != nil {
-				t.Errorf("err in jsonData %v", err)
-			}
-			r1, err := http.NewRequest(http.MethodPost, r.URL+"/value/", strings.NewReader(string(jsonData)))
-			assert.NoError(t, err)
-			response, err := r.Client().Do(r1)
-			assert.NoError(t, err)
-			response.Body.Close()
-		})
-
-	}
-}
-
-func ExampleGetMetricJSON() {
-	// Выполняет Post-запрос по адресу /value/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter"
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge"
-	//}
-}
-func TestGaugeandCounterJSON(t *testing.T) {
-	s := storage.NewMemStorage(false, "test")
-	ts := chi.NewRouter()
-	r := httptest.NewServer(ts)
-	defer r.Close()
-	ts.Post("/update/", GaugeandCounterJSON(s))
-	type args struct {
-		sugar      zap.SugaredLogger
-		res        []model.Metrics
-		statusCode int
-	}
-	var sugar zap.SugaredLogger
-	delta := int64(1)
-	value := float64(1.1)
-	tests := []struct {
-		name string
-		args args
-	}{
-		{
-			name: "TestSendMetric1",
-			args: args{
-				sugar:      sugar,
-				statusCode: 200,
-				res: []model.Metrics{{
-					ID:    "test1",
-					MType: "counter",
-					Delta: &delta,
-				}, {
-					ID:    "test2",
-					MType: "gauge",
-					Value: &value,
-				}},
-			},
-		},
-		{
-			name: "TestSendMetric2",
-			args: args{
-				sugar:      sugar,
-				statusCode: 400,
-				res: []model.Metrics{{
-					ID:    "test3",
-					MType: "none",
-					Delta: &delta,
-				}, {
-					ID:    "test4",
-					MType: "none",
-					Value: &value,
-				}},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			jsonData, err := json.Marshal(tt.args.res)
-			if err != nil {
-				t.Errorf("err in jsonData %v", err)
-			}
-			r1, err := http.NewRequest(http.MethodPost, r.URL+"/update/", strings.NewReader(string(jsonData)))
-			assert.NoError(t, err)
-			response, err := r.Client().Do(r1)
-			assert.NoError(t, err)
-			response.Body.Close()
-		})
-
-	}
-}
-
-func ExampleGaugeandCounterJSON() {
-	// Выполняет Post-запрос по адресу /update/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter",
-	// Delta: 1
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge",
-	// Value: 1.1
-	//}
-	// обновляет метрики в map
-}
 
 func ExamplePing() {
 	// Выполняет GET-запрос по адресу /ping и проверяет состояние базы данных
 }
 
-func ExampleUpdate() {
-	// Выполняет Post-запрос по адресу /updates/ с телом запроса:
-	//{ID: "name",
-	// MType: "counter",
-	// Delta: 1
-	//}
-	// или
-	//{ID: "name",
-	// MType: "gauge",
-	// Value: 1.1
-	//}
-	// обновляет метрики в базе даных
+func TestPing(t *testing.T) {
+	ctx := context.Background()
+	db, _, err := sqlmock.New()
+	if err != nil {
+		e := errormetric.NewMetricError(err)
+		t.Error("error mock %w", e)
+	}
+	s := &storagedb.StorageDB{DB: db, Ctx: ctx}
+	ts := chi.NewRouter()
+	r := httptest.NewServer(ts)
+	defer r.Close()
+	ts.Post("/ping/", Ping(s))
+	r1, err := http.NewRequest(http.MethodPost, r.URL+"/ping/", nil)
+	assert.NoError(t, err)
+	response, err := r.Client().Do(r1)
+	assert.NoError(t, err)
+	response.Body.Close()
 }

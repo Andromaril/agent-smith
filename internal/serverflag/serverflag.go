@@ -2,10 +2,21 @@
 package serverflag
 
 import (
+	"encoding/json"
 	"flag"
+	"log"
 	"os"
 	"strconv"
 )
+
+type Config struct {
+	FlagRunAddr     string `json:"address"`
+	Restore         bool   `json:"restore"`
+	StoreInterval   int64  `json:"store_interval"`
+	FileStoragePath string `json:"store_file"`
+	Databaseflag    string `json:"database_dsn"`
+	CryptoKey       string `json:"crypto_key"`
+}
 
 var (
 	FlagRunAddr     string // адрес запуска сервиса
@@ -14,6 +25,8 @@ var (
 	Restore         bool   // определяет загружать или нет метрики с файла
 	Databaseflag    string // адрес бд
 	KeyHash         string // хеш
+	CryptoKey       string // приватный ключ
+	ConfigKey       string // файл с конфигом в формате json
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -24,6 +37,8 @@ func ParseFlags() {
 	flag.BoolVar(&Restore, "r", true, "download files")
 	flag.StringVar(&Databaseflag, "d", "", "database path")
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
+	flag.StringVar(&CryptoKey, "crypto-key", "", "key private")
+	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -50,5 +65,41 @@ func ParseFlags() {
 	}
 	if envKey := os.Getenv("KEY"); envKey != "" {
 		KeyHash = envKey
+	}
+	if envCryptoKey := os.Getenv("CRYPTO_KEY"); envCryptoKey != "" {
+		CryptoKey = envCryptoKey
+	}
+	if envConfigKey := os.Getenv("CONFIG"); envConfigKey != "" {
+		ConfigKey = envConfigKey
+	}
+
+	if ConfigKey != "" {
+		c, err := os.ReadFile(ConfigKey)
+		if err != nil {
+			panic(err)
+		}
+		var conf Config
+		err = json.Unmarshal(c, &conf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if FlagRunAddr == "localhost:8080" {
+			FlagRunAddr = conf.FlagRunAddr
+		}
+		if Restore {
+			Restore = conf.Restore
+		}
+		if StoreInterval == 300 {
+			StoreInterval = conf.StoreInterval
+		}
+		if FileStoragePath == "" {
+			FileStoragePath = conf.FileStoragePath
+		}
+		if Databaseflag == "" {
+			Databaseflag = conf.Databaseflag
+		}
+		if CryptoKey == "" {
+			CryptoKey = conf.CryptoKey
+		}
 	}
 }
