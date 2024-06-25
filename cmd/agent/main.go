@@ -35,7 +35,8 @@ func worker(wg *sync.WaitGroup, jobs <-chan []model.Metrics, sugar zap.SugaredLo
 
 		if err2 != nil {
 			sugar.Errorw(
-				"error when send mentric")
+				"error when send mentric",
+				"error", err2)
 		}
 		time.Sleep(time.Second * time.Duration(flag.ReportInterval))
 	}
@@ -51,7 +52,10 @@ func main() {
 	sugar = *logger.Sugar()
 	sugar.Infow(
 		"Starting agent")
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
+	sugar.Infow(
+		"Starting agent",
+		"Build version:", buildVersion, "Build date:", buildDate, "Build commit:", buildCommit)
+	//fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	var wg sync.WaitGroup
 	ratelimit := flag.RateLimit
 	jobs := make(chan []model.Metrics, runtime.GOMAXPROCS(0))
@@ -72,7 +76,9 @@ func main() {
 		err := metric.SendMetricJSON(sugar, <-jobs)
 		if err != nil {
 			sugar.Errorw(
-				"error when send mentric")
+				"error when send mentric",
+				"error", err,
+			)
 		}
 		close(idleConnsClosed)
 	}()

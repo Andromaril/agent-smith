@@ -5,8 +5,6 @@ import (
 	"context"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,7 +47,10 @@ func main() {
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
 	)
-	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
+	sugar.Infow(
+		"Starting server",
+		"Build version:", buildVersion, "Build date:", buildDate, "Build commit:", buildCommit)
+	//fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	db, newMetric := start.Start()
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
@@ -64,7 +65,7 @@ func main() {
 		data, err := os.ReadFile(serverflag.CryptoKey)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			sugar.Errorf(
+			sugar.Errorw(
 				"error read file",
 				"error", e,
 			)
@@ -73,7 +74,7 @@ func main() {
 		priv, err := x509.ParsePKCS1PrivateKey(pemDecode.Bytes)
 		if err != nil {
 			e := errormetric.NewMetricError(err)
-			sugar.Errorf(
+			sugar.Errorw(
 				"error parse",
 				"error", e,
 			)
@@ -108,11 +109,19 @@ func main() {
 	go func() {
 		<-sigint
 		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Printf("HTTP server Shutdown: %v", err)
+			sugar.Errorw(
+				"HTTP server Shutdown",
+				"error", err,
+			)
+			//log.Printf("HTTP server Shutdown: %v", err)
 		}
 		err := newMetric.Save(serverflag.FileStoragePath)
 		if err != nil {
-			log.Printf("error save to file %v", err)
+			sugar.Errorw(
+				"error save to file",
+				"error", err,
+			)
+			//log.Printf("error save to file %v", err)
 		}
 		close(idleConnsClosed)
 	}()
@@ -121,5 +130,8 @@ func main() {
 	}
 
 	<-idleConnsClosed
-	fmt.Println("Server Shutdown gracefully")
+	sugar.Infow(
+		"Server Shutdown gracefully",
+	)
+	//fmt.Println("Server Shutdown gracefully")
 }
