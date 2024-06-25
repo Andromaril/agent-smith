@@ -50,7 +50,6 @@ func main() {
 	sugar.Infow(
 		"Starting server",
 		"Build version:", buildVersion, "Build date:", buildDate, "Build commit:", buildCommit)
-	//fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	db, newMetric := start.Start()
 	if serverflag.Restore {
 		newMetric.Load(serverflag.FileStoragePath)
@@ -113,7 +112,6 @@ func main() {
 				"HTTP server Shutdown",
 				"error", err,
 			)
-			//log.Printf("HTTP server Shutdown: %v", err)
 		}
 		err := newMetric.Save(serverflag.FileStoragePath)
 		if err != nil {
@@ -121,7 +119,6 @@ func main() {
 				"error save to file",
 				"error", err,
 			)
-			//log.Printf("error save to file %v", err)
 		}
 		close(idleConnsClosed)
 	}()
@@ -133,5 +130,4 @@ func main() {
 	sugar.Infow(
 		"Server Shutdown gracefully",
 	)
-	//fmt.Println("Server Shutdown gracefully")
 }

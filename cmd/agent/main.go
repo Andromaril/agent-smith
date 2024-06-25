@@ -55,7 +55,6 @@ func main() {
 	sugar.Infow(
 		"Starting agent",
 		"Build version:", buildVersion, "Build date:", buildDate, "Build commit:", buildCommit)
-	//fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", buildVersion, buildDate, buildCommit)
 	var wg sync.WaitGroup
 	ratelimit := flag.RateLimit
 	jobs := make(chan []model.Metrics, runtime.GOMAXPROCS(0))
