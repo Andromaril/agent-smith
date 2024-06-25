@@ -1,4 +1,4 @@
-// Package metric модержит функцию, отправлющую метрики в json-формате
+// Package metric содержит функцию, отправлющую метрики в json-формате
 package metric
 
 import (

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/andromaril/agent-smith/internal/constant"
 	"github.com/andromaril/agent-smith/internal/model"
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
@@ -19,7 +20,7 @@ func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		if r.MType == "counter" {
+		if r.MType == constant.Counter {
 			value, err := m.GetCounter(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -34,7 +35,7 @@ func GetMetricJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 		}
-		if r.MType == "gauge" {
+		if r.MType == constant.Gauge {
 			value, err := m.GetGauge(r.ID)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -63,7 +64,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		if r.MType == "counter" {
+		if r.MType == constant.Counter {
 			err := m.NewCounter(r.ID, *r.Delta)
 			if err != nil {
 				res.WriteHeader(http.StatusBadRequest)
@@ -71,7 +72,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 			}
 			value, err := m.GetCounter(r.ID)
 			if err != nil {
-				res.WriteHeader(http.StatusNotFound)
+				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
 			resp := model.Metrics{
@@ -84,7 +85,7 @@ func GaugeandCounterJSON(m storage.Storage) http.HandlerFunc {
 				return
 			}
 		}
-		if r.MType == "gauge" {
+		if r.MType == constant.Gauge {
 			err := m.NewGauge(r.ID, *r.Value)
 			if err != nil {
 				res.WriteHeader(http.StatusNotFound)
@@ -122,17 +123,16 @@ func Update(db storagedb.Interface) http.HandlerFunc {
 		gauge := make([]model.Gauge, 0)
 		counter := make([]model.Counter, 0)
 		for _, models := range r {
-			if models.MType == "gauge" {
+			if models.MType == constant.Gauge {
 				gauge = append(gauge, model.Gauge{Key: models.ID, Value: *models.Value})
-			} else if models.MType == "counter" {
+			} else if models.MType == constant.Counter {
 				counter = append(counter, model.Counter{Key: models.ID, Value: *models.Delta})
 			}
 		}
 		err2 := db.CounterAndGaugeUpdateMetrics(gauge, counter)
 		if err2 != nil {
 			res.WriteHeader(http.StatusBadRequest)
-		} else {
-			res.WriteHeader(http.StatusOK)
 		}
+		res.WriteHeader(http.StatusOK)
 	}
 }

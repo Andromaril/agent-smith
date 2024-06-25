@@ -10,6 +10,7 @@ import (
 	"github.com/andromaril/agent-smith/internal/server/storage"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/go-chi/chi/v5"
+	"github.com/andromaril/agent-smith/internal/constant"
 )
 
 // GaugeandCounter позволяет создать новую метрику по post запросу update/{pattern}/{name}/{value} принимая данные в url-параметрах запроса
@@ -19,13 +20,13 @@ func GaugeandCounter(m storage.Storage) http.HandlerFunc {
 		name := chi.URLParam(req, "name")
 		value := chi.URLParam(req, "value")
 		res.Header().Set("Content-Type", "text/plain")
-		if pattern == "counter" {
+		if pattern == constant.Counter {
 			if v, err := strconv.ParseInt(value, 10, 64); err == nil {
 				m.NewCounter(name, v)
 			} else {
 				http.Error(res, "Incorrect metrics", http.StatusBadRequest)
 			}
-		} else if pattern == "gauge" {
+		} else if pattern == constant.Gauge{
 			if v, err := strconv.ParseFloat(value, 64); err == nil {
 				m.NewGauge(name, v)
 			} else {
@@ -43,14 +44,14 @@ func GetMetric(m storage.Storage) http.HandlerFunc {
 		pattern := chi.URLParam(req, "pattern")
 		name := chi.URLParam(req, "name")
 		res.Header().Set("Content-Type", "text/plain")
-		if pattern == "counter" {
+		if pattern == constant.Counter {
 			r, err := m.GetCounter(name)
 			if err != nil {
 				http.Error(res, "Incorrect metrics", http.StatusNotFound)
 				return
 			}
 			res.Write([]byte(fmt.Sprint(r)))
-		} else if pattern == "gauge" {
+		} else if pattern == constant.Gauge {
 			r, err := m.GetGauge(name)
 			if err != nil {
 				http.Error(res, "Incorrect metrics", http.StatusNotFound)
