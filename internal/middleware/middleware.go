@@ -110,7 +110,7 @@ func IPMiddleware(cidrRange string) func(http.Handler) http.Handler {
 			// парсим ip
 			ip := net.ParseIP(ipStr)
 			ipcheck := ipnet.Contains(ip)
-			if ipcheck == false {
+			if !ipcheck {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
