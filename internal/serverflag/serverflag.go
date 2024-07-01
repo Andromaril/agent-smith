@@ -16,6 +16,8 @@ type Config struct {
 	FileStoragePath string `json:"store_file"`
 	Databaseflag    string `json:"database_dsn"`
 	CryptoKey       string `json:"crypto_key"`
+	ConfigKey       string
+	TrustedSubnet   string `json:"trusted_subnet"`
 }
 
 var (
@@ -27,6 +29,7 @@ var (
 	KeyHash         string // хеш
 	CryptoKey       string // приватный ключ
 	ConfigKey       string // файл с конфигом в формате json
+	TrustedSubnet   string // строковое представление бесклассовой адресации (CIDR)
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -39,6 +42,7 @@ func ParseFlags() {
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.StringVar(&CryptoKey, "crypto-key", "", "key private")
 	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
+	flag.StringVar(&TrustedSubnet, "t", "", "CIDR")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -72,6 +76,9 @@ func ParseFlags() {
 	if envConfigKey := os.Getenv("CONFIG"); envConfigKey != "" {
 		ConfigKey = envConfigKey
 	}
+	if envTrustedSubnet := os.Getenv("TRUSTED_SUBNET"); envTrustedSubnet != "" {
+		TrustedSubnet = envTrustedSubnet
+	}
 
 	if ConfigKey != "" {
 		c, err := os.ReadFile(ConfigKey)
@@ -100,6 +107,9 @@ func ParseFlags() {
 		}
 		if CryptoKey == "" {
 			CryptoKey = conf.CryptoKey
+		}
+		if TrustedSubnet == "" {
+			TrustedSubnet = conf.TrustedSubnet
 		}
 	}
 }

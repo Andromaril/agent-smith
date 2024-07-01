@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"net"
 	"os"
 
 	"github.com/andromaril/agent-smith/internal/errormetric"
@@ -24,6 +25,15 @@ import (
 
 // SendMetricJSON функция, отправляющая метрики в формате json по эндпоинту /updates/
 func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
+	conn, err := net.Dial("tcp", flag.FlagRunAddr)
+	if err != nil {
+		sugar.Errorw(
+			"error when send mentric",
+			"error", err,
+		)
+	}
+	localAddress := conn.LocalAddr().(*net.TCPAddr)
+	reqHeader := localAddress.IP.To4().String()
 	jsonData, err := json.Marshal(res)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
@@ -42,6 +52,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
 			SetHeader("HashSHA256", dst).
+			SetHeader("X-Real-IP", reqHeader).
 			SetBody(buf).
 			Post(url)
 		if err2 != nil {
@@ -68,6 +79,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		}
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
+			SetHeader("X-Real-IP", reqHeader).
 			SetBody(buf2).
 			Post(url)
 		if err2 != nil {
@@ -77,6 +89,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	}
 	_, err2 := client.R().SetHeader("Content-Type", "application/json").
 		SetHeader("Content-Encoding", "gzip").
+		SetHeader("X-Real-IP", reqHeader).
 		SetBody(buf).
 		Post(url)
 	if err2 != nil {

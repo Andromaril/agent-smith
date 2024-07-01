@@ -1,0 +1,5 @@
+{
+    "address": "localhost:8080",
+    "database_dsn" : "postgres://postgres:qwerty123@localhost:5432/gr",
+    "trusted_subnet" : "127.0.0.1/8"
+}

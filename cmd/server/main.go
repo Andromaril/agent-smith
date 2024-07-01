@@ -80,6 +80,9 @@ func main() {
 		}
 		r.Use(middleware.CryptoMiddleware(priv))
 	}
+	if serverflag.ConfigKey != "" {
+		r.Use(middleware.IPMiddleware(serverflag.TrustedSubnet))
+	}
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {
 		r.Post("/", handlerdb.GetMetricJSON(newMetric))
