@@ -14,6 +14,7 @@ type Config struct {
 	ReportInterval int64  `json:"report_interval"`
 	PollInterval   int64  `json:"poll_interval"`
 	CryptoKey      string `json:"crypto_key"`
+	GrpcKey        string `json:"grpc_key"`
 }
 
 var (
@@ -24,6 +25,8 @@ var (
 	RateLimit      int    // количество горутин
 	CryptoKey      string // публичный ключ
 	ConfigKey      string // файл с конфигом в формате json
+	GrpcKey        string // адрес запуска агента grpc
+
 )
 
 // ParseFlags для флагов либо переменных окружения
@@ -35,6 +38,7 @@ func ParseFlags() {
 	flag.IntVar(&RateLimit, "l", 2, "rate limit")
 	flag.StringVar(&CryptoKey, "crypto-key", "", "key public")
 	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
+	flag.StringVar(&GrpcKey, "g", "", "GRPC")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -68,6 +72,10 @@ func ParseFlags() {
 	}
 	if envConfigKey := os.Getenv("CONFIG"); envConfigKey != "" {
 		ConfigKey = envConfigKey
+	}
+
+	if envGrpcKey := os.Getenv("GRPC"); envGrpcKey != "" {
+		GrpcKey = envGrpcKey
 	}
 
 	if ConfigKey != "" {

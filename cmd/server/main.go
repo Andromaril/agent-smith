@@ -5,6 +5,8 @@ import (
 	"context"
 	"crypto/x509"
 	"encoding/pem"
+	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +14,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"google.golang.org/grpc"
 
 	_ "net/http/pprof"
 
@@ -20,9 +23,11 @@ import (
 	"github.com/andromaril/agent-smith/internal/middleware"
 	"github.com/andromaril/agent-smith/internal/server/handler"
 	"github.com/andromaril/agent-smith/internal/server/handlerdb"
+	"github.com/andromaril/agent-smith/internal/server/handlergrpc"
 	"github.com/andromaril/agent-smith/internal/server/start"
 	"github.com/andromaril/agent-smith/internal/server/storage/storagedb"
 	"github.com/andromaril/agent-smith/internal/serverflag"
+	pb "github.com/andromaril/agent-smith/pkg/proto"
 	"github.com/go-chi/chi/v5"
 
 	"go.uber.org/zap"
@@ -43,6 +48,33 @@ func main() {
 	}
 	defer logger.Sync()
 	sugar = *logger.Sugar()
+	db, newMetric := start.Start()
+	if serverflag.Restore {
+		newMetric.Load(serverflag.FileStoragePath)
+	}
+	defer db.Close()
+
+	if serverflag.GrpcKey != "" {
+		listen, err := net.Listen("tcp", serverflag.GrpcKey)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// создаём gRPC-сервер без зарегистрированной службы
+		s := grpc.NewServer()
+		// регистрируем сервис
+		pb.RegisterMetricServer(s, handlergrpc.NewMetricServer(newMetric, db))
+		sugar.Infow(
+			"start gRPC server",
+		)
+		// получаем запрос gRPC
+		if err := s.Serve(listen); err != nil {
+			sugar.Errorw(
+				"error grpc server",
+				"error", err,
+			)
+		}
+	}
+
 	sugar.Infow(
 		"Starting server",
 		"addr", serverflag.FlagRunAddr,
@@ -50,12 +82,8 @@ func main() {
 	sugar.Infow(
 		"Starting server",
 		"Build version:", buildVersion, "Build date:", buildDate, "Build commit:", buildCommit)
-	db, newMetric := start.Start()
-	if serverflag.Restore {
-		newMetric.Load(serverflag.FileStoragePath)
-	}
-	defer db.Close()
 	r := chi.NewRouter()
+
 	r.Use(middleware.GzipMiddleware)
 	if serverflag.KeyHash != "" {
 		r.Use(middleware.HashMiddleware(serverflag.KeyHash))
@@ -79,6 +107,9 @@ func main() {
 			)
 		}
 		r.Use(middleware.CryptoMiddleware(priv))
+	}
+	if serverflag.ConfigKey != "" {
+		r.Use(middleware.IPMiddleware(serverflag.TrustedSubnet))
 	}
 	r.Use(logging.WithLogging(sugar))
 	r.Route("/value", func(r chi.Router) {

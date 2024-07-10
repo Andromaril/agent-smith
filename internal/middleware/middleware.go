@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 
@@ -88,6 +89,31 @@ func CryptoMiddleware(key *rsa.PrivateKey) func(http.Handler) http.Handler {
 				return
 			}
 			r.Body = io.NopCloser(bytes.NewBuffer(msgDecode))
+
+			h.ServeHTTP(w, r)
+
+		})
+
+	}
+}
+
+func IPMiddleware(cidrRange string) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			_, ipnet, err := net.ParseCIDR(cidrRange)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			ipStr := r.Header.Get("X-Real-IP")
+			// парсим ip
+			ip := net.ParseIP(ipStr)
+			ipcheck := ipnet.Contains(ip)
+			if !ipcheck {
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
 
 			h.ServeHTTP(w, r)
 

@@ -16,6 +16,9 @@ type Config struct {
 	FileStoragePath string `json:"store_file"`
 	Databaseflag    string `json:"database_dsn"`
 	CryptoKey       string `json:"crypto_key"`
+	ConfigKey       string
+	TrustedSubnet   string `json:"trusted_subnet"`
+	GrpcKey         string `json:"grpc_key"`
 }
 
 var (
@@ -27,11 +30,13 @@ var (
 	KeyHash         string // хеш
 	CryptoKey       string // приватный ключ
 	ConfigKey       string // файл с конфигом в формате json
+	TrustedSubnet   string // строковое представление бесклассовой адресации (CIDR)
+	GrpcKey         string // адрес запуска сервиса grpc
 )
 
 // ParseFlags для флагов либо переменных окружения
 func ParseFlags() {
-	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
+	flag.StringVar(&FlagRunAddr, "a", "", "address and port to run server")
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")
 	flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
 	flag.BoolVar(&Restore, "r", true, "download files")
@@ -39,6 +44,8 @@ func ParseFlags() {
 	flag.StringVar(&KeyHash, "k", "", "key HashSHA256")
 	flag.StringVar(&CryptoKey, "crypto-key", "", "key private")
 	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
+	flag.StringVar(&TrustedSubnet, "t", "", "CIDR")
+	flag.StringVar(&GrpcKey, "g", "", "GRPC")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -72,6 +79,12 @@ func ParseFlags() {
 	if envConfigKey := os.Getenv("CONFIG"); envConfigKey != "" {
 		ConfigKey = envConfigKey
 	}
+	if envTrustedSubnet := os.Getenv("TRUSTED_SUBNET"); envTrustedSubnet != "" {
+		TrustedSubnet = envTrustedSubnet
+	}
+	if envGrpcKey := os.Getenv("GRPC"); envGrpcKey != "" {
+		GrpcKey = envGrpcKey
+	}
 
 	if ConfigKey != "" {
 		c, err := os.ReadFile(ConfigKey)
@@ -100,6 +113,9 @@ func ParseFlags() {
 		}
 		if CryptoKey == "" {
 			CryptoKey = conf.CryptoKey
+		}
+		if TrustedSubnet == "" {
+			TrustedSubnet = conf.TrustedSubnet
 		}
 	}
 }

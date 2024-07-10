@@ -4,6 +4,7 @@ package metric
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
@@ -12,18 +13,39 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
+	"net"
 	"os"
 
+	"github.com/andromaril/agent-smith/internal/constant"
 	"github.com/andromaril/agent-smith/internal/errormetric"
 	"github.com/andromaril/agent-smith/internal/flag"
 	"github.com/andromaril/agent-smith/internal/model"
+	pb "github.com/andromaril/agent-smith/pkg/proto"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
 )
 
+type Metric struct {
+	MetricClient pb.MetricClient
+}
+
+func (m *Metric) AddMetricClient(mc pb.MetricClient) {
+	m.MetricClient = mc
+}
+
 // SendMetricJSON функция, отправляющая метрики в формате json по эндпоинту /updates/
 func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
+	conn, err := net.Dial("tcp", flag.FlagRunAddr)
+	if err != nil {
+		sugar.Errorw(
+			"error when send mentric",
+			"error", err,
+		)
+	}
+	localAddress := conn.LocalAddr().(*net.TCPAddr)
+	reqHeader := localAddress.IP.To4().String()
 	jsonData, err := json.Marshal(res)
 	if err != nil {
 		e := errormetric.NewMetricError(err)
@@ -42,6 +64,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
 			SetHeader("HashSHA256", dst).
+			SetHeader("X-Real-IP", reqHeader).
 			SetBody(buf).
 			Post(url)
 		if err2 != nil {
@@ -68,6 +91,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		}
 		_, err2 := client.R().SetHeader("Content-Type", "application/json").
 			SetHeader("Content-Encoding", "gzip").
+			SetHeader("X-Real-IP", reqHeader).
 			SetBody(buf2).
 			Post(url)
 		if err2 != nil {
@@ -77,6 +101,7 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 	}
 	_, err2 := client.R().SetHeader("Content-Type", "application/json").
 		SetHeader("Content-Encoding", "gzip").
+		SetHeader("X-Real-IP", reqHeader).
 		SetBody(buf).
 		Post(url)
 	if err2 != nil {
@@ -84,4 +109,29 @@ func SendMetricJSON(sugar zap.SugaredLogger, res []model.Metrics) error {
 		return fmt.Errorf("error send request %w", e)
 	}
 	return nil
+}
+
+// SendMetricGRPC функция, отправляющая метрики grpc по эндпоинту /updates/
+func SendMetricGRPC(m Metric, sugar zap.SugaredLogger, res []model.Metrics) error {
+	if m.MetricClient == nil {
+		return errors.New("metricClient has a nil pointer")
+	}
+	gauge := make([]*pb.Gauge, 0)
+	counter := make([]*pb.Counter, 0)
+	for _, models := range res {
+		if models.MType == constant.Gauge {
+			gauge = append(gauge, &pb.Gauge{Key: models.ID, Value: *models.Value})
+
+		} else if models.MType == constant.Counter {
+			counter = append(counter, &pb.Counter{Key: models.ID, Value: *models.Delta})
+		}
+	}
+	_, err := m.MetricClient.UpdateMetrics(context.Background(), &pb.UpdateMetricsRequest{
+		Gauge:   gauge,
+		Counter: counter,
+	})
+	sugar.Infow(
+		"update",
+		"Gauge", gauge, "Counter", counter)
+	return err
 }
