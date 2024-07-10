@@ -36,7 +36,7 @@ var (
 
 // ParseFlags для флагов либо переменных окружения
 func ParseFlags() {
-	flag.StringVar(&FlagRunAddr, "a", "", "address and port to run server")
+	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path name")
 	flag.Int64Var(&StoreInterval, "i", 300, "interval to save to disk")
 	flag.BoolVar(&Restore, "r", true, "download files")
